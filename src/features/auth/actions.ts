@@ -4,7 +4,7 @@ import { ActionState } from "@/types/action-state";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { loginSchema } from "./schemas";
-import { loginService } from "./services";
+import { loginService, logoutService } from "./services";
 
 export async function loginAction(prevState: ActionState, formData: FormData) {
     const validatedFields = loginSchema.safeParse(
@@ -32,4 +32,19 @@ export async function loginAction(prevState: ActionState, formData: FormData) {
     }
 
     redirect("/dashboard");
+}
+
+export async function logoutAction() {
+    try {
+        const nextHeaders = await headers();
+
+        await logoutService(nextHeaders);
+    } catch (error) {
+        console.error(error);
+
+        return {
+            error: "Gagal logout.",
+            success: false
+        }
+    }
 }

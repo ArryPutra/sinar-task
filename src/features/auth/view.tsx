@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { initialActionState } from "@/types/action-state";
 import { InfoIcon } from "lucide-react";
 import { useActionState } from "react";
-import { loginAction } from "../actions";
+import { loginAction } from "./actions";
 
 export default function LoginForm() {
     const [state, formAction, isPending] = useActionState(loginAction, initialActionState);

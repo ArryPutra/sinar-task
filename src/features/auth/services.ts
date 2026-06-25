@@ -18,3 +18,14 @@ export async function loginService(credentials: LoginInput, requestHeaders: Head
         throw new Error(error.message);
     }
 }
+
+export async function logoutService(requestHeaders: Headers) {
+    try {
+        await auth.api.signOut({
+            headers: requestHeaders
+        });
+    } catch (error) {
+        console.error(error);
+        throw new Error("Failed to logout");
+    }
+}
