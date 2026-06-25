@@ -13,7 +13,7 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
+  id            String    @id @default(cuid())
   email         String    @unique
   name          String?
   createdAt     DateTime  @default(now())
@@ -22,6 +22,8 @@ model User {
   image         String?
   sessions      Session[]
   accounts      Account[]
+  role          Role      @relation(fields: [roleId], references: [id])
+  roleId        Int
 
   @@map("user")
 }
@@ -72,4 +74,12 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
+
+  @@map("role")
 }

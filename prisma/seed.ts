@@ -1,29 +1,27 @@
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 async function main() {
   console.log("🌱 Mulai proses seeding data...");
 
+  const createRoles = await prisma.role.createMany({
+    data: [
+      { name: "Admin" },
+      { name: "Employee" },
+      { name: "Manager" }
+    ]
+  })
   // Membuat atau memperbarui data admin default
-  const admin = await prisma.user.upsert({
-    where: { email: "admin@sinarsejati.com" },
-    update: {}, // Jika email sudah ada, tidak ada data yang diubah
-    create: {   // Jika email belum ada, buat data baru ini
-      email: "admin@sinarsejati.com",
-      name: "Arry Kusuma",
-    },
+  await auth.api.signUpEmail({
+    body: {
+      email: "admin@gmail.com",
+      name: "Admin",
+      password: "password123",
+      roleId: 1
+    }
   });
 
-  // Kamu bisa menambah data dummy lain di bawah ini jika diperlukan
-  const userDummy = await prisma.user.upsert({
-    where: { email: "budi@example.com" },
-    update: {},
-    create: {
-      email: "budi@example.com",
-      name: "Budi Santoso",
-    },
-  });
-
-  console.log(`✅ Seeding selesai! Berhasil memastikan user ${admin.name} & ${userDummy.name} tersedia.`);
+  console.log(`✅ Seeding selesai! Berhasil`);
 }
 
 main()
