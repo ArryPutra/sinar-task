@@ -16,7 +16,7 @@ export default function LoginForm() {
     return (
         <div className="grid min-h-svh lg:grid-cols-2">
             {/* Left Section */}
-            <section className="flex flex-col items-center justify-center gap-4 p-6 md:p-10 bg-linear-to-br from-white to-blue-50">
+            <section className="flex flex-col items-center justify-center gap-4 p-6 md:p-10 bg-linear-to-br from-white to-blue-50 dark:from-slate-950 dark:to-slate-900">
                 <form action={formAction} className="flex flex-col gap-6 w-full max-w-sm" method="POST">
                     <FieldGroup>
                         <div className="flex flex-col items-center gap-1 text-center">

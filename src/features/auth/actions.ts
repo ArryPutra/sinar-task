@@ -4,7 +4,7 @@ import { ActionState } from "@/types/action-state";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { loginSchema } from "./schemas";
-import { loginService, logoutService } from "./services";
+import { getCurrentUserService, loginService, logoutService } from "./services";
 
 export async function loginAction(prevState: ActionState, formData: FormData) {
     const validatedFields = loginSchema.safeParse(
@@ -44,6 +44,25 @@ export async function logoutAction() {
 
         return {
             error: "Gagal logout.",
+            success: false
+        }
+    }
+
+    redirect("/login");
+}
+
+export async function getCurrentUserAction() {
+    try {
+        const nextHeaders = await headers();
+
+        const { user } = await getCurrentUserService(nextHeaders);
+
+        return { success: true, user: user };
+    } catch (error) {
+        console.error(error);
+
+        return {
+            error: "Gagal mendapatkan data user.",
             success: false
         }
     }

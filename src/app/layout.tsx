@@ -1,8 +1,9 @@
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "next-themes";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -23,11 +24,17 @@ export default function RootLayout({
     <html
       lang="en"
       className={cn("h-full", "antialiased", "font-sans", inter.variable)}
-    >
+      suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        <TooltipProvider>
-          {children}
-        </TooltipProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

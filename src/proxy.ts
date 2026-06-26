@@ -9,10 +9,13 @@ export async function proxy(request: NextRequest) {
 
     const url = request.nextUrl.pathname;
     const guestRoutes = ["/login"];
+    const authRoutes = ["/dashboard"];
 
     // Belum Ter-Autentikasi
     if (!session) {
-        return NextResponse.redirect(new URL("/", request.url));
+        if (authRoutes.includes(url)) {
+            return NextResponse.redirect(new URL("/login", request.url));
+        }
     }
 
     // Sudah Ter-Autentikasi
