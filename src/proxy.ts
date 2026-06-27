@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { roleDashboardRoutesMap } from "./config/role-dashboard-routes";
 
 export async function proxy(request: NextRequest) {
     const session = await auth.api.getSession({
@@ -8,8 +9,17 @@ export async function proxy(request: NextRequest) {
     });
 
     const url = request.nextUrl.pathname;
+
     const guestRoutes = ["/login"];
-    const authRoutes = ["/dashboard"];
+    const authRoutes = [
+        "/admin/",
+        "/pegawai/",
+    ];
+
+    const roleRouteMap: Record<number, string> = {
+        1: "/admin",
+        2: "/pegawai",
+    };
 
     // Belum Ter-Autentikasi
     if (!session) {
@@ -20,9 +30,22 @@ export async function proxy(request: NextRequest) {
 
     // Sudah Ter-Autentikasi
     if (session) {
-        // Jika buka url khusus guestRoutes -> lempar ke dashboard
+        const roleId = session.user.roleId;
+
+        // Kalau buka login → lempar ke dashboard masing-masing
         if (guestRoutes.includes(url)) {
-            return NextResponse.redirect(new URL("/dashboard", request.url));
+            return NextResponse.redirect(
+                new URL(roleDashboardRoutesMap[roleId], request.url)
+            );
+        }
+
+        // Kalau masuk area role lain → blok
+        for (const [id, route] of Object.entries(roleRouteMap)) {
+            if (url.startsWith(route) && Number(id) !== roleId) {
+                return NextResponse.redirect(
+                    new URL(roleDashboardRoutesMap[roleId], request.url)
+                );
+            }
         }
     }
 
@@ -33,6 +56,7 @@ export const config = {
     // Daftarkan route yang akan di-proxy
     matcher: [
         "/login",
-        "/dashboard"
+        "/admin/:path*",
+        "/pegawai/:path*",
     ],
 };

@@ -4,20 +4,28 @@ import { prisma } from "@/lib/prisma";
 async function main() {
   console.log("🌱 Mulai proses seeding data...");
 
-  const createRoles = await prisma.role.createMany({
+  await prisma.role.createMany({
     data: [
       { name: "Admin" },
-      { name: "Employee" },
-      { name: "Manager" }
+      { name: "Pegawai" },
+      { name: "Manajer" }
     ]
   })
-  // Membuat atau memperbarui data admin default
+
   await auth.api.signUpEmail({
     body: {
       email: "admin@gmail.com",
       name: "Admin",
       password: "password123",
       roleId: 1
+    }
+  });
+  await auth.api.signUpEmail({
+    body: {
+      email: "employee@gmail.com",
+      name: "Employee",
+      password: "password123",
+      roleId: 2
     }
   });
 

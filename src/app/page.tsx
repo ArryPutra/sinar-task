@@ -1,5 +1,17 @@
+import { getCurrentUserAction } from "@/features/auth/actions";
 import { redirect } from "next/navigation";
 
-export default function Home() {
-  return redirect("/login");
+export default async function Home() {
+    const currentUser = await getCurrentUserAction();
+
+    if (currentUser) {
+        const role = currentUser.user?.roleId;
+        if (role === 1) {
+            return redirect("/admin/dashboard");
+        } else if (role === 2) {
+            return redirect("/pegawai/dashboard");
+        }
+    }
+
+    return redirect("/login");
 }

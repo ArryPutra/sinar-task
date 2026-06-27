@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { loginSchema } from "./schemas";
 import { getCurrentUserService, loginService, logoutService } from "./services";
+import { roleDashboardRoutesMap } from "@/config/role-dashboard-routes";
 
 export async function loginAction(prevState: ActionState, formData: FormData) {
     const validatedFields = loginSchema.safeParse(
@@ -18,10 +19,13 @@ export async function loginAction(prevState: ActionState, formData: FormData) {
         }
     }
 
+    let session = null;
+
     try {
         const nextHeaders = await headers();
 
-        await loginService(validatedFields.data, nextHeaders);
+        session = await loginService(validatedFields.data, nextHeaders);
+
     } catch (error: any) {
         console.error(error);
 
@@ -31,7 +35,7 @@ export async function loginAction(prevState: ActionState, formData: FormData) {
         }
     }
 
-    redirect("/dashboard");
+    redirect(roleDashboardRoutesMap[session.credentials.user.roleId]);
 }
 
 export async function logoutAction() {

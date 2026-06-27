@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,23 +8,57 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
   SidebarInset,
   SidebarProvider,
+  SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/features/dashboard/components/app-sidebar"
+import { RoleSidebarMenu, roleSidebarMenus } from "@/config/role-sidebar-menus"
+import { usePathname } from "next/navigation"
+import { NavHeader } from "./components/nav-header"
+import { NavMain } from "./components/nav-main"
+import { NavUser } from "./components/nav-user"
 
-export default function Dashboard_View({
-  user
+export default function DashboardView({
+  user,
+  children
 }: {
-  user: any
+  user: {
+    name: string
+    email: string
+    roleId: number
+  },
+  children: React.ReactNode
 }) {
+
+  const pathName = usePathname();
+
+  const roleSidebarMenu: RoleSidebarMenu[] = {
+    1: roleSidebarMenus.ADMIN,
+    2: roleSidebarMenus.PEGAWAI,
+  }[user.roleId] || [];
+
+  const breadcrumbTitle = roleSidebarMenu.find((item) => item.url === pathName)?.title;
+
   return (
     <SidebarProvider>
-      <AppSidebar user={{ 
-        name: user.name,
-        email: user.email
-       }} />
+      <Sidebar collapsible="icon">
+        <SidebarHeader>
+          <NavHeader />
+        </SidebarHeader>
+        <SidebarContent>
+          <NavMain items={roleSidebarMenu} />
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser user={user} />
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
@@ -35,21 +71,17 @@ export default function Dashboard_View({
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage>
-                    Dashboard
+                    {breadcrumbTitle}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
-          </div>
-          <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-        </div>
+
+        <main className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   )
