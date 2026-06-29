@@ -30,7 +30,7 @@ export default function LoginForm() {
                             </p>
                         </div>
                         {
-                            state.error &&
+                            state?.error &&
                             <Alert variant={'destructive'}>
                                 <InfoIcon />
                                 <AlertTitle>Login gagal</AlertTitle>

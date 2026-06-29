@@ -28,7 +28,6 @@ export async function loginAction(
         const nextHeaders = await headers();
 
         session = await loginService(validatedFields.data, nextHeaders);
-
     } catch (error: any) {
         console.error(error);
 
@@ -39,6 +38,11 @@ export async function loginAction(
     }
 
     redirect(roleDashboardRoutesMap[session.credentials.user.roleId]);
+
+    return {
+        error: null,
+        success: true
+    }
 }
 
 export async function logoutAction() {
