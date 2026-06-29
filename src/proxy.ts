@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { roleDashboardRoutesMap } from "./config/role-dashboard-routes";
+import { roleDashboardRoutesMap } from "./features/dashboard/config/role-dashboard-routes";
 
 export async function proxy(request: NextRequest) {
     const session = await auth.api.getSession({
@@ -12,18 +12,18 @@ export async function proxy(request: NextRequest) {
 
     const guestRoutes = ["/login"];
     const authRoutes = [
-        "/admin/",
-        "/pegawai/",
+        "/admin/:path*",
+        "/karyawan/:path*",
     ];
 
     const roleRouteMap: Record<number, string> = {
         1: "/admin",
-        2: "/pegawai",
+        2: "/karyawan",
     };
 
     // Belum Ter-Autentikasi
     if (!session) {
-        if (authRoutes.includes(url)) {
+        if (authRoutes.some((route) => url.startsWith(route.split("/:")[0]))) {
             return NextResponse.redirect(new URL("/login", request.url));
         }
     }
@@ -57,6 +57,6 @@ export const config = {
     matcher: [
         "/login",
         "/admin/:path*",
-        "/pegawai/:path*",
+        "/karyawan/:path*",
     ],
 };

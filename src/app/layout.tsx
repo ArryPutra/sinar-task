@@ -1,15 +1,16 @@
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: "Sinar Task",
-  description: "Sistem Informasi Tugas Pegawai",
+  description: "Sistem Informasi Tugas Karyawan",
   icons: {
     icon: "/images/logo-only.png"
   }
@@ -32,6 +33,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange>
           <TooltipProvider>
+            <Toaster />
             {children}
           </TooltipProvider>
         </ThemeProvider>

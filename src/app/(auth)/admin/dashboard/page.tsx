@@ -1,5 +1,5 @@
+import { redirect } from "next/navigation";
+
 export default async function AdminDashboardPage() {
-    return (
-        <h1>Dashboard</h1>
-    )
+    return redirect("/admin/employee-tasks")
 }

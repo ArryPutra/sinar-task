@@ -1,13 +1,16 @@
 "use server"
 
+import { roleDashboardRoutesMap } from "@/features/dashboard/config/role-dashboard-routes";
 import { ActionState } from "@/types/action-state";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { loginSchema } from "./schemas";
 import { getCurrentUserService, loginService, logoutService } from "./services";
-import { roleDashboardRoutesMap } from "@/config/role-dashboard-routes";
 
-export async function loginAction(prevState: ActionState, formData: FormData) {
+export async function loginAction(
+    prevState: ActionState,
+    formData: FormData
+) {
     const validatedFields = loginSchema.safeParse(
         Object.fromEntries(formData.entries())
     );

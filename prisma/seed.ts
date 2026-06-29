@@ -7,7 +7,7 @@ async function main() {
   await prisma.role.createMany({
     data: [
       { name: "Admin" },
-      { name: "Pegawai" },
+      { name: "Karyawan" },
       { name: "Manajer" }
     ]
   })
@@ -20,13 +20,35 @@ async function main() {
       roleId: 1
     }
   });
-  await auth.api.signUpEmail({
+
+  const employee1 = await auth.api.signUpEmail({
     body: {
-      email: "employee@gmail.com",
-      name: "Employee",
+      email: "ahmadhadi@gmail.com",
+      name: "Ahmad Hadi",
       password: "password123",
       roleId: 2
     }
+  });
+  const employee2 = await auth.api.signUpEmail({
+    body: {
+      email: "budi@gmail.com",
+      name: "Budi",
+      password: "password123",
+      roleId: 2
+    }
+  });
+  await prisma.employees.createMany({
+    data: [
+      { userId: employee1.user.id },
+      { userId: employee2.user.id }
+    ]
+  });
+
+  await prisma.employeeTaskCategories.createMany({
+    data: [
+      { name: "Kontruksi" },
+      { name: "IT Konsultan" },
+    ]
   });
 
   console.log(`✅ Seeding selesai! Berhasil`);

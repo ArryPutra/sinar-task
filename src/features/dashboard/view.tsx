@@ -17,7 +17,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { RoleSidebarMenu, roleSidebarMenus } from "@/config/role-sidebar-menus"
+import { RoleSidebarMenu, roleSidebarMenus } from "@/features/dashboard/config/role-sidebar-menus"
 import { usePathname } from "next/navigation"
 import { NavHeader } from "./components/nav-header"
 import { NavMain } from "./components/nav-main"
@@ -42,11 +42,11 @@ export default function DashboardView({
     2: roleSidebarMenus.PEGAWAI,
   }[user.roleId] || [];
 
-  const breadcrumbTitle = roleSidebarMenu.find((item) => item.url === pathName)?.title;
+  const breadcrumbTitle = roleSidebarMenu.find((item) => pathName.startsWith(item.url))?.title;
 
   return (
     <SidebarProvider>
-      <Sidebar collapsible="icon">
+      <Sidebar collapsible="icon" className="h-full">
         <SidebarHeader>
           <NavHeader />
         </SidebarHeader>
@@ -59,7 +59,7 @@ export default function DashboardView({
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset>
+      <SidebarInset className="overflow-hidden">
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
@@ -79,7 +79,7 @@ export default function DashboardView({
           </div>
         </header>
 
-        <main className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <main className="flex flex-col gap-4 p-4 pt-1">
           {children}
         </main>
       </SidebarInset>

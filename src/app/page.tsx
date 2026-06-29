@@ -9,7 +9,7 @@ export default async function Home() {
         if (role === 1) {
             return redirect("/admin/dashboard");
         } else if (role === 2) {
-            return redirect("/pegawai/dashboard");
+            return redirect("/karyawan/dashboard");
         }
     }
 

@@ -25,6 +25,8 @@ model User {
   role          Role      @relation(fields: [roleId], references: [id])
   roleId        Int
 
+  employees Employees?
+
   @@map("user")
 }
 
@@ -82,4 +84,67 @@ model Role {
   users User[]
 
   @@map("role")
+}
+
+model EmployeeTasks {
+  id String @id @default(cuid())
+
+  employeeTaskCategoryId Int
+
+  title       String
+  description String?
+  startAt     DateTime
+  dueAt       DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeTaskCategory    EmployeeTaskCategories    @relation(fields: [employeeTaskCategoryId], references: [id])
+  employeeTaskAssignments EmployeeTaskAssignments[]
+
+  @@map("employee_tasks")
+}
+
+model EmployeeTaskCategories {
+  id Int @id @default(autoincrement())
+
+  name        String  @unique
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeTasks EmployeeTasks[]
+
+  @@map("employee_task_categories")
+}
+
+model Employees {
+  id String @id @default(cuid())
+
+  userId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user                    User                      @relation(fields: [userId], references: [id])
+  employeeTaskAssignments EmployeeTaskAssignments[]
+
+  @@map("employees")
+}
+
+model EmployeeTaskAssignments {
+  id String @id @default(cuid())
+
+  employeeTaskId String
+  employeeId     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeTask EmployeeTasks @relation(fields: [employeeTaskId], references: [id])
+  employee     Employees     @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeTaskId, employeeId])
+  @@map("employee_task_assignments")
 }

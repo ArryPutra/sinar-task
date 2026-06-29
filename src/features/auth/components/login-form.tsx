@@ -87,7 +87,7 @@ export default function LoginForm() {
                         Sinar Task
                     </h2>
                     <p className="text-blue-100/90 text-lg leading-relaxed">
-                        Sistem Informasi Manajemen Tugas Internal. Kelola koordinasi antar lini pegawai, supervisor, dan manajer demi produktivitas kerja yang transparan dan efisien.
+                        Sistem Informasi Manajemen Tugas Internal. Kelola koordinasi antar lini karyawan, supervisor, dan manajer demi produktivitas kerja yang transparan dan efisien.
                     </p>
                 </div>
 

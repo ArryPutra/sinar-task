@@ -1,4 +1,3 @@
-import { roleSidebarMenus } from "@/config/role-sidebar-menus";
 import { getCurrentUserAction } from "@/features/auth/actions";
 import DashboardView from "@/features/dashboard/view";
 
