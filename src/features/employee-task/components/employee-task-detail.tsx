@@ -1,12 +1,13 @@
 "use client"
 
 import BackButton from "@/components/back-button";
-import GoogleMap from "@/components/google-map";
+import LeafletMap from "@/components/leaflet-map/leaflet-map";
 import { Badge } from "@/components/ui/badge";
 import { Field, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Prisma } from "@/generated/prisma/client";
 import { formatDateTime } from "@/utils/date";
+import dynamic from "next/dynamic";
 
 export default function EmployeeTaskDetail({
     data
@@ -44,6 +45,11 @@ export default function EmployeeTaskDetail({
     }>
 }) {
 
+    // const LeafletMap = dynamic(() => import("@/components/leaflet-map"), {
+    //     ssr: false, // 🔒 Kunci utamanya ada di sini, memaksa bypass SSR
+    //     loading: () => <div style={{ height: "400px", background: "#eee", borderRadius: "8px" }}>Memuat Peta...</div>
+    // });
+
     return (
         <>
             <BackButton />
@@ -69,7 +75,7 @@ export default function EmployeeTaskDetail({
                     <FieldTitle>{data.description || <span className="text-muted-foreground">Tidak ada deskripsi</span>}</FieldTitle>
                 </Field>
                 <Field className="col-span-2">
-                    <GoogleMap
+                    <LeafletMap
                     latitude={data.latitude}
                     longitude={data.longitude} />
                 </Field>
@@ -95,9 +101,9 @@ export default function EmployeeTaskDetail({
                                         <TableCell>{item.employee.user.email}</TableCell>
                                         <TableCell>{item.employee.nomorTelepon}</TableCell>
                                         <TableCell>
-                                            <Badge style={{ 
+                                            <Badge style={{
                                                 backgroundColor: item.employeeTaskAssignmentStatus.colorHex,
-                                             }}>
+                                            }}>
                                                 {item.employeeTaskAssignmentStatus.name}
                                             </Badge>
                                         </TableCell>

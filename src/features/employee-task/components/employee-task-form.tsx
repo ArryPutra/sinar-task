@@ -1,7 +1,6 @@
 "use client"
 
 import BackButton from "@/components/back-button"
-import GoogleMap from "@/components/google-map"
 import { Button } from "@/components/ui/button"
 import {
     Combobox,
@@ -35,6 +34,7 @@ import { useRouter } from "nextjs-toploader/app"
 import { Fragment, useActionState, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { createEmployeeTaskAction, updateEmployeeTaskByIdAction } from "../actions"
+import LeafletMap from "@/components/leaflet-map/leaflet-map"
 
 export default function EmployeeTaskForm({
     data,
@@ -202,7 +202,7 @@ export default function EmployeeTaskForm({
                         </Combobox>
                     </Field>
                     <Field className="col-span-2">
-                        <GoogleMap 
+                        <LeafletMap 
                         showInput={true}
                         latitude={fields?.latitude ?? data?.latitude}
                         longitude={fields?.longitude ?? data?.longitude} />
