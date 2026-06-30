@@ -33,8 +33,7 @@ export function NavMain({
             <SidebarMenuButton
               tooltip={item.title}
               isActive={pathname.startsWith(`${item.url}`)}
-              onClick={() => router.push(item.url)}
-            >
+              onClick={() => router.push(item.url)}>
               <item.icon />
               {item.title}
             </SidebarMenuButton>

@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { EmployeeTaskCategory, Prisma } from "@/generated/prisma/client"
 import { initialActionState } from "@/types/action-state"
 import { formatToDatetimeLocal } from "@/utils/date"
+import { redirect } from "next/navigation"
 import { useRouter } from "nextjs-toploader/app"
 import { Fragment, useActionState, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -78,10 +79,16 @@ export default function EmployeeTaskForm({
 
     useEffect(() => {
         if (state.success) {
-            router.push("/admin/employee-tasks");
             toast.success(state.message, {
                 position: "top-center"
             });
+            router.push("/admin/employee-tasks");
+        } else {
+            if (state.message) {
+                toast.error(state.message, {
+                    position: "top-center"
+                });
+            }
         }
     }, [state.success]);
 

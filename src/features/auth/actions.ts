@@ -8,7 +8,7 @@ import { loginSchema } from "./schemas";
 import { getCurrentUserService, loginService, logoutService } from "./services";
 
 export async function loginAction(
-    prevState: ActionState,
+    prevState: any,
     formData: FormData
 ) {
     const validatedFields = loginSchema.safeParse(
@@ -28,19 +28,16 @@ export async function loginAction(
         const nextHeaders = await headers();
 
         session = await loginService(validatedFields.data, nextHeaders);
-
-        return {
-            error: null,
-            success: true,
-        }
     } catch (error: any) {
         console.error(error);
 
         return {
             error: "Email atau password salah.",
-            success: false
+            success: false,
         }
     }
+
+    return redirect(roleDashboardRoutesMap[session.credentials.user.userRoleId]);
 }
 
 export async function logoutAction() {

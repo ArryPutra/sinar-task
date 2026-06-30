@@ -5,23 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { roleDashboardRoutesMap } from "@/features/dashboard/config/role-dashboard-routes";
 import { initialActionState } from "@/types/action-state";
 import { InfoIcon } from "lucide-react";
-import { useRouter } from "nextjs-toploader/app";
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { loginAction } from "../actions";
 
 export default function LoginForm() {
-    const [state, formAction, isPending] = useActionState(loginAction, initialActionState);
-
-    const router = useRouter();
-
-    useEffect(() => {
-        if (state.success) {
-            router.push("/login");
-        }
-    }, [state.success]);
+    const [state, formAction, isPending] = useActionState(loginAction, null);
 
     return (
         <div className="grid min-h-svh lg:grid-cols-2">

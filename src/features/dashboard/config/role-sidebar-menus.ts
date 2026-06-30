@@ -38,7 +38,7 @@ export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; KARYAWAN: RoleSidebar
     KARYAWAN: [
         {
             title: "Dashboard",
-            url: "/karyawan/dashboard",
+            url: "/employee/dashboard",
             icon: PieChartIcon,
             isActive: true,
         },

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
 import { revalidatePath } from "next/cache";
 import { formEmployeeTaskSchema } from "./schemas";
+import { redirect } from "next/navigation";
 
 export async function getAllEmployeeTaskAction() {
     try {
@@ -132,7 +133,7 @@ export async function createEmployeeTaskAction(
         console.error("Transaction Error:", error);
 
         return {
-            error: "Gagal membuat tugas. Data tidak tersimpan (Rollback).",
+            error: "Gagal membuat tugas.",
             success: false,
             fields: Object.fromEntries(formData.entries()),
         };

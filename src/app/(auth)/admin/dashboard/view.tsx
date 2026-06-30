@@ -8,7 +8,7 @@ export default function AdminDashboardView({
     }
 }) {
     return (
-        <div className="grid grid-cols-3">
+        <div className="grid grid-cols-3 max-md:grid-cols-1 gap-4 ">
             <Card>
                 <CardHeader>
                     <CardDescription>Total Karyawan</CardDescription>

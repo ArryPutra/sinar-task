@@ -7,6 +7,7 @@ import { Field, FieldDescription, FieldGroup, FieldTitle } from "@/components/ui
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRouter } from "nextjs-toploader/app";
 import { EmployeeWithUserAndTask } from "../queris";
+import Link from "next/link";
 
 export default function EmployeeDetail({
   data
@@ -50,9 +51,9 @@ export default function EmployeeDetail({
                   <TableRow key={item.employeeTaskId}>
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>
-                      <Button variant={'link'} onClick={() => router.push(`/admin/employee-tasks/${item.employeeTaskId}`)}>
+                      <Link href={`/admin/employee-tasks/${item.employeeTaskId}`} className="text-blue-500 hover:underline">
                         {item.employeeTask.title}
-                      </Button>
+                      </Link>
                     </TableCell>
                     <TableCell>{item.employeeTask.employeeTaskCategory.name}</TableCell>
                     <TableCell>
