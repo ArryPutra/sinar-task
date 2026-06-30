@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { getAllEmployeeTaskCategoriesAction } from "@/features/employee-task-categories/actions";
-import EmployeeTaskCategoryListPage from "@/features/employee-task-categories/components/employee-task-category-list";
+import { getAllEmployeeTaskCategoryAction } from "@/features/employee-task-category/actions";
+import EmployeeTaskCategoryListPage from "@/features/employee-task-category/components/employee-task-category-list";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 
-export default async function EmployeeTaskCategoriesPage() {
-    const employeeTaskCategoriesResponse = await getAllEmployeeTaskCategoriesAction();
+export default async function EmployeeTaskCategoryPage() {
+    const employeeTaskCategoryResponse = await getAllEmployeeTaskCategoryAction();
 
     return (
         <>
@@ -15,7 +15,7 @@ export default async function EmployeeTaskCategoriesPage() {
                 </Button>
             </Link>
 
-            <EmployeeTaskCategoryListPage data={employeeTaskCategoriesResponse.data} />
+            <EmployeeTaskCategoryListPage data={employeeTaskCategoryResponse.data} />
         </>
     )
 }

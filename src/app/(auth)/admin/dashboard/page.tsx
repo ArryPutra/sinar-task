@@ -1,5 +1,14 @@
-import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import AdminDashboardView from "./view";
 
 export default async function AdminDashboardPage() {
-    return redirect("/admin/employee-tasks")
+
+    const employeeCount = await prisma.employee.count();
+
+    return (
+        <AdminDashboardView
+            cardData={{
+                employeeCount
+            }} />
+    )
 }

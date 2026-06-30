@@ -1,15 +1,15 @@
-import { getAllEmployeeTaskCategoriesAction } from '@/features/employee-task-categories/actions';
-import EmployeeTaskForm from '@/features/employee-tasks/components/employee-task-form';
-import { getAllEmployeesAction } from '@/features/employees/action';
+import { getAllEmployeeTaskCategoryAction } from '@/features/employee-task-category/actions';
+import EmployeeTaskForm from '@/features/employee-task/components/employee-task-form';
+import { getAllEmployeesAction } from '@/features/employee/action';
 
-export default async function CreateEmployeeTasksPage() {
+export default async function CreateEmployeeTaskPage() {
 
-  const getAllEmployeeTaskCategoriesResponse = await getAllEmployeeTaskCategoriesAction();
-  const getAllEmployeesResponse = await getAllEmployeesAction();
+  const getAllEmployeeTaskCategoryResponse = await getAllEmployeeTaskCategoryAction();
+  const getAllEmployeeResponse = await getAllEmployeesAction();
 
   return (
     <EmployeeTaskForm
-      employeeTaskCategories={getAllEmployeeTaskCategoriesResponse.data}
-      employees={getAllEmployeesResponse.data} />
+      employeeTaskCategory={getAllEmployeeTaskCategoryResponse.data}
+      employee={getAllEmployeeResponse.data} />
   )
 }

@@ -10,13 +10,13 @@ import {
     TableHeader,
     TableRow
 } from "@/components/ui/table";
+import { initialActionState } from "@/types/action-state";
 import { formatDateTime } from "@/utils/date";
 import { EditIcon, TrashIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { startTransition } from "react";
 import { toast } from "sonner";
 import { deleteEmployeeTaskCategoryByIdAction } from "../actions";
-import { initialActionState } from "@/types/action-state";
 
 export default function EmployeeTaskCategoryListPage({
     data
@@ -131,13 +131,11 @@ function DeleteActionButton({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <form onSubmit={handleDelete}>
-                        <AlertDialogAction
-                            variant={'destructive'}
-                            type="submit">
-                            Hapus
-                        </AlertDialogAction>
-                    </form>
+                    <AlertDialogAction
+                        variant="destructive"
+                        onClick={handleDelete}>
+                        Hapus
+                    </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

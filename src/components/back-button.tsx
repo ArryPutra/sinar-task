@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon, ChevronLeft } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "nextjs-toploader/app"
 
 interface BackButtonProps {
     className?: string

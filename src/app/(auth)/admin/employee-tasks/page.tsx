@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { getAllEmployeeTasksAction } from "@/features/employee-tasks/actions";
-import EmployeeTaskList from "@/features/employee-tasks/components/employee-task-list";
+import { getAllEmployeeTaskAction } from "@/features/employee-task/actions";
+import EmployeeTaskList from "@/features/employee-task/components/employee-task-list";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 
 export default async function AdminTugasKaryawanPage() {
 
-    const employeeTasksResponse = await getAllEmployeeTasksAction();
+    const employeeTaskResponse = await getAllEmployeeTaskAction();
 
     return (
         <>
@@ -15,7 +15,7 @@ export default async function AdminTugasKaryawanPage() {
                     Tambah Tugas <PlusIcon />
                 </Button>
             </Link>
-            <EmployeeTaskList data={employeeTasksResponse.data} />
+            <EmployeeTaskList data={employeeTaskResponse.data} />
         </>
     )
 }

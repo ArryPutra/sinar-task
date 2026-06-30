@@ -17,7 +17,7 @@ export default async function AdminLayout({
             user={{
                 name: currentUser.user?.name,
                 email: currentUser.user?.email,
-                roleId: currentUser.user?.roleId
+                roleId: currentUser.user?.userRoleId
             }}>
             {children}
         </DashboardView>

@@ -5,9 +5,9 @@ import { ActionState } from "@/types/action-state";
 import { revalidatePath } from "next/cache";
 import { formEmployeeTaskSchema } from "./schemas";
 
-export async function getAllEmployeeTasksAction() {
+export async function getAllEmployeeTaskAction() {
     try {
-        const data = await prisma.employeeTasks.findMany({
+        const data = await prisma.employeeTask.findMany({
             orderBy: {
                 createdAt: "desc"
             },
@@ -17,7 +17,7 @@ export async function getAllEmployeeTasksAction() {
                         name: true
                     }
                 },
-                employeeTaskAssignments: true
+                employeeTaskAssignment: true
             }
         });
 
@@ -39,7 +39,7 @@ export async function getAllEmployeeTasksAction() {
 
 export async function getEmployeeTaskByIdAction(id: string) {
     try {
-        const data = await prisma.employeeTasks.findUnique({
+        const data = await prisma.employeeTask.findUnique({
             where: {
                 id: id
             },
@@ -49,17 +49,24 @@ export async function getEmployeeTaskByIdAction(id: string) {
                         name: true
                     }
                 },
-                employeeTaskAssignments: {
+                employeeTaskAssignment: {
                     select: {
                         employeeId: true,
                         employee: {
                             select: {
+                                nomorTelepon: true,
                                 user: {
                                     select: {
                                         name: true,
                                         email: true
                                     }
                                 }
+                            }
+                        },
+                        employeeTaskAssignmentStatus: {
+                            select: {
+                                name: true,
+                                colorHex: true
                             }
                         }
                     }
@@ -101,13 +108,13 @@ export async function createEmployeeTaskAction(
 
     try {
         await prisma.$transaction(async (tx) => {
-            const employeeTask = await tx.employeeTasks.create({
+            const employeeTask = await tx.employeeTask.create({
                 data: validatedFields.data,
             });
 
             const employeeIds = formData.getAll("employeeIds") as string[];
             if (employeeIds.length > 0) {
-                await tx.employeeTaskAssignments.createMany({
+                await tx.employeeTaskAssignment.createMany({
                     data: employeeIds.map((id) => ({
                         employeeTaskId: employeeTask.id,
                         employeeId: id,
@@ -152,7 +159,7 @@ export async function updateEmployeeTaskByIdAction(
 
     try {
         await prisma.$transaction(async (tx) => {
-            await tx.employeeTasks.update({
+            await tx.employeeTask.update({
                 where: {
                     id: id
                 },
@@ -164,7 +171,7 @@ export async function updateEmployeeTaskByIdAction(
                 }
             });
 
-            await tx.employeeTaskAssignments.deleteMany({
+            await tx.employeeTaskAssignment.deleteMany({
                 where: {
                     employeeTaskId: id
                 }
@@ -172,7 +179,7 @@ export async function updateEmployeeTaskByIdAction(
 
             const employeeIds = formData.getAll("employeeIds") as string[];
             if (employeeIds.length > 0) {
-                await tx.employeeTaskAssignments.createMany({
+                await tx.employeeTaskAssignment.createMany({
                     data: employeeIds.map((employeeId) => ({
                         employeeTaskId: id,
                         employeeId: employeeId
@@ -204,13 +211,13 @@ export async function deleteEmployeeTaskByIdAction(
 ) {
     try {
         await prisma.$transaction(async (tx) => {
-            await tx.employeeTaskAssignments.deleteMany({
+            await tx.employeeTaskAssignment.deleteMany({
                 where: {
                     employeeTaskId: id
                 }
             });
 
-            await tx.employeeTasks.delete({
+            await tx.employeeTask.delete({
                 where: {
                     id: id
                 }

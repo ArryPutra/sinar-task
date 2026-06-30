@@ -5,7 +5,7 @@ export default async function Home() {
     const currentUser = await getCurrentUserAction();
 
     if (currentUser) {
-        const role = currentUser.user?.roleId;
+        const role = currentUser.user?.userRoleId;
         if (role === 1) {
             return redirect("/admin/dashboard");
         } else if (role === 2) {

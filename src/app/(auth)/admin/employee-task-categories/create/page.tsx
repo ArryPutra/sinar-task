@@ -1,9 +1,8 @@
-import EmployeeTaskCategoryForm from '@/features/employee-task-categories/components/employee-task-category-form'
-import React from 'react'
+import EmployeeTaskCategoryForm from '@/features/employee-task-category/components/employee-task-category-form'
 
-export default function CreateEmployeeTaskCategoriesPage() {
+export default function CreateEmployeeTaskCategoryPage() {
 
-  
+
 
   return (
     <EmployeeTaskCategoryForm />

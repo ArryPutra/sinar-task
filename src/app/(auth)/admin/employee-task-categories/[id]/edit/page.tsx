@@ -1,8 +1,10 @@
-import { getEmployeeTaskCategoryByIdAction } from "@/features/employee-task-categories/actions";
-import EmployeeTaskCategoryForm from "@/features/employee-task-categories/components/employee-task-category-form";
+"use server"
+
+import { getEmployeeTaskCategoryByIdAction } from "@/features/employee-task-category/actions";
+import EmployeeTaskCategoryForm from "@/features/employee-task-category/components/employee-task-category-form";
 import { notFound } from "next/navigation";
 
-export default async function EditEmployeeTaskCategoriesPage({
+export default async function EditEmployeeTaskCategoryPage({
     params
 }: {
     params: Promise<{

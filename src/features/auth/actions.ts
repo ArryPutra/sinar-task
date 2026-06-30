@@ -28,6 +28,11 @@ export async function loginAction(
         const nextHeaders = await headers();
 
         session = await loginService(validatedFields.data, nextHeaders);
+
+        return {
+            error: null,
+            success: true,
+        }
     } catch (error: any) {
         console.error(error);
 
@@ -35,13 +40,6 @@ export async function loginAction(
             error: "Email atau password salah.",
             success: false
         }
-    }
-
-    redirect(roleDashboardRoutesMap[session.credentials.user.roleId]);
-
-    return {
-        error: null,
-        success: true
     }
 }
 

@@ -24,7 +24,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { initialActionState } from "@/types/action-state";
 import { formatDateTime } from "@/utils/date";
 import { EditIcon, EyeIcon, TrashIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { startTransition } from "react";
 import { toast } from "sonner";
 import { deleteEmployeeTaskByIdAction } from "../actions";
@@ -32,14 +32,14 @@ import { deleteEmployeeTaskByIdAction } from "../actions";
 export default function EmployeeTaskList({
     data
 }: {
-    data: Prisma.EmployeeTasksGetPayload<{
+    data: Prisma.EmployeeTaskGetPayload<{
         include: {
             employeeTaskCategory: {
                 select: {
                     name: true
                 }
             },
-            employeeTaskAssignments: true
+            employeeTaskAssignment: true
         }
     }>[]
 }) {
@@ -73,11 +73,11 @@ export default function EmployeeTaskList({
                         </TableCell>
                         <TableCell>
                             {
-                                item.employeeTaskAssignments.length === 0 ? (
+                                item.employeeTaskAssignment.length === 0 ? (
                                     <span className="text-red-500">Belum ditugaskan</span>
                                 ) : (
                                     <span>
-                                        {item.employeeTaskAssignments.length === 1 ? "1 Karyawan" : `${item.employeeTaskAssignments.length} Karyawan`}
+                                        {item.employeeTaskAssignment.length === 1 ? "1 Karyawan" : `${item.employeeTaskAssignment.length} Karyawan`}
                                     </span>
                                 )
                             }
@@ -143,6 +143,7 @@ function DeleteActionButton({
     };
 
     return (
+
         <AlertDialog>
             <AlertDialogTrigger asChild>
                 <Button
@@ -160,13 +161,11 @@ function DeleteActionButton({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <form onSubmit={handleDelete}>
-                        <AlertDialogAction
-                            variant={'destructive'}
-                            type="submit">
-                            Hapus
-                        </AlertDialogAction>
-                    </form>
+                    <AlertDialogAction
+                        variant="destructive"
+                        onClick={handleDelete}>
+                        Hapus
+                    </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

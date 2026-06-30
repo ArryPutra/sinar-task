@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import NextTopLoader from 'nextjs-toploader';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -33,6 +34,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange>
           <TooltipProvider>
+            <NextTopLoader
+            color="#1447e6" />
             <Toaster />
             {children}
           </TooltipProvider>

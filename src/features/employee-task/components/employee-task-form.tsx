@@ -27,30 +27,30 @@ import {
 } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
-import { EmployeeTaskCategories, Prisma } from "@/generated/prisma/client"
+import { EmployeeTaskCategory, Prisma } from "@/generated/prisma/client"
 import { initialActionState } from "@/types/action-state"
 import { formatToDatetimeLocal } from "@/utils/date"
-import { useRouter } from "next/navigation"
+import { useRouter } from "nextjs-toploader/app"
 import { Fragment, useActionState, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { createEmployeeTaskAction, updateEmployeeTaskByIdAction } from "../actions"
 
 export default function EmployeeTaskForm({
     data,
-    employeeTaskCategories,
-    employees
+    employeeTaskCategory,
+    employee
 }: {
-    data?: Prisma.EmployeeTasksGetPayload<{
+    data?: Prisma.EmployeeTaskGetPayload<{
         include: {
-            employeeTaskAssignments: {
+            employeeTaskAssignment: {
                 select: {
                     employeeId: true
                 }
             }
         }
     }>,
-    employeeTaskCategories: EmployeeTaskCategories[]
-    employees: Prisma.EmployeesGetPayload<{
+    employeeTaskCategory: EmployeeTaskCategory[]
+    employee: Prisma.EmployeeGetPayload<{
         include: {
             user: {
                 select: {
@@ -86,8 +86,8 @@ export default function EmployeeTaskForm({
     }, [state.success]);
 
     const anchor = useComboboxAnchor();
-    const [selectedEmployees, setSelectedEmployees] =
-        useState(data?.employeeTaskAssignments.map((assignment) => assignment.employeeId) ?? []);
+    const [selectedEmployee, setSelectedEmployee] =
+        useState(data?.employeeTaskAssignment.map((assignment) => assignment.employeeId) ?? []);
 
     return (
         <>
@@ -114,7 +114,7 @@ export default function EmployeeTaskForm({
                                 <SelectGroup>
                                     <SelectLabel>Pilih Kategori Tugas Karyawan</SelectLabel>
                                     {
-                                        employeeTaskCategories.map((item) => (
+                                        employeeTaskCategory.map((item) => (
                                             <SelectItem
                                                 value={item.id.toString()}
                                                 key={item.id}>
@@ -160,15 +160,15 @@ export default function EmployeeTaskForm({
                             name="employeeIds"
                             multiple
                             autoHighlight
-                            items={employees}
-                            value={selectedEmployees}
-                            onValueChange={setSelectedEmployees}>
+                            items={employee}
+                            value={selectedEmployee}
+                            onValueChange={setSelectedEmployee}>
                             <ComboboxChips ref={anchor} className="w-full">
                                 <ComboboxValue>
                                     {(values) => (
                                         <Fragment>
                                             {values.map((value: string) => {
-                                                const selectedEmployee = employees.find((emp) => emp.id === value);
+                                                const selectedEmployee = employee.find((emp) => emp.id === value);
                                                 const displayName = selectedEmployee?.user?.name ?? "Tanpa Nama";
 
                                                 return (

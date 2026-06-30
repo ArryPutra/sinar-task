@@ -5,18 +5,18 @@ import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
-import { EmployeeTaskCategories } from '@/generated/prisma/client'
+import { Textarea } from '@/components/ui/textarea'
+import { EmployeeTaskCategory } from '@/generated/prisma/client'
 import { initialActionState } from '@/types/action-state'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { createEmployeeTaskCategoryAction, updateEmployeeTaskCategoryByIdAction } from '../actions'
-import { Textarea } from '@/components/ui/textarea'
 
 export default function EmployeeTaskCategoryForm({
     data
 }: {
-    data?: EmployeeTaskCategories
+    data?: EmployeeTaskCategory
 }) {
 
     const [stateCreate, formActionCreate, isPendingCreate] =

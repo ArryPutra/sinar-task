@@ -5,19 +5,29 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { roleDashboardRoutesMap } from "@/features/dashboard/config/role-dashboard-routes";
 import { initialActionState } from "@/types/action-state";
 import { InfoIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useRouter } from "nextjs-toploader/app";
+import { useActionState, useEffect } from "react";
 import { loginAction } from "../actions";
 
 export default function LoginForm() {
     const [state, formAction, isPending] = useActionState(loginAction, initialActionState);
 
+    const router = useRouter();
+
+    useEffect(() => {
+        if (state.success) {
+            router.push("/login");
+        }
+    }, [state.success]);
+
     return (
         <div className="grid min-h-svh lg:grid-cols-2">
             {/* Left Section */}
             <section className="flex flex-col items-center justify-center gap-4 p-6 md:p-10 bg-linear-to-br from-white to-blue-50 dark:from-slate-950 dark:to-slate-900">
-                <form action={formAction} className="flex flex-col gap-6 w-full max-w-sm" method="POST">
+                <form action={formAction} className="flex flex-col gap-6 w-full max-w-sm">
                     <FieldGroup>
                         <div className="flex flex-col items-center gap-1 text-center">
                             <a href="#" className="flex items-center gap-2 font-medium">
@@ -59,7 +69,9 @@ export default function LoginForm() {
                             />
                         </Field>
                         <Field>
-                            <Button type="submit" className="w-full">Login {isPending && <Spinner />}</Button>
+                            <Button type="submit" className="w-full" disabled={isPending}>
+                                Login {isPending && <Spinner />}
+                            </Button>
                         </Field>
                     </FieldGroup>
                 </form>

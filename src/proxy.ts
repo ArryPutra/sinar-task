@@ -30,20 +30,20 @@ export async function proxy(request: NextRequest) {
 
     // Sudah Ter-Autentikasi
     if (session) {
-        const roleId = session.user.roleId;
+        const userRoleId = session.user.userRoleId;
 
         // Kalau buka login → lempar ke dashboard masing-masing
         if (guestRoutes.includes(url)) {
             return NextResponse.redirect(
-                new URL(roleDashboardRoutesMap[roleId], request.url)
+                new URL(roleDashboardRoutesMap[userRoleId], request.url)
             );
         }
 
         // Kalau masuk area role lain → blok
         for (const [id, route] of Object.entries(roleRouteMap)) {
-            if (url.startsWith(route) && Number(id) !== roleId) {
+            if (url.startsWith(route) && Number(id) !== userRoleId) {
                 return NextResponse.redirect(
-                    new URL(roleDashboardRoutesMap[roleId], request.url)
+                    new URL(roleDashboardRoutesMap[userRoleId], request.url)
                 );
             }
         }

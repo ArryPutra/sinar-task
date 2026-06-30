@@ -1,4 +1,4 @@
-import { ClipboardListIcon, ClipboardPenIcon, PieChartIcon } from "lucide-react";
+import { ClipboardListIcon, ClipboardPenIcon, PieChartIcon, UserIcon, UsersIcon } from "lucide-react";
 
 export type RoleSidebarMenu = {
     title: string;
@@ -7,7 +7,7 @@ export type RoleSidebarMenu = {
     isActive: boolean;
 };
 
-export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; PEGAWAI: RoleSidebarMenu[] } = {
+export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; KARYAWAN: RoleSidebarMenu[] } = {
     ADMIN:
         [
             {
@@ -28,8 +28,14 @@ export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; PEGAWAI: RoleSidebarM
                 icon: ClipboardPenIcon,
                 isActive: true
             },
+            {
+                title: "Kelola Karyawan",
+                url: "/admin/employees",
+                icon: UsersIcon,
+                isActive: true
+            },
         ],
-    PEGAWAI: [
+    KARYAWAN: [
         {
             title: "Dashboard",
             url: "/karyawan/dashboard",

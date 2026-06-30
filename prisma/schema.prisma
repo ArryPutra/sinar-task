@@ -22,10 +22,16 @@ model User {
   image         String?
   sessions      Session[]
   accounts      Account[]
-  role          Role      @relation(fields: [roleId], references: [id])
-  roleId        Int
 
-  employees Employees?
+  userRole   UserRole @relation(fields: [userRoleId], references: [id])
+  userRoleId Int      @default(2)
+
+  employee Employee?
+
+  role       String?
+  banned     Boolean?  @default(false)
+  banReason  String?
+  banExpires DateTime?
 
   @@map("user")
 }
@@ -40,6 +46,8 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
 
   @@unique([token])
   @@index([userId])
@@ -78,15 +86,16 @@ model Verification {
   @@map("verification")
 }
 
-model Role {
-  id    Int    @id @default(autoincrement())
+model UserRole {
+  id Int @id @default(autoincrement())
+
   name  String @unique
   users User[]
 
-  @@map("role")
+  @@map("user_roles")
 }
 
-model EmployeeTasks {
+model EmployeeTask {
   id String @id @default(cuid())
 
   employeeTaskCategoryId Int
@@ -99,13 +108,13 @@ model EmployeeTasks {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employeeTaskCategory    EmployeeTaskCategories    @relation(fields: [employeeTaskCategoryId], references: [id])
-  employeeTaskAssignments EmployeeTaskAssignments[]
+  employeeTaskCategory   EmployeeTaskCategory     @relation(fields: [employeeTaskCategoryId], references: [id])
+  employeeTaskAssignment EmployeeTaskAssignment[]
 
   @@map("employee_tasks")
 }
 
-model EmployeeTaskCategories {
+model EmployeeTaskCategory {
   id Int @id @default(autoincrement())
 
   name        String  @unique
@@ -114,37 +123,54 @@ model EmployeeTaskCategories {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employeeTasks EmployeeTasks[]
+  employeeTask EmployeeTask[]
 
   @@map("employee_task_categories")
 }
 
-model Employees {
+model Employee {
   id String @id @default(cuid())
 
-  userId String @unique
+  userId       String @unique
+  nomorTelepon String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user                    User                      @relation(fields: [userId], references: [id])
-  employeeTaskAssignments EmployeeTaskAssignments[]
+  user                   User                     @relation(fields: [userId], references: [id])
+  employeeTaskAssignment EmployeeTaskAssignment[]
 
   @@map("employees")
 }
 
-model EmployeeTaskAssignments {
+model EmployeeTaskAssignment {
   id String @id @default(cuid())
 
-  employeeTaskId String
-  employeeId     String
+  employeeTaskId                 String
+  employeeId                     String
+  employeeTaskAssignmentStatusId Int    @default(1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employeeTask EmployeeTasks @relation(fields: [employeeTaskId], references: [id])
-  employee     Employees     @relation(fields: [employeeId], references: [id])
+  employeeTask                 EmployeeTask                 @relation(fields: [employeeTaskId], references: [id])
+  employee                     Employee                     @relation(fields: [employeeId], references: [id])
+  employeeTaskAssignmentStatus EmployeeTaskAssignmentStatus @relation(fields: [employeeTaskAssignmentStatusId], references: [id])
 
   @@unique([employeeTaskId, employeeId])
   @@map("employee_task_assignments")
+}
+
+model EmployeeTaskAssignmentStatus {
+  id Int @id @default(autoincrement())
+
+  name     String @unique
+  colorHex String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeTaskAssignment EmployeeTaskAssignment[]
+
+  @@map("employee_task_assignment_statuses")
 }

@@ -21,6 +21,7 @@ import {
 import { logoutAction } from "@/features/auth/actions"
 import { ChevronsUpDownIcon, LogOutIcon, MoonIcon, SunIcon } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useTopLoader } from "nextjs-toploader"
 
 export function NavUser({
   user,
@@ -37,7 +38,11 @@ export function NavUser({
     setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"))
   }
 
-  const handleLogout = () => logoutAction();
+  const loader = useTopLoader();
+  const handleLogout = () => {
+    loader.start();
+    logoutAction();
+  } 
 
   return (
     <SidebarMenu>
