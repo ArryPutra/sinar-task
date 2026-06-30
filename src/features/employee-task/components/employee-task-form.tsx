@@ -1,6 +1,7 @@
 "use client"
 
 import BackButton from "@/components/back-button"
+import GoogleMap from "@/components/google-map"
 import { Button } from "@/components/ui/button"
 import {
     Combobox,
@@ -30,7 +31,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { EmployeeTaskCategory, Prisma } from "@/generated/prisma/client"
 import { initialActionState } from "@/types/action-state"
 import { formatToDatetimeLocal } from "@/utils/date"
-import { redirect } from "next/navigation"
 import { useRouter } from "nextjs-toploader/app"
 import { Fragment, useActionState, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -200,6 +200,14 @@ export default function EmployeeTaskForm({
                                 </ComboboxList>
                             </ComboboxContent>
                         </Combobox>
+                    </Field>
+                    <Field className="col-span-2">
+                        <GoogleMap 
+                        showInput={true}
+                        latitude={fields?.latitude ?? data?.latitude}
+                        longitude={fields?.longitude ?? data?.longitude} />
+                        <FieldError>{fieldErrors?.latitude}</FieldError>
+                        <FieldError>{fieldErrors?.longitude}</FieldError>
                     </Field>
 
                     <Button type="submit" className="col-span-2 w-fit" disabled={isPending}>

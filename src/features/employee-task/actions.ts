@@ -164,12 +164,7 @@ export async function updateEmployeeTaskByIdAction(
                 where: {
                     id: id
                 },
-                data: {
-                    title: validatedFields.data.title,
-                    description: validatedFields.data.description,
-                    startAt: validatedFields.data.startAt,
-                    dueAt: validatedFields.data.dueAt
-                }
+                data: validatedFields.data
             });
 
             await tx.employeeTaskAssignment.deleteMany({

@@ -104,6 +104,8 @@ model EmployeeTask {
   description String?
   startAt     DateTime
   dueAt       DateTime
+  latitude    Float
+  longitude   Float
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

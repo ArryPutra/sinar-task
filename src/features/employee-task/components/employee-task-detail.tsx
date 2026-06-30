@@ -1,6 +1,7 @@
 "use client"
 
 import BackButton from "@/components/back-button";
+import GoogleMap from "@/components/google-map";
 import { Badge } from "@/components/ui/badge";
 import { Field, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -66,6 +67,11 @@ export default function EmployeeTaskDetail({
                 <Field className="col-span-2">
                     <FieldLabel>Deskripsi</FieldLabel>
                     <FieldTitle>{data.description || <span className="text-muted-foreground">Tidak ada deskripsi</span>}</FieldTitle>
+                </Field>
+                <Field className="col-span-2">
+                    <GoogleMap
+                    latitude={data.latitude}
+                    longitude={data.longitude} />
                 </Field>
                 <Field className="col-span-2">
                     <FieldLabel>Daftar Karyawan Ditugaskan</FieldLabel>

@@ -5,7 +5,9 @@ export const formEmployeeTaskSchema = z.object({
     title: z.string().min(1, "Title harus diisi."),
     description: z.string(),
     startAt: z.coerce.date("Tanggal mulai harus diisi."),
-    dueAt: z.coerce.date("Tanggal jatuh tempo harus diisi.")
+    dueAt: z.coerce.date("Tanggal jatuh tempo harus diisi."),
+    latitude: z.coerce.number().min(-90, "Latitude harus lebih besar dari -90.").max(90, "Latitude harus kurang dari 90."),
+    longitude: z.coerce.number().min(-180, "Longitude harus lebih besar dari -180.").max(180, "Longitude harus kurang dari 180."),
 }).superRefine((data, ctx) => {
     if (data.dueAt < data.startAt) {
         ctx.addIssue({
