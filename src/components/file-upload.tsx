@@ -1,7 +1,6 @@
 "use client";
 
-import { Button } from '@/components/ui/button';
-import { File as FileIcon, FileText, Image, UploadCloud, X } from 'lucide-react';
+import { File as FileIcon, FileText, Image, UploadCloud } from 'lucide-react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 interface CloudinaryCustomProps {
@@ -55,6 +54,16 @@ export default function CloudinaryCustom({ name }: CloudinaryCustomProps) {
         return <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />;
     };
 
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return "0 B";
+
+        const k = 1024;
+        const sizes = ["B", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+    };
+
     return (
         <div className="w-full space-y-3">
             {/* Dropzone Area */}
@@ -90,17 +99,25 @@ export default function CloudinaryCustom({ name }: CloudinaryCustomProps) {
             {newFiles.length > 0 && (
                 <div className="space-y-2">
                     <p className="text-xs font-semibold text-muted-foreground pl-1">Berkas Terlampir:</p>
-                    <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="grid gap-2 sm:grid-cols-2 w-full">
                         {newFiles.map((file, idx) => (
                             <div key={`new-${idx}`} className="flex items-center justify-between p-2.5 rounded-lg border bg-card text-sm shadow-sm animate-in fade-in-50 duration-150">
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                     {getFileIcon(file.name)}
-                                    <span className="truncate font-medium text-foreground">{file.name}</span>
-                                    <span className="text-[10px] bg-blue-500/10 text-blue-600 px-1.5 py-0.5 rounded-full border border-blue-500/20 shrink-0">Baru</span>
+
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate font-medium text-foreground">
+                                            {file.name}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {formatFileSize(file.size)}
+                                        </p>
+                                    </div>
+
+                                    <span className="text-[10px] bg-blue-500/10 text-blue-600 px-1.5 py-0.5 rounded-full border border-blue-500/20 shrink-0">
+                                        Baru
+                                    </span>
                                 </div>
-                                <Button type="button" variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeNewFile(idx)}>
-                                    <X className="h-4 w-4" />
-                                </Button>
                             </div>
                         ))}
                     </div>

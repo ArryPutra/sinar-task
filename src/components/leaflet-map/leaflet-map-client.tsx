@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { useEffect, useState } from "react";
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import "leaflet/dist/leaflet.css";
 
 const markerIcon = typeof window !== "undefined" ? new L.Icon({
   iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
@@ -28,8 +28,8 @@ function MapEventsHandler({
 
   useEffect(() => {
     const currentCenter = map.getCenter();
-    const isDifferent = 
-      Math.abs(currentCenter.lat - center[0]) > 0.0001 || 
+    const isDifferent =
+      Math.abs(currentCenter.lat - center[0]) > 0.0001 ||
       Math.abs(currentCenter.lng - center[1]) > 0.0001;
 
     if (isDifferent) {
@@ -120,7 +120,7 @@ export default function LeafletMapClient({
 
       {/* Kontainer Utama Peta */}
       <div style={{ width: "100%", height: "400px", borderRadius: "16px", overflow: "hidden", position: "relative", zIndex: 0 }}>
-        
+
         {/* Komponen Map */}
         <MapContainer center={center} zoom={15} style={{ width: "100%", height: "100%" }}>
           <TileLayer
@@ -170,6 +170,34 @@ export default function LeafletMapClient({
           </svg>
           Buka Google Maps
         </a>
+
+        {showInput && (
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              bottom: "16px",
+              transform: "translateX(-50%)",
+              zIndex: 900,
+              pointerEvents: "none",
+
+              background: "rgba(255, 255, 255, 0.65)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+
+              color: "#1f2937",
+              padding: "8px 14px",
+              borderRadius: "9999px",
+              border: "1px solid rgba(255,255,255,0.4)",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+
+              fontSize: "13px",
+              fontWeight: 500,
+              whiteSpace: "nowrap",
+            }}>
+            📍 Pilih lokasi dengan mengklik peta. Koordinat akan terisi secara otomatis.
+          </div>
+        )}
 
       </div>
     </div>
