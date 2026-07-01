@@ -1,6 +1,8 @@
 "use client"
 
 import BackButton from "@/components/back-button"
+import CloudinaryCustom from "@/components/file-upload"
+import LeafletMap from "@/components/leaflet-map/leaflet-map"
 import { Button } from "@/components/ui/button"
 import {
     Combobox,
@@ -34,7 +36,6 @@ import { useRouter } from "nextjs-toploader/app"
 import { Fragment, useActionState, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { createEmployeeTaskAction, updateEmployeeTaskByIdAction } from "../actions"
-import LeafletMap from "@/components/leaflet-map/leaflet-map"
 
 export default function EmployeeTaskForm({
     data,
@@ -202,12 +203,18 @@ export default function EmployeeTaskForm({
                         </Combobox>
                     </Field>
                     <Field className="col-span-2">
-                        <LeafletMap 
-                        showInput={true}
-                        latitude={fields?.latitude ?? data?.latitude}
-                        longitude={fields?.longitude ?? data?.longitude} />
+                        <LeafletMap
+                            showInput={true}
+                            latitude={fields?.latitude ?? data?.latitude}
+                            longitude={fields?.longitude ?? data?.longitude} />
                         <FieldError>{fieldErrors?.latitude}</FieldError>
                         <FieldError>{fieldErrors?.longitude}</FieldError>
+                    </Field>
+                    <Field className="col-span-2">
+                        <FieldLabel>Lampiran File</FieldLabel>
+                        <CloudinaryCustom
+                            name="fileUrls" />
+                        <FieldError>{fieldErrors?.fileUrls}</FieldError>
                     </Field>
 
                     <Button type="submit" className="col-span-2 w-fit" disabled={isPending}>

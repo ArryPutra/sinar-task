@@ -1,13 +1,15 @@
 "use client"
 
+import { AttachmentList } from "@/components/attachment-list";
 import BackButton from "@/components/back-button";
 import LeafletMap from "@/components/leaflet-map/leaflet-map";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Prisma } from "@/generated/prisma/client";
 import { formatDateTime } from "@/utils/date";
-import dynamic from "next/dynamic";
+import { ExternalLink, File, FileText, Image, Paperclip } from "lucide-react";
 
 export default function EmployeeTaskDetail({
     data
@@ -45,11 +47,6 @@ export default function EmployeeTaskDetail({
     }>
 }) {
 
-    // const LeafletMap = dynamic(() => import("@/components/leaflet-map"), {
-    //     ssr: false, // 🔒 Kunci utamanya ada di sini, memaksa bypass SSR
-    //     loading: () => <div style={{ height: "400px", background: "#eee", borderRadius: "8px" }}>Memuat Peta...</div>
-    // });
-
     return (
         <>
             <BackButton />
@@ -76,8 +73,14 @@ export default function EmployeeTaskDetail({
                 </Field>
                 <Field className="col-span-2">
                     <LeafletMap
-                    latitude={data.latitude}
-                    longitude={data.longitude} />
+                        latitude={data.latitude}
+                        longitude={data.longitude} />
+                </Field>
+                <Field className="col-span-2">
+                    <FieldLabel>
+                        Daftar Lampiran File
+                    </FieldLabel>
+                    <AttachmentList fileUrls={data.fileUrls} />
                 </Field>
                 <Field className="col-span-2">
                     <FieldLabel>Daftar Karyawan Ditugaskan</FieldLabel>

@@ -106,6 +106,7 @@ model EmployeeTask {
   dueAt       DateTime
   latitude    Float
   longitude   Float
+  fileUrls    String[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

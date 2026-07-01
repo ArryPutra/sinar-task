@@ -1,10 +1,10 @@
 "use server"
 
+import { deleteFileFromCloudinary, uploadStreamToCloudinary } from "@/lib/cloudinary";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
 import { revalidatePath } from "next/cache";
 import { formEmployeeTaskSchema } from "./schemas";
-import { redirect } from "next/navigation";
 
 export async function getAllEmployeeTaskAction() {
     try {
@@ -98,19 +98,34 @@ export async function createEmployeeTaskAction(
     const validatedFields = formEmployeeTaskSchema.safeParse(
         Object.fromEntries(formData.entries())
     );
+
     if (!validatedFields.success) {
         return {
             error: validatedFields.error?.message,
             success: false,
             fields: Object.fromEntries(formData.entries()),
-            fieldErrors: validatedFields.error?.flatten().fieldErrors
+            fieldErrors: validatedFields.error?.flatten().fieldErrors,
         };
     }
 
     try {
+        const files = formData.getAll("fileUrls") as File[];
+        const uploadedUrls: string[] = [];
+
+        for (const file of files) {
+            if (file.size === 0) continue;
+            const uploadResult = await uploadStreamToCloudinary(file, 'employee_tasks');
+            if (uploadResult?.secure_url) {
+                uploadedUrls.push(uploadResult.secure_url);
+            }
+        }
+
         await prisma.$transaction(async (tx) => {
             const employeeTask = await tx.employeeTask.create({
-                data: validatedFields.data,
+                data: {
+                    ...validatedFields.data,
+                    fileUrls: uploadedUrls
+                },
             });
 
             const employeeIds = formData.getAll("employeeIds") as string[];
@@ -159,12 +174,33 @@ export async function updateEmployeeTaskByIdAction(
     }
 
     try {
+        const files = formData.getAll("fileUrls") as File[];
+        const uploadedUrls: string[] = [];
+
+        if (files.length > 0) {
+            for (const file of files) {
+                if (file.size === 0) continue;
+                const uploadResult = await uploadStreamToCloudinary(file, 'employee_tasks');
+                if (uploadResult?.secure_url) {
+                    uploadedUrls.push(uploadResult.secure_url);
+                }
+            }
+        }
+
+        const oldFileUrls = await prisma.employeeTask.findUnique({
+            where: { id },
+            select: { fileUrls: true }
+        });
+
         await prisma.$transaction(async (tx) => {
             await tx.employeeTask.update({
                 where: {
                     id: id
                 },
-                data: validatedFields.data
+                data: {
+                    ...validatedFields.data,
+                    fileUrls: uploadedUrls.length > 0 ? uploadedUrls : oldFileUrls?.fileUrls
+                }
             });
 
             await tx.employeeTaskAssignment.deleteMany({
@@ -186,6 +222,10 @@ export async function updateEmployeeTaskByIdAction(
 
         revalidatePath("/admin/employee-tasks");
 
+        for (const oldFileUrl of oldFileUrls?.fileUrls || []) {
+            await deleteFileFromCloudinary(oldFileUrl);
+        }
+
         return {
             error: null,
             success: true,
@@ -206,6 +246,11 @@ export async function deleteEmployeeTaskByIdAction(
     prevState: ActionState
 ) {
     try {
+        const oldFileUrls = await prisma.employeeTask.findUnique({
+            where: { id },
+            select: { fileUrls: true }
+        });
+
         await prisma.$transaction(async (tx) => {
             await tx.employeeTaskAssignment.deleteMany({
                 where: {
@@ -221,6 +266,10 @@ export async function deleteEmployeeTaskByIdAction(
         });
 
         revalidatePath("/admin/employee-tasks");
+
+        for (const oldFileUrl of oldFileUrls?.fileUrls || []) {
+            await deleteFileFromCloudinary(oldFileUrl);
+        }
 
         return {
             error: null,

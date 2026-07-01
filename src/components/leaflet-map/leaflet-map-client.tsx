@@ -119,7 +119,7 @@ export default function LeafletMapClient({
       )}
 
       {/* Kontainer Utama Peta */}
-      <div style={{ width: "100%", height: "400px", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
+      <div style={{ width: "100%", height: "400px", borderRadius: "16px", overflow: "hidden", position: "relative", zIndex: 0 }}>
         
         {/* Komponen Map */}
         <MapContainer center={center} zoom={15} style={{ width: "100%", height: "100%" }}>
