@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
 import { revalidatePath } from "next/cache";
 import { formEmployeeTaskSchema } from "./schemas";
+import { determineEmployeeTaskStatusId } from "./utils/determine-employee-task-status-id";
 
 export async function getAllEmployeeTaskAction() {
     try {
@@ -13,6 +14,12 @@ export async function getAllEmployeeTaskAction() {
                 createdAt: "desc"
             },
             include: {
+                employeeTaskStatus: {
+                    select: {
+                        name: true,
+                        colorHex: true
+                    }
+                },
                 employeeTaskCategory: {
                     select: {
                         name: true
@@ -124,7 +131,11 @@ export async function createEmployeeTaskAction(
             const employeeTask = await tx.employeeTask.create({
                 data: {
                     ...validatedFields.data,
-                    fileUrls: uploadedUrls
+                    fileUrls: uploadedUrls,
+                    employeeTaskStatusId: determineEmployeeTaskStatusId(
+                        validatedFields.data.startAt,
+                        validatedFields.data.dueAt
+                    )
                 },
             });
 
@@ -199,7 +210,11 @@ export async function updateEmployeeTaskByIdAction(
                 },
                 data: {
                     ...validatedFields.data,
-                    fileUrls: uploadedUrls.length > 0 ? uploadedUrls : oldFileUrls?.fileUrls
+                    fileUrls: uploadedUrls.length > 0 ? uploadedUrls : oldFileUrls?.fileUrls,
+                    employeeTaskStatusId: determineEmployeeTaskStatusId(
+                        validatedFields.data.startAt,
+                        validatedFields.data.dueAt
+                    )
                 }
             });
 

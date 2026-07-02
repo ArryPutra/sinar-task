@@ -71,15 +71,32 @@ export default function LeafletMapClient({
     setCenter([lat, lng]);
   };
 
-  useEffect(() => {
-    const lat = parseFloat(latInput);
-    const lng = parseFloat(lngInput);
+  // useEffect(() => {
+  //   const lat = parseFloat(latInput);
+  //   const lng = parseFloat(lngInput);
 
-    if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-      setPosition([lat, lng]);
-      setCenter([lat, lng]);
+  //   if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+  //     setPosition([lat, lng]);
+  //     setCenter([lat, lng]);
+  //   }
+  // }, [latInput, lngInput]);  
+
+  const updateCoordinates = (lat: string, lng: string) => {
+    const latitude = parseFloat(lat);
+    const longitude = parseFloat(lng);
+
+    if (
+      !isNaN(latitude) &&
+      !isNaN(longitude) &&
+      latitude >= -90 &&
+      latitude <= 90 &&
+      longitude >= -180 &&
+      longitude <= 180
+    ) {
+      setPosition([latitude, longitude]);
+      setCenter([latitude, longitude]);
     }
-  }, [latInput, lngInput]);
+  };
 
   const targetLat = position ? position[0] : center[0];
   const targetLng = position ? position[1] : center[1];
@@ -96,9 +113,13 @@ export default function LeafletMapClient({
                 type="number"
                 step="any"
                 value={latInput}
-                onChange={(e) => setLatInput(e.target.value)}
-                placeholder="Masukkan Lat"
                 name="latitude"
+                placeholder="Masukkan Lat"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setLatInput(value);
+                  updateCoordinates(value, lngInput);
+                }}
               />
             </Field>
           </div>
@@ -109,9 +130,13 @@ export default function LeafletMapClient({
                 type="number"
                 step="any"
                 value={lngInput}
-                onChange={(e) => setLngInput(e.target.value)}
-                placeholder="Masukkan Lng"
                 name="longitude"
+                placeholder="Masukkan Lng"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setLngInput(value);
+                  updateCoordinates(latInput, value);
+                }}
               />
             </Field>
           </div>
@@ -132,72 +157,80 @@ export default function LeafletMapClient({
         </MapContainer>
 
         {/* Tombol Google Maps di dalam Peta (Pojok Kiri Bawah) */}
-        <a
-          href={googleMapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            position: "absolute",
-            bottom: "12px",
-            left: "12px",
-            zIndex: 1000, // Menghindari tombol tenggelam di bawah peta
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            backgroundColor: "#ffffff", // Menggunakan warna dasar putih agar kontras dengan jalanan peta
-            color: "#1f2937",
-            padding: "8px 12px",
-            borderRadius: "6px",
-            fontSize: "12px",
-            fontWeight: "600",
-            textDecoration: "none",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-            transition: "background-color 0.2s, color 0.2s",
-            cursor: "pointer"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#2563eb";
-            e.currentTarget.style.color = "#ffffff";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#ffffff";
-            e.currentTarget.style.color = "#1f2937";
-          }}
-        >
-          <svg style={{ width: "14px", height: "14px" }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
-          Buka Google Maps
-        </a>
-
-        {showInput && (
-          <div
+        <div>
+          <a
+            href={googleMapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               position: "absolute",
-              left: "50%",
-              bottom: "16px",
-              transform: "translateX(-50%)",
-              zIndex: 900,
-              pointerEvents: "none",
-
-              background: "rgba(255, 255, 255, 0.65)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
-
+              top: "12px",
+              right: "12px",
+              zIndex: 1000, // Menghindari tombol tenggelam di bawah peta
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              backgroundColor: "#ffffff", // Menggunakan warna dasar putih agar kontras dengan jalanan peta
               color: "#1f2937",
-              padding: "8px 14px",
-              borderRadius: "9999px",
-              border: "1px solid rgba(255,255,255,0.4)",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+              padding: "8px 12px",
+              borderRadius: "6px",
+              fontSize: "12px",
+              fontWeight: "600",
+              textDecoration: "none",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+              transition: "background-color 0.2s, color 0.2s",
+              cursor: "pointer"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#2563eb";
+              e.currentTarget.style.color = "#ffffff";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#ffffff";
+              e.currentTarget.style.color = "#1f2937";
+            }}
+          >
+            <svg style={{ width: "14px", height: "14px" }} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Buka Google Maps
+          </a>
 
-              fontSize: "13px",
-              fontWeight: 500,
-              whiteSpace: "nowrap",
-            }}>
-            📍 Pilih lokasi dengan mengklik peta. Koordinat akan terisi secara otomatis.
-          </div>
-        )}
+          {showInput && (
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                bottom: "16px",
+                transform: "translateX(-50%)",
+                zIndex: 900,
+                pointerEvents: "none",
+
+                background: "rgba(255, 255, 255, 0.65)",
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+
+                color: "#1f2937",
+                padding: "8px 14px",
+                borderRadius: "9999px",
+                border: "1px solid rgba(255,255,255,0.4)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+
+                fontSize: "13px",
+                fontWeight: 500,
+
+                width: "calc(100% - 32px)", // mengikuti lebar layar
+                maxWidth: "420px",
+                textAlign: "center",
+                whiteSpace: "normal", // biarkan membungkus
+                lineHeight: 1.4,
+              }}
+            >
+              📍 Pilih lokasi dengan mengklik peta. Koordinat akan terisi secara otomatis.
+            </div>
+          )}
+        </div>
 
       </div>
     </div>

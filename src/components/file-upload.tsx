@@ -1,6 +1,6 @@
 "use client";
 
-import { File as FileIcon, FileText, Image, UploadCloud } from 'lucide-react';
+import { File as FileIcon, FileText, Image, UploadCloud, X } from 'lucide-react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 interface CloudinaryCustomProps {
@@ -37,14 +37,37 @@ export default function CloudinaryCustom({ name }: CloudinaryCustomProps) {
     }, []);
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const filesArray = Array.from(e.target.files);
-            setNewFiles((prev) => [...prev, ...filesArray]);
+        if (!e.target.files) return;
+
+        const mergedFiles = [...newFiles, ...Array.from(e.target.files)];
+
+        setNewFiles(mergedFiles);
+
+        const dataTransfer = new DataTransfer();
+
+        mergedFiles.forEach((file) => {
+            dataTransfer.items.add(file);
+        });
+
+        if (inputRef.current) {
+            inputRef.current.files = dataTransfer.files;
         }
     };
 
     const removeNewFile = (indexToRemove: number) => {
-        setNewFiles((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+        const updatedFiles = newFiles.filter((_, index) => index !== indexToRemove);
+
+        setNewFiles(updatedFiles);
+
+        if (inputRef.current) {
+            const dataTransfer = new DataTransfer();
+
+            updatedFiles.forEach((file) => {
+                dataTransfer.items.add(file);
+            });
+
+            inputRef.current.files = dataTransfer.files;
+        }
     };
 
     const getFileIcon = (fileName: string) => {
@@ -114,9 +137,19 @@ export default function CloudinaryCustom({ name }: CloudinaryCustomProps) {
                                         </p>
                                     </div>
 
-                                    <span className="text-[10px] bg-blue-500/10 text-blue-600 px-1.5 py-0.5 rounded-full border border-blue-500/20 shrink-0">
-                                        Baru
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] bg-blue-500/10 text-blue-600 px-1.5 py-0.5 rounded-full border border-blue-500/20">
+                                            Baru
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => removeNewFile(idx)}
+                                            className="rounded p-1 hover:bg-red-100 text-red-500 dark:hover:bg-red-900/20 transition-colors"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}

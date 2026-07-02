@@ -28,12 +28,20 @@ import { useRouter } from "nextjs-toploader/app";
 import { startTransition } from "react";
 import { toast } from "sonner";
 import { deleteEmployeeTaskByIdAction } from "../actions";
+import { Badge } from "@/components/ui/badge";
+import { getEmployeeTaskStatusStartAtDueAt } from "../utils/determine-employee-task-status-id";
 
 export default function EmployeeTaskList({
     data
 }: {
     data: Prisma.EmployeeTaskGetPayload<{
         include: {
+            employeeTaskStatus: {
+                select: {
+                    name: true,
+                    colorHex: true
+                }
+            },
             employeeTaskCategory: {
                 select: {
                     name: true
@@ -55,6 +63,7 @@ export default function EmployeeTaskList({
                     <TableHead>Kategori</TableHead>
                     <TableHead>Waktu Mulai</TableHead>
                     <TableHead>Jatuh Tempo</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Ditugaskan</TableHead>
                     <TableHead>Aksi</TableHead>
                 </TableRow>
@@ -70,6 +79,14 @@ export default function EmployeeTaskList({
                         </TableCell>
                         <TableCell>
                             {formatDateTime(item.dueAt)}
+                        </TableCell>
+                        <TableCell>
+                            {
+
+                            }
+                            <Badge style={{ backgroundColor: item.employeeTaskStatus.colorHex }}>
+                                {item.employeeTaskStatus.name}
+                            </Badge>
                         </TableCell>
                         <TableCell>
                             {

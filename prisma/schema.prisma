@@ -99,6 +99,7 @@ model EmployeeTask {
   id String @id @default(cuid())
 
   employeeTaskCategoryId Int
+  employeeTaskStatusId   Int
 
   title       String
   description String?
@@ -113,8 +114,23 @@ model EmployeeTask {
 
   employeeTaskCategory   EmployeeTaskCategory     @relation(fields: [employeeTaskCategoryId], references: [id])
   employeeTaskAssignment EmployeeTaskAssignment[]
+  employeeTaskStatus     EmployeeTaskStatus       @relation(fields: [employeeTaskStatusId], references: [id])
 
   @@map("employee_tasks")
+}
+
+model EmployeeTaskStatus {
+  id Int @id @default(autoincrement())
+
+  name     String @unique
+  colorHex String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeTask EmployeeTask[]
+
+  @@map("employee_task_statuses")
 }
 
 model EmployeeTaskCategory {

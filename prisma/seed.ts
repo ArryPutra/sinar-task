@@ -1,4 +1,3 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import userSeed from "./seeds/user.seed";
 
@@ -7,20 +6,28 @@ async function main() {
 
   await userSeed();
 
-  await prisma.employeeTaskCategory.createMany({
+  await prisma.employeeTaskStatus.createMany({
     data: [
-      { name: "Kontruksi" },
-      { name: "IT Konsultan" },
+      { name: "Belum Dimulai", colorHex: "#6C757D", },
+      { name: "Sedang Berlangsung", colorHex: "#0D6EFD", },
+      { name: "Ditutup", colorHex: "#DC3545", },
     ]
   });
 
   await prisma.employeeTaskAssignmentStatus.createMany({
     data: [
-      { name: "Belum Dimulai", colorHex: "#64748b", },
-      { name: "Sedang Dikerjakan", colorHex: "#3b82f6", },
-      { name: "Menunggu Review", colorHex: "#a855f7", },
-      { name: "Revisi", colorHex: "#f59e0b", },
-      { name: "Selesai", colorHex: "#10b981", }
+      { name: "Belum Dimulai", colorHex: "#64748B", },
+      { name: "Sedang Dikerjakan", colorHex: "#3B82F6", },
+      { name: "Menunggu Review", colorHex: "#A855F7", },
+      { name: "Revisi", colorHex: "#F59E0B", },
+      { name: "Selesai", colorHex: "#10B981", }
+    ]
+  });
+
+  await prisma.employeeTaskCategory.createMany({
+    data: [
+      { name: "Kontruksi" },
+      { name: "IT Konsultan" },
     ]
   });
 
