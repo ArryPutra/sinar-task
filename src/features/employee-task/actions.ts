@@ -1,5 +1,6 @@
 "use server"
 
+import { Prisma } from "@/generated/prisma/client";
 import { deleteFileFromCloudinary, uploadStreamToCloudinary } from "@/lib/cloudinary";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
@@ -7,40 +8,78 @@ import { revalidatePath } from "next/cache";
 import { formEmployeeTaskSchema } from "./schemas";
 import { determineEmployeeTaskStatusId } from "./utils/determine-employee-task-status-id";
 
-export async function getAllEmployeeTaskAction() {
+export async function getAllEmployeeTaskAction({
+    page = 1,
+    search = "",
+    employeeTaskStatusId,
+}: {
+    page: number
+    search?: string
+    employeeTaskStatusId?: number
+}) {
     try {
-        const data = await prisma.employeeTask.findMany({
-            orderBy: {
-                createdAt: "desc"
-            },
-            include: {
-                employeeTaskStatus: {
-                    select: {
-                        name: true,
-                        colorHex: true
+        const pageSize = 10;
+        const skip = (page - 1) * pageSize;
+
+        const where: Prisma.EmployeeTaskWhereInput = {
+            ...(employeeTaskStatusId && {
+                employeeTaskStatusId: employeeTaskStatusId
+            }),
+            ...(search && {
+                OR: [
+                    {
+                        title: {
+                            contains: search,
+                            mode: "insensitive",
+                        },
                     }
+                ],
+            }),
+        };
+
+
+        const [data, totalCount] = await Promise.all([
+            prisma.employeeTask.findMany({
+                where,
+                skip,
+                take: pageSize,
+                orderBy: {
+                    createdAt: "desc",
                 },
-                employeeTaskCategory: {
-                    select: {
-                        name: true
-                    }
+                include: {
+                    employeeTaskStatus: {
+                        select: {
+                            name: true,
+                            colorHex: true,
+                        },
+                    },
+                    employeeTaskCategory: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    employeeTaskAssignment: true,
                 },
-                employeeTaskAssignment: true
-            }
-        });
+            }),
+            prisma.employeeTask.count({
+                where,
+            }),
+        ]);
 
         return {
-            error: null,
             success: true,
-            data: data
-        }
+            error: null,
+            data,
+            totalCount,
+        };
     } catch (error) {
         console.error(error);
 
         return {
-            error: "Gagal mengambil daftar tugas karyawan.",
             success: false,
-            data: []
+            error: "Gagal mengambil daftar tugas karyawan.",
+            data: [],
+            totalCount: 0,
         };
     }
 }
@@ -52,6 +91,12 @@ export async function getEmployeeTaskByIdAction(id: string) {
                 id: id
             },
             include: {
+                employeeTaskStatus: {
+                    select: {
+                        name: true,
+                        colorHex: true
+                    }
+                },
                 employeeTaskCategory: {
                     select: {
                         name: true

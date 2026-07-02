@@ -1,5 +1,7 @@
 "use client"
 
+import DropdownSelect from "@/components/dropdown-select";
+import SearchInput from "@/components/search-input";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -11,6 +13,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Table,
@@ -28,10 +31,10 @@ import { useRouter } from "nextjs-toploader/app";
 import { startTransition } from "react";
 import { toast } from "sonner";
 import { deleteEmployeeTaskByIdAction } from "../actions";
-import { Badge } from "@/components/ui/badge";
 
 export default function EmployeeTaskList({
-    data
+    data,
+    page
 }: {
     data: Prisma.EmployeeTaskGetPayload<{
         include: {
@@ -49,80 +52,105 @@ export default function EmployeeTaskList({
             employeeTaskAssignment: true
         }
     }>[]
+    page: number
 }) {
 
     const router = useRouter();
 
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>No</TableHead>
-                    <TableHead>Judul</TableHead>
-                    <TableHead>Kategori</TableHead>
-                    <TableHead>Waktu Mulai</TableHead>
-                    <TableHead>Jatuh Tempo</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ditugaskan</TableHead>
-                    <TableHead>Aksi</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {data.map((item, index) => (
-                    <TableRow key={item.id}>
-                        <TableCell className="font-medium">{index + 1}</TableCell>
-                        <TableCell>{item.title}</TableCell>
-                        <TableCell>{item.employeeTaskCategory?.name}</TableCell>
-                        <TableCell>
-                            {formatDateTime(item.startAt)}
-                        </TableCell>
-                        <TableCell>
-                            {formatDateTime(item.dueAt)}
-                        </TableCell>
-                        <TableCell>
-                            {
-
-                            }
-                            <Badge style={{ backgroundColor: item.employeeTaskStatus.colorHex }}>
-                                {item.employeeTaskStatus.name}
-                            </Badge>
-                        </TableCell>
-                        <TableCell>
-                            {
-                                item.employeeTaskAssignment.length === 0 ? (
-                                    <span className="text-red-500">Belum ditugaskan</span>
-                                ) : (
-                                    <span>
-                                        {item.employeeTaskAssignment.length === 1 ? "1 Karyawan" : `${item.employeeTaskAssignment.length} Karyawan`}
-                                    </span>
-                                )
-                            }
-                        </TableCell>
-                        <TableCell className="space-x-2">
-                            <Button variant={'outline'} size={'icon'}
-                                onClick={() => router.push(`/admin/employee-tasks/${item.id}`)}>
-                                <EyeIcon />
-                            </Button>
-                            <Button size={'icon'}
-                                onClick={() => router.push(`/admin/employee-tasks/${item.id}/edit`)}>
-                                <EditIcon />
-                            </Button>
-                            <DeleteActionButton
-                                id={item.id}
-                                judul={item.title} />
-                        </TableCell>
-                    </TableRow>
-                ))}
-                {
-                    data.length === 0 &&
+        <>
+            <div className="flex flex-wrap gap-2 justify-between">
+                <SearchInput />
+                <DropdownSelect
+                    queryKey="employeeTaskStatusId"
+                    placeholder="Pilih Status"
+                    label="Status"
+                    items={[
+                        {
+                            value: "1",
+                            label: "Belum Dimulai",
+                        },
+                        {
+                            value: "2",
+                            label: "Sedang Berlangsung",
+                        },
+                        {
+                            value: "3",
+                            label: "Ditutup",
+                        },
+                    ]}
+                />
+            </div>
+            <Table>
+                <TableHeader>
                     <TableRow>
-                        <TableCell colSpan={6} className="text-center">
-                            Tidak ada tugas karyawan.
-                        </TableCell>
+                        <TableHead>No</TableHead>
+                        <TableHead>Judul</TableHead>
+                        <TableHead>Kategori</TableHead>
+                        <TableHead>Waktu Mulai</TableHead>
+                        <TableHead>Jatuh Tempo</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Ditugaskan</TableHead>
+                        <TableHead>Aksi</TableHead>
                     </TableRow>
-                }
-            </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                    {data.map((item, index) => (
+                        <TableRow key={item.id}>
+                            <TableCell className="font-medium">{(page - 1) * 10 + index + 1}</TableCell>
+                            <TableCell>{item.title}</TableCell>
+                            <TableCell>{item.employeeTaskCategory?.name}</TableCell>
+                            <TableCell>
+                                {formatDateTime(item.startAt)}
+                            </TableCell>
+                            <TableCell>
+                                {formatDateTime(item.dueAt)}
+                            </TableCell>
+                            <TableCell>
+                                {
+
+                                }
+                                <Badge style={{ backgroundColor: item.employeeTaskStatus.colorHex }}>
+                                    {item.employeeTaskStatus.name}
+                                </Badge>
+                            </TableCell>
+                            <TableCell>
+                                {
+                                    item.employeeTaskAssignment.length === 0 ? (
+                                        <span className="text-red-500">Belum ditugaskan</span>
+                                    ) : (
+                                        <span>
+                                            {item.employeeTaskAssignment.length === 1 ? "1 Karyawan" : `${item.employeeTaskAssignment.length} Karyawan`}
+                                        </span>
+                                    )
+                                }
+                            </TableCell>
+                            <TableCell className="space-x-2">
+                                <Button variant={'outline'} size={'icon'}
+                                    onClick={() => router.push(`/admin/employee-tasks/${item.id}`)}>
+                                    <EyeIcon />
+                                </Button>
+                                <Button size={'icon'}
+                                    onClick={() => router.push(`/admin/employee-tasks/${item.id}/edit`)}>
+                                    <EditIcon />
+                                </Button>
+                                <DeleteActionButton
+                                    id={item.id}
+                                    judul={item.title} />
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                    {
+                        data.length === 0 &&
+                        <TableRow>
+                            <TableCell colSpan={6} className="text-center">
+                                Tidak ada tugas karyawan.
+                            </TableCell>
+                        </TableRow>
+                    }
+                </TableBody>
+            </Table>
+        </>
     )
 }
 

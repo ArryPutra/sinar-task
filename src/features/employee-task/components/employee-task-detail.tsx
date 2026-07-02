@@ -4,18 +4,22 @@ import { AttachmentList } from "@/components/attachment-list";
 import BackButton from "@/components/back-button";
 import LeafletMap from "@/components/leaflet-map/leaflet-map";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Prisma } from "@/generated/prisma/client";
 import { formatDateTime } from "@/utils/date";
-import { ExternalLink, File, FileText, Image, Paperclip } from "lucide-react";
 
 export default function EmployeeTaskDetail({
     data
 }: {
     data: Prisma.EmployeeTaskGetPayload<{
         include: {
+            employeeTaskStatus: {
+                select: {
+                    name: true,
+                    colorHex: true
+                }
+            },
             employeeTaskCategory: {
                 select: {
                     name: true
@@ -66,6 +70,16 @@ export default function EmployeeTaskDetail({
                 <Field>
                     <FieldLabel>Jatuh Tempo</FieldLabel>
                     <FieldTitle>{formatDateTime(data.dueAt)}</FieldTitle>
+                </Field>
+                <Field>
+                    <FieldLabel>Status</FieldLabel>
+                    <FieldTitle>
+                        <Badge style={{
+                            backgroundColor: data.employeeTaskStatus.colorHex,
+                        }}>
+                            {data.employeeTaskStatus.name}
+                        </Badge>
+                    </FieldTitle>
                 </Field>
                 <Field className="col-span-2">
                     <FieldLabel>Deskripsi</FieldLabel>

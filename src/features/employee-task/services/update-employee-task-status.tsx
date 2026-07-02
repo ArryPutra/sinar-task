@@ -31,21 +31,5 @@ export async function updateEmployeeTaskStatus() {
         },
     });
 
-    // Ditutup -> Sedang Berlangsung
-    await prisma.employeeTask.updateMany({
-        where: {
-            employeeTaskStatusId: 3,
-            dueAt: {
-                gte: now,
-            },
-            startAt: {
-                lte: now,
-            },
-        },
-        data: {
-            employeeTaskStatusId: 2,
-        },
-    });
-
     console.log(`[CRON] Status task diperbarui ${now.toLocaleString()}`);
 }
