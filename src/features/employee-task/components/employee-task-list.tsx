@@ -143,7 +143,7 @@ export default function EmployeeTaskList({
                     {
                         data.length === 0 &&
                         <TableRow>
-                            <TableCell colSpan={6} className="text-center">
+                            <TableCell colSpan={99} className="text-center">
                                 Tidak ada tugas karyawan.
                             </TableCell>
                         </TableRow>

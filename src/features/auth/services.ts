@@ -29,18 +29,3 @@ export async function logoutService(requestHeaders: Headers) {
         throw new Error("Failed to logout");
     }
 }
-
-export async function getCurrentUserService(requestHeaders: Headers) {
-    try {
-        const response = await auth.api.getSession({
-            headers: requestHeaders
-        });
-
-        const user = response?.user;
-
-        return { success: true, user: user };
-    } catch (error) {
-        console.error(error);
-        throw new Error("Failed to get current user");
-    }
-}

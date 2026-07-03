@@ -39,7 +39,7 @@ export default function DashboardView({
 
   const roleSidebarMenu: RoleSidebarMenu[] = {
     1: roleSidebarMenus.ADMIN,
-    2: roleSidebarMenus.KARYAWAN,
+    2: roleSidebarMenus.EMPLOYEE,
   }[user.roleId] || [];
 
   const breadcrumbTitle = roleSidebarMenu.find((item) => pathName.startsWith(item.url))?.title;

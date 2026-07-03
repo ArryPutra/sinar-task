@@ -1,11 +1,11 @@
 "use server"
 
 import { roleDashboardRoutesMap } from "@/features/dashboard/config/role-dashboard-routes";
-import { ActionState } from "@/types/action-state";
+import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { loginSchema } from "./schemas";
-import { getCurrentUserService, loginService, logoutService } from "./services";
+import { loginService, logoutService } from "./services";
 
 export async function loginAction(
     prevState: any,
@@ -61,9 +61,11 @@ export async function getCurrentUserAction() {
     try {
         const nextHeaders = await headers();
 
-        const { user } = await getCurrentUserService(nextHeaders);
+        const session = await auth.api.getSession({
+            headers: nextHeaders
+        });
 
-        return { success: true, user: user };
+        return { success: true, user: session?.user };
     } catch (error) {
         console.error(error);
 

@@ -13,12 +13,12 @@ export async function proxy(request: NextRequest) {
     const guestRoutes = ["/login"];
     const authRoutes = [
         "/admin/:path*",
-        "/karyawan/:path*",
+        "/employee/:path*",
     ];
 
     const roleRouteMap: Record<number, string> = {
         1: "/admin",
-        2: "/karyawan",
+        2: "/employee",
     };
 
     // Belum Ter-Autentikasi

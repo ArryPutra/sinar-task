@@ -16,8 +16,7 @@ async function main() {
 
   await prisma.employeeTaskAssignmentStatus.createMany({
     data: [
-      { name: "Belum Dimulai", colorHex: "#64748B", },
-      { name: "Sedang Dikerjakan", colorHex: "#3B82F6", },
+      { name: "Ditugaskan", colorHex: "#3B82F6", },
       { name: "Menunggu Review", colorHex: "#A855F7", },
       { name: "Revisi", colorHex: "#F59E0B", },
       { name: "Selesai", colorHex: "#10B981", }

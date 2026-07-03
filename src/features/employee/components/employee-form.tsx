@@ -76,14 +76,14 @@ export default function EmployeeForm({
                         <FieldError>{fieldErrors?.email}</FieldError>
                     </Field>
                     <Field>
-                        <FieldLabel htmlFor="nomorTelepon">Nomor Telepon</FieldLabel>
+                        <FieldLabel htmlFor="phoneNumber">Nomor Telepon</FieldLabel>
                         <Input
-                            id="nomorTelepon"
-                            name="nomorTelepon"
+                            id="phoneNumber"
+                            name="phoneNumber"
                             type="tel"
-                            defaultValue={fields?.nomorTelepon ?? data?.nomorTelepon}
+                            defaultValue={fields?.phoneNumber ?? data?.phoneNumber}
                             placeholder='Masukkan nomor telepon' />
-                        <FieldError>{fieldErrors?.nomorTelepon}</FieldError>
+                        <FieldError>{fieldErrors?.phoneNumber}</FieldError>
                     </Field>
                     <Field>
                         <FieldLabel htmlFor="password">Password {isEditMode && "Baru"}</FieldLabel>

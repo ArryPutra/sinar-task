@@ -4,7 +4,7 @@ import { AttachmentList } from "@/components/attachment-list";
 import BackButton from "@/components/back-button";
 import LeafletMap from "@/components/leaflet-map/leaflet-map";
 import { Badge } from "@/components/ui/badge";
-import { Field, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Prisma } from "@/generated/prisma/client";
 import { formatDateTime } from "@/utils/date";
@@ -30,7 +30,7 @@ export default function EmployeeTaskDetail({
                     employeeId: true,
                     employee: {
                         select: {
-                            nomorTelepon: true,
+                            phoneNumber: true,
                             user: {
                                 select: {
                                     name: true,
@@ -81,9 +81,13 @@ export default function EmployeeTaskDetail({
                         </Badge>
                     </FieldTitle>
                 </Field>
+                <Field>
+                    <FieldLabel>Nama Lokasi</FieldLabel>
+                    <FieldTitle>{data.locationName}</FieldTitle>
+                </Field>
                 <Field className="col-span-2">
                     <FieldLabel>Deskripsi</FieldLabel>
-                    <FieldTitle>{data.description || <span className="text-muted-foreground">Tidak ada deskripsi</span>}</FieldTitle>
+                    <FieldDescription>{data.description || <span className="text-muted-foreground">Tidak ada deskripsi</span>}</FieldDescription>
                 </Field>
                 <Field className="col-span-2">
                     <LeafletMap
@@ -116,7 +120,7 @@ export default function EmployeeTaskDetail({
                                         <TableCell className="font-medium">{index + 1}</TableCell>
                                         <TableCell>{item.employee.user.name}</TableCell>
                                         <TableCell>{item.employee.user.email}</TableCell>
-                                        <TableCell>{item.employee.nomorTelepon}</TableCell>
+                                        <TableCell>{item.employee.phoneNumber}</TableCell>
                                         <TableCell>
                                             <Badge style={{
                                                 backgroundColor: item.employeeTaskAssignmentStatus.colorHex,

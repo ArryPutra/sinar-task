@@ -101,13 +101,14 @@ model EmployeeTask {
   employeeTaskCategoryId Int
   employeeTaskStatusId   Int
 
-  title       String
-  description String?
-  startAt     DateTime
-  dueAt       DateTime
-  latitude    Float
-  longitude   Float
-  fileUrls    String[]
+  title        String
+  description  String?
+  startAt      DateTime
+  dueAt        DateTime
+  latitude     Float
+  longitude    Float
+  fileUrls     String[]
+  locationName String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -150,8 +151,8 @@ model EmployeeTaskCategory {
 model Employee {
   id String @id @default(cuid())
 
-  userId       String @unique
-  nomorTelepon String @unique
+  userId      String @unique
+  phoneNumber String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -168,6 +169,9 @@ model EmployeeTaskAssignment {
   employeeTaskId                 String
   employeeId                     String
   employeeTaskAssignmentStatusId Int    @default(1)
+
+  note     String?
+  fileUrls String[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

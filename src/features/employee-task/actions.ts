@@ -5,6 +5,7 @@ import { deleteFileFromCloudinary, uploadStreamToCloudinary } from "@/lib/cloudi
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
 import { revalidatePath } from "next/cache";
+import { employeeTasksByEmployeeId } from "./queris";
 import { formEmployeeTaskSchema } from "./schemas";
 import { determineEmployeeTaskStatusId } from "./utils/determine-employee-task-status-id";
 
@@ -107,7 +108,7 @@ export async function getEmployeeTaskByIdAction(id: string) {
                         employeeId: true,
                         employee: {
                             select: {
-                                nomorTelepon: true,
+                                phoneNumber: true,
                                 user: {
                                     select: {
                                         name: true,
@@ -167,7 +168,7 @@ export async function createEmployeeTaskAction(
         for (const file of files) {
             if (file.size === 0) continue;
             const uploadResult = await uploadStreamToCloudinary(file, 'employee_tasks');
-            if (uploadResult?.secure_url) {
+            if (uploadResult.secure_url) {
                 uploadedUrls.push(uploadResult.secure_url);
             }
         }
@@ -237,7 +238,7 @@ export async function updateEmployeeTaskByIdAction(
             for (const file of files) {
                 if (file.size === 0) continue;
                 const uploadResult = await uploadStreamToCloudinary(file, 'employee_tasks');
-                if (uploadResult?.secure_url) {
+                if (uploadResult.secure_url) {
                     uploadedUrls.push(uploadResult.secure_url);
                 }
             }

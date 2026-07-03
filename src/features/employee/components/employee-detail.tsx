@@ -2,12 +2,12 @@
 
 import BackButton from "@/components/back-button";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldTitle } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { EmployeeWithUserAndTask } from "../queris";
-import Link from "next/link";
+import TextLink from "@/components/text-link";
 
 export default function EmployeeDetail({
   data
@@ -31,7 +31,7 @@ export default function EmployeeDetail({
         </Field>
         <Field>
           <FieldDescription>Nomor Telepon</FieldDescription>
-          <FieldTitle>{data.nomorTelepon}</FieldTitle>
+          <FieldTitle>{data.phoneNumber}</FieldTitle>
         </Field>
         <Field className="col-span-2">
           <FieldDescription>Daftar Tugas</FieldDescription>
@@ -51,9 +51,7 @@ export default function EmployeeDetail({
                   <TableRow key={item.employeeTaskId}>
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>
-                      <Link href={`/admin/employee-tasks/${item.employeeTaskId}`} className="text-blue-500 hover:underline">
-                        {item.employeeTask.title}
-                      </Link>
+                      <TextLink url={`/admin/employee-tasks/${item.employeeTaskId}`} label={item.employeeTask.title} />
                     </TableCell>
                     <TableCell>{item.employeeTask.employeeTaskCategory.name}</TableCell>
                     <TableCell>

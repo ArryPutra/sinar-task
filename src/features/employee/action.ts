@@ -4,9 +4,9 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
 import { headers } from "next/headers";
+import { getCurrentUserAction } from "../auth/actions";
 import { employeeWithUser, employeeWithUserAndTask } from "./queris";
 import { createEmployeeSchema, updateEmployeeSchema } from "./schemas";
-import { revalidatePath } from "next/cache";
 
 export async function getAllEmployeesAction() {
     try {
@@ -90,7 +90,7 @@ export async function createEmployeeAction(
         await prisma.employee.create({
             data: {
                 userId: newUser.user.id,
-                nomorTelepon: validatedFields.data.nomorTelepon
+                phoneNumber: validatedFields.data.phoneNumber
             }
         });
     } catch (error) {
@@ -135,7 +135,7 @@ export async function updateEmployeeAction(
                 id: id
             },
             data: {
-                nomorTelepon: validatedFields.data.nomorTelepon,
+                phoneNumber: validatedFields.data.phoneNumber,
                 user: {
                     update: {
                         name: validatedFields.data.name,
@@ -169,6 +169,32 @@ export async function updateEmployeeAction(
             success: false,
             fields: Object.fromEntries(formData.entries()),
             fieldErrors: null
+        };
+    }
+}
+
+export async function getCurrentEmployee() {
+    const currentUserId = (await getCurrentUserAction()).user?.id;
+
+    try {
+        const data = await prisma.employee.findUnique({
+            where: {
+                userId: currentUserId
+            }
+        });
+
+        return {
+            error: null,
+            success: true,
+            data: data
+        };
+    } catch (error) {
+        console.error(error);
+
+        return {
+            error: "Gagal mengambil data karyawan saat ini.",
+            success: false,
+            data: null
         };
     }
 }

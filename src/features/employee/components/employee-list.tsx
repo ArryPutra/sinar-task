@@ -38,7 +38,7 @@ export default function EmployeeList({
                         <TableCell className="font-medium">{index + 1}</TableCell>
                         <TableCell>{item.user.name}</TableCell>
                         <TableCell>{item.user.email}</TableCell>
-                        <TableCell>{item.nomorTelepon}</TableCell>
+                        <TableCell>{item.phoneNumber}</TableCell>
                         <TableCell className="space-x-2">
                             <Button variant={'outline'} size={'icon'}
                                 onClick={() => router.push(`/admin/employees/${item.id}`)}>

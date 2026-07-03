@@ -26,6 +26,8 @@ export const formEmployeeTaskSchema = z.object({
   longitude: z.coerce.number()
     .min(-180, "Longitude harus lebih besar dari -180.")
     .max(180, "Longitude harus kurang dari 180."),
+
+  locationName: z.string().min(1, "Nama lokasi harus diisi."),
 }).superRefine((data, ctx) => {
   if (data.dueAt < data.startAt) {
     ctx.addIssue({

@@ -1,7 +1,7 @@
 "use client"
 
 import BackButton from "@/components/back-button"
-import CloudinaryCustom from "@/components/file-upload"
+import UploadFile from "@/components/file-upload"
 import LeafletMap from "@/components/leaflet-map/leaflet-map"
 import { Button } from "@/components/ui/button"
 import {
@@ -202,6 +202,21 @@ export default function EmployeeTaskForm({
                             </ComboboxContent>
                         </Combobox>
                     </Field>
+                    <Field>
+                        <FieldLabel htmlFor="locationName">Nama Lokasi</FieldLabel>
+                        <Input
+                            id="locationName"
+                            name="locationName"
+                            defaultValue={fields?.locationName ?? data?.locationName}
+                            placeholder="Masukkan nama lokasi" />
+                        <FieldError>{fieldErrors?.locationName}</FieldError>
+                    </Field>
+                    <Field className="col-span-2">
+                        <FieldLabel>Lampiran File</FieldLabel>
+                        <UploadFile
+                            name="fileUrls" />
+                        <FieldError>{fieldErrors?.fileUrls}</FieldError>
+                    </Field>
                     <Field className="col-span-2">
                         <LeafletMap
                             showInput={true}
@@ -209,12 +224,6 @@ export default function EmployeeTaskForm({
                             longitude={fields?.longitude ?? data?.longitude} />
                         <FieldError>{fieldErrors?.latitude}</FieldError>
                         <FieldError>{fieldErrors?.longitude}</FieldError>
-                    </Field>
-                    <Field className="col-span-2">
-                        <FieldLabel>Lampiran File</FieldLabel>
-                        <CloudinaryCustom
-                            name="fileUrls" />
-                        <FieldError>{fieldErrors?.fileUrls}</FieldError>
                     </Field>
 
                     <Button type="submit" className="col-span-2 w-fit" disabled={isPending}>

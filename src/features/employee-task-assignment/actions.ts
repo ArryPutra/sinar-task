@@ -1,29 +1,157 @@
 "use server"
 
+import { deleteFileFromCloudinary, uploadStreamToCloudinary } from "@/lib/cloudinary";
 import { prisma } from "@/lib/prisma";
+import { ActionState } from "@/types/action-state";
+import { revalidatePath } from "next/cache";
+import { getAllEmployeeTaskAssignmentQuery, getEmployeeTaskAssignmentsByEmployeeIdActionQuery } from "./queris";
+import { submitEmployeeTaskAssignmentActionSchema } from "./schemas";
 
-export async function getEmployeeTaskAssignments(employeeId: string) {
+export async function getAllEmployeeTaskAssignment() {
     try {
-        const response = await prisma.employeeTaskAssignment.findMany({
-            where: {
-                employeeId: employeeId
-            }
+        const employeeTaskAssignments = await prisma.employeeTaskAssignment.findMany({
+            orderBy: {
+                createdAt: "desc"
+            },
+            ...getAllEmployeeTaskAssignmentQuery
         });
 
-        console.log(response)
-
         return {
-            error: false,
+            error: null,
             success: true,
-            data: response
+            data: employeeTaskAssignments
         }
     } catch (error) {
         console.error(error);
 
         return {
-            error: true,
+            error: "Gagal mengambil daftar penugasan tugas karyawan.",
             success: false,
-            data: null
+            data: []
+        };
+    }
+}
+
+export async function getEmployeeTaskAssignmentsByEmployeeIdAction(employeeId: string) {
+    try {
+        const employeeTaskAssignmentsResponse = await prisma.employeeTaskAssignment.findMany({
+            where: {
+                employeeId: employeeId
+            },
+            ...getEmployeeTaskAssignmentsByEmployeeIdActionQuery
+        });
+
+        return employeeTaskAssignmentsResponse;
+    } catch (error) {
+        console.error(error);
+
+        return [];
+    }
+}
+
+export async function submitEmployeeTaskAssignmentAction(
+    id: string,
+    prevState: ActionState,
+    formData: FormData
+) {
+    const validatedFields = submitEmployeeTaskAssignmentActionSchema.safeParse(
+        Object.fromEntries(formData.entries())
+    );
+
+    if (!validatedFields.success) {
+        return {
+            error: validatedFields.error?.message,
+            success: false,
+            message: "Validasi gagal. Silakan periksa kembali input Anda.",
+            fields: Object.fromEntries(formData.entries()),
+            fieldErrors: validatedFields.error?.flatten().fieldErrors
+        };
+    }
+
+    // Memastikan bahwa taskAssigment adalah milik karyawan yang sedang login
+    const taskAssignment = await prisma.employeeTaskAssignment.findUnique({
+        where: {
+            id: id
         }
+    });
+    if (!taskAssignment) {
+        return {
+            error: "Tugas tidak ditemukan atau tidak dimiliki oleh karyawan ini.",
+            success: false,
+            message: "Tugas tidak ditemukan atau tidak dimiliki oleh karyawan ini.",
+            fields: Object.fromEntries(formData.entries()),
+            fieldErrors: null
+        };
+    }
+
+    const files = formData.getAll("fileUrls") as File[];
+
+    // Memastikan bahwa setidaknya ada satu file yang diunggah
+    if (files[0].size === 0 && taskAssignment.fileUrls.length === 0) {
+        return {
+            error: "Lampiran harus diunggah.",
+            success: false,
+            message: "Lampiran harus diunggah.",
+            fields: Object.fromEntries(formData.entries()),
+            fieldErrors: {
+                fileUrls: ["Lampiran harus diunggah."]
+            }
+        };
+    }
+
+    // Memastikan bahwa status taskAssignment tidak boleh sama dengan 3 (selesai)
+    if (taskAssignment.employeeTaskAssignmentStatusId === 4) {
+        return {
+            error: "Tugas sudah selesai dan tidak dapat diubah.",
+            success: false,
+            message: "Tugas sudah selesai dan tidak dapat diubah.",
+            fields: Object.fromEntries(formData.entries()),
+            fieldErrors: null
+        };
+    }
+
+    const uploadedUrls: string[] = taskAssignment.fileUrls ?? [];
+
+    try {
+        for (const file of files) {
+            if (file.size === 0) continue;
+            const uploadResult = await uploadStreamToCloudinary(file, 'employee_task_assignments');
+            if (uploadResult.secure_url) {
+                uploadedUrls.push(uploadResult.secure_url);
+            }
+        }
+
+        await prisma.employeeTaskAssignment.update({
+            where: {
+                id: id
+            },
+            data: {
+                note: validatedFields.data.note,
+                fileUrls: uploadedUrls,
+                employeeTaskAssignmentStatusId: 2
+            }
+        });
+
+        revalidatePath(`/employee/dashboard`);
+
+        return {
+            error: null,
+            success: true,
+            message: "Tugas berhasil dikumpulkan!"
+        }
+    } catch (error) {
+        console.error(error);
+
+        for (const url of uploadedUrls) {
+            await deleteFileFromCloudinary(url);
+        }
+
+        return {
+            error: "Gagal mengirimkan penugasan tugas karyawan.",
+            success: false,
+            message: "Terjadi kesalahan saat mengirimkan penugasan tugas karyawan. Silakan coba lagi.",
+            fields: Object.fromEntries(formData.entries()),
+            fieldErrors: null
+        };
     }
 }

@@ -7,7 +7,7 @@ export type RoleSidebarMenu = {
     isActive: boolean;
 };
 
-export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; KARYAWAN: RoleSidebarMenu[] } = {
+export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; EMPLOYEE: RoleSidebarMenu[] } = {
     ADMIN:
         [
             {
@@ -35,12 +35,12 @@ export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; KARYAWAN: RoleSidebar
                 isActive: true
             },
         ],
-    KARYAWAN: [
+    EMPLOYEE: [
         {
             title: "Dashboard",
             url: "/employee/dashboard",
             icon: PieChartIcon,
             isActive: true,
-        },
+        }
     ]
 }

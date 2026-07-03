@@ -3,11 +3,15 @@
 import { File as FileIcon, FileText, Image, UploadCloud, X } from 'lucide-react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
-interface CloudinaryCustomProps {
+interface UploadFileProps {
     name: string;          // Nama untuk field file baru (misal: "fileUrls")
+    label?: string;         // Label untuk field file baru (misal: "Lampiran Bukti Kerja")
 }
 
-export default function CloudinaryCustom({ name }: CloudinaryCustomProps) {
+export default function UploadFile({
+    name,
+    label = "Klik untuk menambah file"
+}: UploadFileProps) {
     // State untuk file baru yang dipilih (berupa objek File asli)
     const [newFiles, setNewFiles] = useState<File[]>([]);
 
@@ -111,7 +115,7 @@ export default function CloudinaryCustom({ name }: CloudinaryCustomProps) {
                     </div>
                     <div className="flex flex-col gap-0.5">
                         <p className="text-sm font-medium">
-                            <span className="text-blue-500 font-semibold group-hover:text-blue-600">Klik untuk menambah file</span>
+                            <span className="text-blue-500 font-semibold group-hover:text-blue-600">{label}</span>
                         </p>
                         <p className="text-xs text-muted-foreground">Mendukung Gambar & PDF</p>
                     </div>

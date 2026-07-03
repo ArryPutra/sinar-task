@@ -38,8 +38,8 @@ export default async function userSeed() {
   });
   await prisma.employee.createMany({
     data: [
-      { userId: employee1.user.id, nomorTelepon: "081234567890" },
-      { userId: employee2.user.id, nomorTelepon: "081234567891" }
+      { userId: employee1.user.id, phoneNumber: "081234567890" },
+      { userId: employee2.user.id, phoneNumber: "081234567891" }
     ]
   });
 }
