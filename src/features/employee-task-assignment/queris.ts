@@ -21,6 +21,15 @@ export const getEmployeeTaskAssignmentsByEmployeeIdActionQuery = {
                         name: true,
                     }
                 },
+                admin: {
+                    select: {
+                        user: {
+                            select: {
+                                name: true
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -30,6 +39,7 @@ export const getAllEmployeeTaskAssignmentQuery = {
     include: {
         employee: {
             select: {
+                phoneNumber: true,
                 user: {
                     select: {
                         name: true

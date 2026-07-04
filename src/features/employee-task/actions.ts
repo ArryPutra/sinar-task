@@ -5,7 +5,7 @@ import { deleteFileFromCloudinary, uploadStreamToCloudinary } from "@/lib/cloudi
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
 import { revalidatePath } from "next/cache";
-import { employeeTasksByEmployeeId } from "./queris";
+import { getCurrentAdmin } from "../admin/actions";
 import { formEmployeeTaskSchema } from "./schemas";
 import { determineEmployeeTaskStatusId } from "./utils/determine-employee-task-status-id";
 
@@ -60,6 +60,15 @@ export async function getAllEmployeeTaskAction({
                         },
                     },
                     employeeTaskAssignment: true,
+                    admin: {
+                        select: {
+                            user: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
                 },
             }),
             prisma.employeeTask.count({
@@ -181,7 +190,8 @@ export async function createEmployeeTaskAction(
                     employeeTaskStatusId: determineEmployeeTaskStatusId(
                         validatedFields.data.startAt,
                         validatedFields.data.dueAt
-                    )
+                    ),
+                    adminId: (await getCurrentAdmin()).data?.id || ""
                 },
             });
 
@@ -260,7 +270,7 @@ export async function updateEmployeeTaskByIdAction(
                     employeeTaskStatusId: determineEmployeeTaskStatusId(
                         validatedFields.data.startAt,
                         validatedFields.data.dueAt
-                    )
+                    ),
                 }
             });
 

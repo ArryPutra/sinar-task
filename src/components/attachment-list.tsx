@@ -1,11 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ExternalLink, File, FileText, Image } from "lucide-react";
 
-interface AttachmentListProps {
-    fileUrls: string[];
-    label?: string;
-}
-
 // Helper: Mengambil nama file asli dari URL Cloudinary
 const getFilenameFromUrl = (url: string) => {
     try {
@@ -28,11 +23,14 @@ const getFileIcon = (url: string) => {
     return <File className="h-4 w-4 text-muted-foreground shrink-0" />;
 };
 
-export function AttachmentList({ fileUrls, label = "Daftar Lampiran File" }: AttachmentListProps) {
+export function AttachmentList({ fileUrls, label = "Daftar Lampiran File" }: {
+    fileUrls: string[];
+    label?: string;
+}) {
     // State jika tidak ada file yang dikirim
     if (!fileUrls || fileUrls.length === 0) {
         return (
-            <p className="text-sm text-muted-foreground italic pl-1">
+            <p className="text-sm text-muted-foreground">
                 Tidak ada file yang dilampirkan.
             </p>
         );

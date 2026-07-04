@@ -72,6 +72,13 @@ export async function submitEmployeeTaskAssignmentAction(
     const taskAssignment = await prisma.employeeTaskAssignment.findUnique({
         where: {
             id: id
+        },
+        include: {
+            employeeTask: {
+                select: {
+                    employeeTaskStatusId: true
+                }
+            }
         }
     });
     if (!taskAssignment) {
@@ -105,6 +112,17 @@ export async function submitEmployeeTaskAssignmentAction(
             error: "Tugas sudah selesai dan tidak dapat diubah.",
             success: false,
             message: "Tugas sudah selesai dan tidak dapat diubah.",
+            fields: Object.fromEntries(formData.entries()),
+            fieldErrors: null
+        };
+    }
+
+    // Memastikan bahwa status task tidak boleh ditutup 3 (ditutup)
+    if (taskAssignment.employeeTask.employeeTaskStatusId === 3) {
+        return {
+            error: "Tugas sudah ditutup dan tidak dapat dikumpulkan.",
+            success: false,
+            message: "Tugas sudah ditutup dan tidak dapat dikumpulkan.",
             fields: Object.fromEntries(formData.entries()),
             fieldErrors: null
         };
@@ -152,6 +170,42 @@ export async function submitEmployeeTaskAssignmentAction(
             message: "Terjadi kesalahan saat mengirimkan penugasan tugas karyawan. Silakan coba lagi.",
             fields: Object.fromEntries(formData.entries()),
             fieldErrors: null
+        };
+    }
+}
+
+export async function updateEmployeeTaskAssignmentStatusAction(
+    id: string,
+    prevState: ActionState,
+    formData: FormData
+): Promise<ActionState> {
+    const employeeTaskAssignmentStatusId = Number(formData.get("employeeTaskAssignmentStatusId"));
+
+    try {
+        await prisma.employeeTaskAssignment.update({
+            where: {
+                id: id
+            },
+            data: {
+                employeeTaskAssignmentStatusId: employeeTaskAssignmentStatusId
+            }
+        });
+
+        revalidatePath(`/admin/employee-tasks/${id}`);
+
+        return {
+            error: null,
+            success: true,
+            message: "Status tugas berhasil diperbarui!"
+        }
+    }
+    catch (error) {
+        console.error(error);
+
+        return {
+            error: "Gagal memperbarui status tugas.",
+            success: false,
+            message: "Terjadi kesalahan saat memperbarui status tugas. Silakan coba lagi."
         };
     }
 }

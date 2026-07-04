@@ -49,7 +49,16 @@ export default function EmployeeTaskList({
                     name: true
                 }
             },
-            employeeTaskAssignment: true
+            employeeTaskAssignment: true,
+            admin: {
+                select: {
+                    user: {
+                        select: {
+                            name: true
+                        }
+                    }
+                }
+            }
         }
     }>[]
     page: number
@@ -91,6 +100,7 @@ export default function EmployeeTaskList({
                         <TableHead>Jatuh Tempo</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Ditugaskan</TableHead>
+                        <TableHead>Penanggung Jawab</TableHead>
                         <TableHead>Aksi</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -125,6 +135,7 @@ export default function EmployeeTaskList({
                                     )
                                 }
                             </TableCell>
+                            <TableCell>{item.admin?.user?.name || "Penanggung jawab tidak ditemukan"}</TableCell>
                             <TableCell className="space-x-2">
                                 <Button variant={'outline'} size={'icon'}
                                     onClick={() => router.push(`/admin/employee-tasks/${item.id}`)}>

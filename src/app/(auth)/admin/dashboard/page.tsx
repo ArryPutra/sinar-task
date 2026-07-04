@@ -17,10 +17,21 @@ export default async function AdminDashboardPage() {
                     employeeTaskAssignmentStatusId: 2
                 }
             })
+        },
+        {
+            label: "Tugas Sedang Dikerjakan",
+            value: await prisma.employeeTaskAssignment.count({
+                where: {
+                    employeeTaskAssignmentStatusId: {
+                        in: [1, 3]
+                    }
+                }
+            })
         }
     ];
 
     const getAllTaskAssignmentsResponse = await getAllEmployeeTaskAssignment();
+    const getAllEmployeeTaskAssignmentStatusOptions = await prisma.employeeTaskAssignmentStatus.findMany();
 
     return (
         <>
@@ -33,7 +44,8 @@ export default async function AdminDashboardPage() {
             </div>
 
             <EmployeeTaskAssignmentList
-            taskAssignments={getAllTaskAssignmentsResponse.data} />
+                taskAssignments={getAllTaskAssignmentsResponse.data}
+                employeeTaskAssignmentStatusOptions={getAllEmployeeTaskAssignmentStatusOptions} />
         </>
     )
 }

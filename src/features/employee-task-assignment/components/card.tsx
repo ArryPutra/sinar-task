@@ -26,6 +26,7 @@ import { CalendarIcon, ExternalLinkIcon, FileIcon, MapPinIcon } from "lucide-rea
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { submitEmployeeTaskAssignmentAction } from "../actions";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function EmployeeTaskAssignmentCard({
     data
@@ -153,6 +154,10 @@ function ShowDialog({
                     <FieldLabel>Lampiran Tugas</FieldLabel>
                     <AttachmentList fileUrls={data.employeeTask.fileUrls} />
                 </Field>
+                <Field>
+                    <FieldLabel>Penanggung Jawab</FieldLabel>
+                    <FieldDescription>{data.employeeTask.admin.user.name}</FieldDescription>
+                </Field>
 
                 <Field>
                     <div className="flex items-center gap-2">
@@ -179,26 +184,47 @@ function ShowDialog({
                                 name="note"
                                 placeholder="Masukkan catatan"
                                 defaultValue={state.fields?.note?.toString() ?? data.note}
-                                disabled={isPending}
-                            />
+                                disabled={isPending || data.employeeTaskAssignmentStatusId === 4 || data.employeeTask.employeeTaskStatusId === 3} />
                             <FieldError>{state.fieldErrors?.note}</FieldError>
                         </Field>
                         <Field>
                             <FieldLabel>Lampiran Bukti Kerja</FieldLabel>
                             {
-                                data.fileUrls.length > 0 && (
-                                    <FieldDescription>
-                                        File yang sudah diunggah sebelumnya akan diganti dengan file baru yang Anda unggah.
-                                    </FieldDescription>
-                                )
+                                data.fileUrls.length > 0 &&
+                                <FieldDescription>
+                                    File yang sudah diunggah sebelumnya akan diganti dengan file baru yang Anda unggah.
+                                </FieldDescription>
                             }
-                            <UploadFile
-                                name="fileUrls"
-                                label={data.fileUrls.length > 0 ? "Klik untuk memperbarui file" : undefined} />
+                            {
+                                data.employeeTaskAssignmentStatusId !== 4 || data.employeeTask.employeeTaskStatusId === 3
+                                &&
+                                <UploadFile
+                                    name="fileUrls"
+                                    label={data.fileUrls.length > 0 ? "Klik untuk memperbarui file" : undefined} />
+                            }
                             <FieldError>{state.fieldErrors?.fileUrls}</FieldError>
                             <AttachmentList fileUrls={data.fileUrls} />
                         </Field>
                     </FieldGroup>
+
+                    {
+                        data.employeeTaskAssignmentStatusId === 4 &&
+                        <Alert>
+                            <AlertTitle>Tugas Selesai</AlertTitle>
+                            <AlertDescription>
+                                Tugas ini sudah selesai dan tidak dapat diubah.
+                            </AlertDescription>
+                        </Alert>
+                    }
+                    {
+                        data.employeeTask.employeeTaskStatusId === 3 &&
+                        <Alert variant={'destructive'}>
+                            <AlertTitle>Tugas Ditutup</AlertTitle>
+                            <AlertDescription>
+                                Tugas ini sudah ditutup dan tidak dapat dikumpulkan.
+                            </AlertDescription>
+                        </Alert>
+                    }
 
                     <DialogFooter className="gap-2">
                         <DialogClose asChild>
@@ -206,9 +232,12 @@ function ShowDialog({
                                 Tutup
                             </Button>
                         </DialogClose>
-                        <Button type="submit" disabled={isPending}>
-                            {isPending ? "Mengirim..." : "Kirim Tugas"}
-                        </Button>
+                        {
+                            data.employeeTaskAssignmentStatusId !== 4 || data.employeeTask.employeeTaskStatusId === 3 &&
+                            <Button type="submit" disabled={isPending}>
+                                {isPending ? "Mengirim..." : "Kirim Tugas"}
+                            </Button>
+                        }
                     </DialogFooter>
                 </form>
             </DialogContent>
