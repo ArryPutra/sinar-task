@@ -6,28 +6,63 @@ import { ActionState } from "@/types/action-state";
 import { revalidatePath } from "next/cache";
 import { getAllEmployeeTaskAssignmentQuery, getEmployeeTaskAssignmentsByEmployeeIdActionQuery } from "./queris";
 import { submitEmployeeTaskAssignmentActionSchema } from "./schemas";
+import { Prisma } from "@/generated/prisma/client";
 
-export async function getAllEmployeeTaskAssignment() {
+export async function getAllEmployeeTaskAssignment({
+    page = 1,
+    search = "",
+}: {
+    page: number
+    search?: string
+}) {
     try {
-        const employeeTaskAssignments = await prisma.employeeTaskAssignment.findMany({
-            orderBy: {
-                createdAt: "desc"
-            },
-            ...getAllEmployeeTaskAssignmentQuery
-        });
+        const pageSize = 10;
+        const skip = (page - 1) * pageSize;
+
+        const where: Prisma.EmployeeTaskAssignmentWhereInput = {
+            ...(search && {
+                OR: [
+                    {
+                        employee: {
+                            user: {
+                                name: {
+                                    contains: search,
+                                    mode: "insensitive",
+                                }
+                            }
+                        }
+                    }
+                ],
+            }),
+        };
+
+        const [data, totalCount] = await Promise.all([
+            prisma.employeeTaskAssignment.findMany({
+                where,
+                orderBy: {
+                    createdAt: "desc"
+                },
+                skip,
+                take: pageSize,
+                ...getAllEmployeeTaskAssignmentQuery
+            }),
+            prisma.employeeTaskAssignment.count({ where })
+        ]);
 
         return {
-            error: null,
             success: true,
-            data: employeeTaskAssignments
-        }
+            error: null,
+            data,
+            totalCount,
+        };
     } catch (error) {
         console.error(error);
 
         return {
             error: "Gagal mengambil daftar penugasan tugas karyawan.",
             success: false,
-            data: []
+            data: [],
+            totalCount: 0
         };
     }
 }
@@ -37,6 +72,9 @@ export async function getEmployeeTaskAssignmentsByEmployeeIdAction(employeeId: s
         const employeeTaskAssignmentsResponse = await prisma.employeeTaskAssignment.findMany({
             where: {
                 employeeId: employeeId
+            },
+            orderBy: {
+                createdAt: "desc"
             },
             ...getEmployeeTaskAssignmentsByEmployeeIdActionQuery
         });
@@ -128,7 +166,7 @@ export async function submitEmployeeTaskAssignmentAction(
         };
     }
 
-    const uploadedUrls: string[] = taskAssignment.fileUrls ?? [];
+    const uploadedUrls: string[] = [];
 
     try {
         for (const file of files) {
@@ -151,6 +189,11 @@ export async function submitEmployeeTaskAssignmentAction(
         });
 
         revalidatePath(`/employee/dashboard`);
+
+        // menghapus file lama dari Cloudinary jika ada
+        for (const oldFileUrl of taskAssignment?.fileUrls || []) {
+            await deleteFileFromCloudinary(oldFileUrl);
+        }
 
         return {
             error: null,

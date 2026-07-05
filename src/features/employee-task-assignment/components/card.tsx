@@ -3,6 +3,7 @@
 import { AttachmentList } from "@/components/attachment-list";
 import UploadFile from "@/components/file-upload";
 import LeafletMap from "@/components/leaflet-map/leaflet-map";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +27,6 @@ import { CalendarIcon, ExternalLinkIcon, FileIcon, MapPinIcon } from "lucide-rea
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { submitEmployeeTaskAssignmentAction } from "../actions";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function EmployeeTaskAssignmentCard({
     data
@@ -81,7 +81,7 @@ export default function EmployeeTaskAssignmentCard({
                                         href={url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-[11px] font-medium text-sky-600 bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/40 dark:hover:bg-sky-950/70 border border-sky-200 dark:border-sky-900 px-2 py-0.5 rounded transition-colors max-w-[150px]"
+                                        className="inline-flex items-center gap-1 text-[11px] font-medium text-sky-600 bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/40 dark:hover:bg-sky-950/70 border border-sky-200 dark:border-sky-900 px-2 py-0.5 rounded transition-colors max-w-37.5"
                                         title={fileName}
                                     >
                                         <span className="truncate">{fileName}</span>
@@ -171,7 +171,7 @@ function ShowDialog({
 
                 <div className="flex items-center gap-2">
                     <CalendarIcon className="h-4 w-4 shrink-0 text-primary" />
-                    <span>Deadline: {formatDateTime(data.employeeTask.dueAt)}</span>
+                    <span>Jatuh Tempo: {formatDateTime(data.employeeTask.dueAt)}</span>
                 </div>
 
                 <Separator />
@@ -196,8 +196,7 @@ function ShowDialog({
                                 </FieldDescription>
                             }
                             {
-                                data.employeeTaskAssignmentStatusId !== 4 || data.employeeTask.employeeTaskStatusId === 3
-                                &&
+                                (data.employeeTaskAssignmentStatusId !== 4 && data.employeeTask.employeeTaskStatusId !== 3) &&
                                 <UploadFile
                                     name="fileUrls"
                                     label={data.fileUrls.length > 0 ? "Klik untuk memperbarui file" : undefined} />
@@ -233,7 +232,7 @@ function ShowDialog({
                             </Button>
                         </DialogClose>
                         {
-                            data.employeeTaskAssignmentStatusId !== 4 || data.employeeTask.employeeTaskStatusId === 3 &&
+                            (data.employeeTaskAssignmentStatusId !== 4 && data.employeeTask.employeeTaskStatusId !== 3) &&
                             <Button type="submit" disabled={isPending}>
                                 {isPending ? "Mengirim..." : "Kirim Tugas"}
                             </Button>

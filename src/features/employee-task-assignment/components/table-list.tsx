@@ -33,6 +33,7 @@ import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { updateEmployeeTaskAssignmentStatusAction } from "../actions";
 import { AllEmployeeTaskAssignments } from "../queris";
+import SearchInput from "@/components/search-input";
 
 export default function EmployeeTaskAssignmentList({
     taskAssignments,
@@ -42,63 +43,77 @@ export default function EmployeeTaskAssignmentList({
     employeeTaskAssignmentStatusOptions: EmployeeTaskAssignmentStatus[]
 }) {
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>No</TableHead>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>Nomor Telepon</TableHead>
-                    <TableHead>Judul Tugas</TableHead>
-                    <TableHead>Jatuh Tempo</TableHead>
-                    <TableHead>Status Pekerjaan</TableHead>
-                    <TableHead>Dikumpulkan</TableHead>
-                    <TableHead>Aksi</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {taskAssignments.map((task, index) => (
-                    <TableRow key={task.id}>
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>
-                            <TextLink
-                                url={`/admin/employees/${task.employeeId}`}
-                                label={task.employee.user.name ?? "Tidak ada nama"}
-                            />
-                        </TableCell>
-                        <TableCell>{task.employee.phoneNumber}</TableCell>
-                        <TableCell>
-                            <TextLink
-                                url={`/admin/employee-tasks/${task.employeeTask.id}`}
-                                label={task.employeeTask.title}
-                            />
-                        </TableCell>
-                        <TableCell>{formatDateTime(task.employeeTask.dueAt)}</TableCell>
-                        <TableCell>
-                            <Badge style={{
-                                backgroundColor: task.employeeTaskAssignmentStatus.colorHex
-                            }}>
-                                {task.employeeTaskAssignmentStatus.name}
-                            </Badge>
-                        </TableCell>
-                        <TableCell>{formatDateTime(task.updatedAt)}</TableCell>
-                        <TableCell>
-                            <ShowDialog
-                                data={task}
-                                employeeTaskAssignmentStatusOptions={employeeTaskAssignmentStatusOptions} />
-                        </TableCell>
+        <>
+            <SearchInput />
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>No</TableHead>
+                        <TableHead>Nama</TableHead>
+                        <TableHead>Nomor Telepon</TableHead>
+                        <TableHead>Judul Tugas</TableHead>
+                        <TableHead>Jatuh Tempo</TableHead>
+                        <TableHead>Status Pekerjaan</TableHead>
+                        <TableHead>Dikumpulkan</TableHead>
+                        <TableHead>Aksi</TableHead>
                     </TableRow>
-                ))}
-                {
-                    taskAssignments.length === 0 && (
-                        <TableRow>
-                            <TableCell colSpan={99} className="text-center">
-                                Tidak ada data tugas karyawan yang tersedia.
+                </TableHeader>
+                <TableBody>
+                    {taskAssignments.map((task, index) => (
+                        <TableRow key={task.id}>
+                            <TableCell>{index + 1}</TableCell>
+                            <TableCell>
+                                <TextLink
+                                    url={`/admin/employees/${task.employeeId}`}
+                                    label={task.employee.user.name ?? "Tidak ada nama"}
+                                />
+                            </TableCell>
+                            <TableCell>{task.employee.phoneNumber}</TableCell>
+                            <TableCell>
+                                <TextLink
+                                    url={`/admin/employee-tasks/${task.employeeTask.id}`}
+                                    label={task.employeeTask.title}
+                                />
+                            </TableCell>
+                            <TableCell>{formatDateTime(task.employeeTask.dueAt)}</TableCell>
+                            <TableCell>
+                                <Badge style={{
+                                    backgroundColor: task.employeeTaskAssignmentStatus.colorHex
+                                }}>
+                                    {task.employeeTaskAssignmentStatus.name}
+                                </Badge>
+                                {
+                                    (task.employeeTask.employeeTaskStatusId === 3 && task.employeeTaskAssignmentStatusId !== 4) &&
+                                    (
+                                        <>
+                                            <br />
+                                            <Badge variant={"destructive"} className="mt-2">
+                                                Terlambat
+                                            </Badge>
+                                        </>
+                                    )
+                                }
+                            </TableCell>
+                            <TableCell>{formatDateTime(task.updatedAt)}</TableCell>
+                            <TableCell>
+                                <ShowDialog
+                                    data={task}
+                                    employeeTaskAssignmentStatusOptions={employeeTaskAssignmentStatusOptions} />
                             </TableCell>
                         </TableRow>
-                    )
-                }
-            </TableBody>
-        </Table>
+                    ))}
+                    {
+                        taskAssignments.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={99} className="text-center">
+                                    Tidak ada data tugas karyawan yang tersedia.
+                                </TableCell>
+                            </TableRow>
+                        )
+                    }
+                </TableBody>
+            </Table>
+        </>
     )
 }
 

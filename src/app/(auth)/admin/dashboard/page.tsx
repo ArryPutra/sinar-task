@@ -1,14 +1,28 @@
+import { PaginationWithLinks } from "@/components/pagination-with-links";
+import SearchInput from "@/components/search-input";
 import SummaryCard from "@/components/summary-card";
 import { getAllEmployeeTaskAssignment } from "@/features/employee-task-assignment/actions";
 import EmployeeTaskAssignmentList from "@/features/employee-task-assignment/components/table-list";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+    searchParams,
+}: {
+    searchParams: Promise<{
+        page?: string;
+        search?: string;
+        employeeTaskStatusId?: string;
+    }>;
+}) {
+
+    const params = await searchParams;
+
+    const page = Number(params.page ?? "1");
 
     const summaryCards = [
         {
-            label: "Total Karyawan",
-            value: await prisma.employee.count()
+            label: "Total Tugas",
+            value: await prisma.employeeTask.count()
         },
         {
             label: "Tugas Menunggu Review",
@@ -30,7 +44,10 @@ export default async function AdminDashboardPage() {
         }
     ];
 
-    const getAllTaskAssignmentsResponse = await getAllEmployeeTaskAssignment();
+    const getAllTaskAssignmentsResponse = await getAllEmployeeTaskAssignment({
+        page,
+        search: params.search ?? ""
+    });
     const getAllEmployeeTaskAssignmentStatusOptions = await prisma.employeeTaskAssignmentStatus.findMany();
 
     return (
@@ -46,6 +63,10 @@ export default async function AdminDashboardPage() {
             <EmployeeTaskAssignmentList
                 taskAssignments={getAllTaskAssignmentsResponse.data}
                 employeeTaskAssignmentStatusOptions={getAllEmployeeTaskAssignmentStatusOptions} />
+            <PaginationWithLinks
+                page={page}
+                pageSize={10}
+                totalCount={getAllTaskAssignmentsResponse.totalCount} />
         </>
     )
 }

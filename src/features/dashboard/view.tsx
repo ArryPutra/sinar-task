@@ -79,7 +79,7 @@ export default function DashboardView({
           </div>
         </header>
 
-        <main className="flex flex-col gap-4 p-4 pt-1">
+        <main className="flex flex-col gap-6 p-4 pt-1">
           {children}
         </main>
       </SidebarInset>
