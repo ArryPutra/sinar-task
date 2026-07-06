@@ -1,5 +1,5 @@
+import ChartBarDefault from "@/components/charts/chart-bar-default";
 import { PaginationWithLinks } from "@/components/pagination-with-links";
-import SearchInput from "@/components/search-input";
 import SummaryCard from "@/components/summary-card";
 import { getAllEmployeeTaskAssignment } from "@/features/employee-task-assignment/actions";
 import EmployeeTaskAssignmentList from "@/features/employee-task-assignment/components/table-list";
@@ -44,6 +44,29 @@ export default async function AdminDashboardPage({
         }
     ];
 
+    const year = new Date().getFullYear();
+
+    const chartData = await Promise.all(
+        Array.from({ length: 12 }, async (_, index) => {
+            const start = new Date(year, index, 1);
+            const end = new Date(year, index + 1, 1);
+
+            const report = await prisma.employeeTask.count({
+                where: {
+                    createdAt: {
+                        gte: start,
+                        lt: end,
+                    },
+                },
+            });
+
+            return {
+                month: start.toLocaleString("id-ID", { month: "short" }),
+                report,
+            };
+        })
+    );
+
     const getAllTaskAssignmentsResponse = await getAllEmployeeTaskAssignment({
         page,
         search: params.search ?? ""
@@ -60,6 +83,14 @@ export default async function AdminDashboardPage({
                 }
             </div>
 
+            <div className="grid grid-cols-2 max-md:grid-cols-1">
+                <ChartBarDefault
+                    title="Tugas Karyawan 2026"
+                    data={chartData}
+                    dataKey="report"
+                    xAxisKey="month"
+                    label="Tugas" />
+            </div>
             <EmployeeTaskAssignmentList
                 taskAssignments={getAllTaskAssignmentsResponse.data}
                 employeeTaskAssignmentStatusOptions={getAllEmployeeTaskAssignmentStatusOptions} />

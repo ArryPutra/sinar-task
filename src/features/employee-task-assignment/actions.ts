@@ -40,7 +40,9 @@ export async function getAllEmployeeTaskAssignment({
             prisma.employeeTaskAssignment.findMany({
                 where,
                 orderBy: {
-                    createdAt: "desc"
+                    employeeTask: {
+                        createdAt: "desc"
+                    }
                 },
                 skip,
                 take: pageSize,

@@ -44,7 +44,7 @@ export default function SearchInput() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 ml-auto">
+    <form onSubmit={handleSubmit} className="flex gap-2">
       <InputGroup className="max-w-sm relative">
         <InputGroupInput
           placeholder="Search..."

@@ -1,6 +1,7 @@
 "use client";
 
 import { AttachmentList } from "@/components/attachment-list";
+import SearchInput from "@/components/search-input";
 import TextLink from "@/components/text-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,6 @@ import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { updateEmployeeTaskAssignmentStatusAction } from "../actions";
 import { AllEmployeeTaskAssignments } from "../queris";
-import SearchInput from "@/components/search-input";
 
 export default function EmployeeTaskAssignmentList({
     taskAssignments,
