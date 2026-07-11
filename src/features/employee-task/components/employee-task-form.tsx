@@ -4,6 +4,7 @@ import BackButton from "@/components/back-button"
 import UploadFile from "@/components/file-upload"
 import LeafletMap from "@/components/leaflet-map/leaflet-map"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
     Combobox,
     ComboboxChip,
@@ -16,7 +17,7 @@ import {
     ComboboxValue,
     useComboboxAnchor,
 } from "@/components/ui/combobox"
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import {
     Select,
@@ -103,7 +104,7 @@ export default function EmployeeTaskForm({
             <form action={formAction} className="space-y-4">
                 <FieldGroup className="grid grid-cols-2 max-md:flex">
                     <Field>
-                        <FieldLabel htmlFor="title">Judul</FieldLabel>
+                        <FieldLabel htmlFor="title">Judul {isEditMode.toString()}</FieldLabel>
                         <Input
                             id="title"
                             name="title"
@@ -224,6 +225,22 @@ export default function EmployeeTaskForm({
                             longitude={fields?.longitude ?? data?.longitude} />
                         <FieldError>{fieldErrors?.latitude}</FieldError>
                         <FieldError>{fieldErrors?.longitude}</FieldError>
+                    </Field>
+
+                    <Field orientation="horizontal">
+                        <Checkbox
+                            id="send-whatsapp"
+                            name="send-whatsapp"
+                            defaultChecked={isEditMode === true ? false : true}
+                        />
+                        <FieldContent>
+                            <FieldLabel htmlFor="send-whatsapp">
+                                Kirim notifikasi WhatsApp
+                            </FieldLabel>
+                            <FieldDescription>
+                                Kirim juga notifikasi pesan tugas ini ke nomor WhatsApp pegawai.
+                            </FieldDescription>
+                        </FieldContent>
                     </Field>
 
                     <Button type="submit" className="col-span-2 w-fit" disabled={isPending}>

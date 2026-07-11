@@ -85,7 +85,7 @@ export default async function AdminDashboardPage({
 
             <div className="grid grid-cols-2 max-md:grid-cols-1">
                 <ChartBarDefault
-                    title="Tugas Karyawan 2026"
+                    title={`Tugas Karyawan ${year}`}
                     data={chartData}
                     dataKey="report"
                     xAxisKey="month"
