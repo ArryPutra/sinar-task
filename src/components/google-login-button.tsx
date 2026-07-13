@@ -12,9 +12,12 @@ export default function GoogleLoginButton() {
     const handleLogin = async () => {
         setIsLoading(true);
 
+        let result;
         try {
-            await loginGoogle();
-        } catch {
+            result = await loginGoogle();
+        } catch (error) {
+            console.error(error, result);
+
             setIsLoading(false);
         }
     };
