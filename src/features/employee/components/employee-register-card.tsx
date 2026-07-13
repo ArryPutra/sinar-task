@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { createEmployeeAction, createSelfEmployeeAction } from "@/features/employee/action";
 import { initialActionState } from "@/types/action-state";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 

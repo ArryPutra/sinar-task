@@ -10,14 +10,9 @@ export default function GoogleLoginButton() {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleLogin = async () => {
-        setIsLoading(true);
-
-        let result;
         try {
-            result = await loginGoogle();
+            await loginGoogle();
         } catch (error) {
-            console.error(error, result);
-
             setIsLoading(false);
         }
     };
