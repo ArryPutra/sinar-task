@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { loginSchema } from "./schemas";
-import { loginService, logoutService } from "./services";
+import { logoutService } from "./services";
 
 export async function loginAction(
     prevState: any,
@@ -27,7 +27,13 @@ export async function loginAction(
     try {
         const nextHeaders = await headers();
 
-        session = await loginService(validatedFields.data, nextHeaders);
+        session = await auth.api.signInEmail({
+            body: {
+                email: validatedFields.data.email,
+                password: validatedFields.data.password
+            },
+            headers: nextHeaders
+        });
     } catch (error: any) {
         console.error(error);
 
@@ -37,7 +43,7 @@ export async function loginAction(
         }
     }
 
-    return redirect(roleDashboardRoutesMap[session.credentials.user.userRoleId]);
+    return redirect(roleDashboardRoutesMap[session.user.userRoleId!]);
 }
 
 export async function logoutAction() {
@@ -74,4 +80,15 @@ export async function getCurrentUserAction() {
             success: false
         }
     }
+}
+
+export async function loginGoogle() {
+    const response = await auth.api.signInSocial({
+        body: {
+            provider: "google",
+            callbackURL: "/employee/dashboard",
+        }
+    });
+
+    redirect(response.url as string);
 }

@@ -39,6 +39,7 @@ export function NavUser({
   }
 
   const loader = useTopLoader();
+
   const handleLogout = () => {
     loader.start();
     logoutAction();

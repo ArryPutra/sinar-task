@@ -154,7 +154,7 @@ model EmployeeTaskCategory {
 model Employee {
   id String @id @default(cuid())
 
-  userId      String @unique
+  userId      String  @unique
   phoneNumber String @unique
 
   createdAt DateTime @default(now())

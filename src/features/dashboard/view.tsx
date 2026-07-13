@@ -54,7 +54,8 @@ export default function DashboardView({
           <NavMain items={roleSidebarMenu} />
         </SidebarContent>
         <SidebarFooter>
-          <NavUser user={user} />
+          <NavUser 
+          user={user} />
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>

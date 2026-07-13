@@ -57,6 +57,6 @@ export const config = {
     matcher: [
         "/login",
         "/admin/:path*",
-        "/karyawan/:path*",
+        "/employee/:path*",
     ],
 };

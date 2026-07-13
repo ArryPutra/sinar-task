@@ -5,8 +5,7 @@ export default async function userSeed() {
   await prisma.userRole.createMany({
     data: [
       { name: "Admin" },
-      { name: "Karyawan" },
-      { name: "Manajer" }
+      { name: "Karyawan" }
     ]
   })
 

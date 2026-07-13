@@ -6,7 +6,9 @@ import { ActionState } from "@/types/action-state";
 import { headers } from "next/headers";
 import { getCurrentUserAction } from "../auth/actions";
 import { employeeWithUser, employeeWithUserAndTask } from "./queris";
-import { createEmployeeSchema, updateEmployeeSchema } from "./schemas";
+import { createEmployeeSchema, createSelfEmployeeSchema, updateEmployeeSchema } from "./schemas";
+import { redirect } from "next/navigation";
+import { Prisma } from "@/generated/prisma/client";
 
 export async function getAllEmployeesAction() {
     try {
@@ -78,7 +80,6 @@ export async function createEmployeeAction(
     }
 
     try {
-        console.log(validatedFields.data);
         const newUser = await auth.api.createUser({
             body: {
                 email: validatedFields.data.email,
@@ -87,12 +88,7 @@ export async function createEmployeeAction(
             }
         });
 
-        await prisma.employee.create({
-            data: {
-                userId: newUser.user.id,
-                phoneNumber: validatedFields.data.phoneNumber
-            }
-        });
+        await upsertEmployeeAction(newUser.user.id, validatedFields.data.phoneNumber);
     } catch (error) {
         return {
             error: "Gagal menambahkan karyawan.",
@@ -180,6 +176,14 @@ export async function getCurrentEmployee() {
         const data = await prisma.employee.findUnique({
             where: {
                 userId: currentUserId
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
             }
         });
 
@@ -197,4 +201,89 @@ export async function getCurrentEmployee() {
             data: null
         };
     }
+}
+
+export async function createSelfEmployeeAction(
+    prevState: ActionState,
+    formData: FormData
+): Promise<ActionState> {
+    const validatedFields = createSelfEmployeeSchema.safeParse(
+        Object.fromEntries(formData.entries())
+    );
+
+    if (!validatedFields.success) {
+        return {
+            error: validatedFields.error?.message,
+            success: false,
+            fields: Object.fromEntries(formData.entries()),
+            fieldErrors: validatedFields.error?.flatten().fieldErrors
+        };
+    }
+
+    try {
+        const currentUser = await getCurrentUserAction();
+
+        if (!currentUser.user) {
+            return {
+                error: "Data user tidak ditemukan.",
+                success: false,
+                fields: Object.fromEntries(formData.entries()),
+                fieldErrors: null
+            };
+        }
+
+        await upsertEmployeeAction(currentUser.user.id, validatedFields.data.phoneNumber);
+
+        if (validatedFields.data.name !== currentUser.user.name) {
+            await auth.api.updateUser({
+                body: {
+                    name: validatedFields.data.name
+                }
+            })
+        }
+
+        return {
+            error: null,
+            success: true,
+            message: "Karyawan berhasil didaftarkan.",
+            fields: null,
+            fieldErrors: null
+        };
+    } catch (error) {
+        if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2002"
+        ) {
+            return {
+                success: false,
+                error: "Validasi gagal.",
+                fields: Object.fromEntries(formData.entries()),
+                fieldErrors: {
+                    phoneNumber: [
+                        "Nomor telepon sudah digunakan oleh akun lain.",
+                    ],
+                },
+            };
+        }
+
+        return {
+            error: "Karyawan gagal didaftarkan.",
+            success: false,
+            fields: Object.fromEntries(formData.entries()),
+            fieldErrors: null
+        };
+    }
+}
+
+function upsertEmployeeAction(userId: string, phoneNumber: string) {
+    return prisma.employee.upsert({
+        where: { userId },
+        create: {
+            userId,
+            phoneNumber,
+        },
+        update: {
+            phoneNumber,
+        },
+    });
 }

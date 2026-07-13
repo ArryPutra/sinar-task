@@ -1,14 +1,28 @@
+"use server"
+
 import SummaryCard from "@/components/summary-card";
+import { getCurrentUserAction } from "@/features/auth/actions";
 import { getEmployeeTaskAssignmentsByEmployeeIdAction } from "@/features/employee-task-assignment/actions";
 import EmployeeTaskAssignmentCard from "@/features/employee-task-assignment/components/card";
 import { getCurrentEmployee } from "@/features/employee/action";
+import RegisterEmployeeView from "@/features/employee/components/employee-register-card";
 import { notFound } from "next/navigation";
 
 export default async function EmployeeDashboardPage() {
     const currentEmployee = (await getCurrentEmployee());
 
     if (!currentEmployee.data) {
-        notFound();
+        const user = await getCurrentUserAction();
+
+        if (!user.user) {
+            return notFound();
+        }
+
+        return <RegisterEmployeeView
+        user={{ 
+            name: user.user.name,
+            email: user.user.email,
+         }}/>
     }
 
     const taskAssignments = await getEmployeeTaskAssignmentsByEmployeeIdAction(currentEmployee.data?.id);
@@ -39,3 +53,4 @@ export default async function EmployeeDashboardPage() {
         </>
     )
 }
+

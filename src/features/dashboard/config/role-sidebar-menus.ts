@@ -41,6 +41,12 @@ export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; EMPLOYEE: RoleSidebar
             url: "/employee/dashboard",
             icon: PieChartIcon,
             isActive: true,
+        },
+        {
+            title: "Profil",
+            url: "/employee/profile",
+            icon: UserIcon,
+            isActive: true,
         }
     ]
 }
