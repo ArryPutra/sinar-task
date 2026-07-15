@@ -1,7 +1,7 @@
 "use server"
 
 import { getEmployeeByIdAction } from "@/features/employee/action";
-import EmployeeForm from "@/features/employee/components/employee-form";
+import EmployeeForm from "@/features/employee/views/employee-form";
 import { notFound } from "next/navigation";
 
 export default async function EmployeeEditPage({

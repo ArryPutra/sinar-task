@@ -30,7 +30,7 @@ export function AttachmentList({ fileUrls, label = "Daftar Lampiran File" }: {
     // State jika tidak ada file yang dikirim
     if (!fileUrls || fileUrls.length === 0) {
         return (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground italic">
                 Tidak ada file yang dilampirkan.
             </p>
         );

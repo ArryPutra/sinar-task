@@ -1,8 +1,10 @@
 import ChartBarDefault from "@/components/charts/chart-bar-default";
-import { PaginationWithLinks } from "@/components/pagination-with-links";
-import SummaryCard from "@/components/summary-card";
+import { PaginationWithLinks } from "@/components/shared/pagination-with-links";
+import SummaryCard from "@/components/shared/summary-card";
 import { getAllEmployeeTaskAssignment } from "@/features/employee-task-assignment/actions";
 import EmployeeTaskAssignmentList from "@/features/employee-task-assignment/components/table-list";
+import { getAllEmployeeTaskAction } from "@/features/employee-task/actions";
+import EmployeeTaskDashboardTable from "@/features/employee-task/components/table/employee-task-dashboard";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboardPage({
@@ -16,16 +18,15 @@ export default async function AdminDashboardPage({
 }) {
 
     const params = await searchParams;
-
     const page = Number(params.page ?? "1");
 
     const summaryCards = [
         {
-            label: "Total Tugas",
+            label: "Total Pekerjaan",
             value: await prisma.employeeTask.count()
         },
         {
-            label: "Tugas Menunggu Review",
+            label: "Pekerjaan Menunggu Review",
             value: await prisma.employeeTaskAssignment.count({
                 where: {
                     employeeTaskAssignmentStatusId: 2
@@ -33,7 +34,7 @@ export default async function AdminDashboardPage({
             })
         },
         {
-            label: "Tugas Sedang Dikerjakan",
+            label: "Pekerjaan Sedang Dikerjakan",
             value: await prisma.employeeTaskAssignment.count({
                 where: {
                     employeeTaskAssignmentStatusId: {
@@ -44,34 +45,11 @@ export default async function AdminDashboardPage({
         }
     ];
 
-    const year = new Date().getFullYear();
-
-    const chartData = await Promise.all(
-        Array.from({ length: 12 }, async (_, index) => {
-            const start = new Date(year, index, 1);
-            const end = new Date(year, index + 1, 1);
-
-            const report = await prisma.employeeTask.count({
-                where: {
-                    createdAt: {
-                        gte: start,
-                        lt: end,
-                    },
-                },
-            });
-
-            return {
-                month: start.toLocaleString("id-ID", { month: "short" }),
-                report,
-            };
-        })
-    );
-
-    const getAllTaskAssignmentsResponse = await getAllEmployeeTaskAssignment({
-        page,
-        search: params.search ?? ""
-    });
-    const getAllEmployeeTaskAssignmentStatusOptions = await prisma.employeeTaskAssignmentStatus.findMany();
+    const employeeTaskResponse = await getAllEmployeeTaskAction({
+            page,
+            search: params.search ?? "",
+            employeeTaskStatusId: Number(params.employeeTaskStatusId ?? "") || undefined,
+        });
 
     return (
         <>
@@ -83,21 +61,13 @@ export default async function AdminDashboardPage({
                 }
             </div>
 
-            <div className="grid grid-cols-2 max-md:grid-cols-1">
-                <ChartBarDefault
-                    title={`Tugas Karyawan ${year}`}
-                    data={chartData}
-                    dataKey="report"
-                    xAxisKey="month"
-                    label="Tugas" />
-            </div>
-            <EmployeeTaskAssignmentList
-                taskAssignments={getAllTaskAssignmentsResponse.data}
-                employeeTaskAssignmentStatusOptions={getAllEmployeeTaskAssignmentStatusOptions} />
-            <PaginationWithLinks
+            <EmployeeTaskDashboardTable
+                data={employeeTaskResponse.data}
+                page={page} />
+            {/* <PaginationWithLinks
                 page={page}
                 pageSize={10}
-                totalCount={getAllTaskAssignmentsResponse.totalCount} />
+                totalCount={getAllTaskAssignmentsResponse.totalCount} /> */}
         </>
     )
 }

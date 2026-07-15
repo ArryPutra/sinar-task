@@ -1,7 +1,7 @@
 "use client"
 
-import DropdownSelect from "@/components/dropdown-select";
-import SearchInput from "@/components/search-input";
+import DropdownSelect from "@/components/shared/dropdown-select";
+import SearchInput from "@/components/shared/search-input";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -25,14 +25,14 @@ import {
 } from "@/components/ui/table";
 import { Prisma } from "@/generated/prisma/client";
 import { initialActionState } from "@/types/action-state";
-import { formatDateTime } from "@/utils/date";
-import { EditIcon, EyeIcon, TrashIcon } from "lucide-react";
+import { ArrowRightIcon, TrashIcon } from "lucide-react";
 import { useRouter } from "nextjs-toploader/app";
 import { startTransition } from "react";
 import { toast } from "sonner";
-import { deleteEmployeeTaskByIdAction } from "../actions";
+import { deleteEmployeeTaskByIdAction } from "../../actions";
+import { formatDateOnly } from "@/utils/date";
 
-export default function EmployeeTaskList({
+export default function EmployeeTaskDashboardTable({
     data,
     page
 }: {
@@ -95,12 +95,11 @@ export default function EmployeeTaskList({
                     <TableRow>
                         <TableHead>No</TableHead>
                         <TableHead>Judul</TableHead>
-                        <TableHead>Kategori</TableHead>
+                        <TableHead>Butuh Review Laporan</TableHead>
                         <TableHead>Waktu Mulai</TableHead>
                         <TableHead>Jatuh Tempo</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Ditugaskan</TableHead>
-                        <TableHead>Penanggung Jawab</TableHead>
                         <TableHead>Aksi</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -109,12 +108,12 @@ export default function EmployeeTaskList({
                         <TableRow key={item.id}>
                             <TableCell className="font-medium">{(page - 1) * 10 + index + 1}</TableCell>
                             <TableCell>{item.title}</TableCell>
-                            <TableCell>{item.employeeTaskCategory?.name}</TableCell>
+                            <TableCell>1</TableCell>
                             <TableCell>
-                                {formatDateTime(item.startAt)}
+                                {formatDateOnly(item.startAt)}
                             </TableCell>
                             <TableCell>
-                                {formatDateTime(item.dueAt)}
+                                {formatDateOnly(item.dueAt)}
                             </TableCell>
                             <TableCell>
                                 {
@@ -135,19 +134,10 @@ export default function EmployeeTaskList({
                                     )
                                 }
                             </TableCell>
-                            <TableCell>{item.admin?.user?.name || "Penanggung jawab tidak ditemukan"}</TableCell>
                             <TableCell className="space-x-2">
-                                <Button variant={'outline'} size={'icon'}
-                                    onClick={() => router.push(`/admin/employee-tasks/${item.id}`)}>
-                                    <EyeIcon />
+                                <Button variant="outline" size="sm">
+                                    Lihat Detail <ArrowRightIcon />
                                 </Button>
-                                <Button size={'icon'}
-                                    onClick={() => router.push(`/admin/employee-tasks/${item.id}/edit`)}>
-                                    <EditIcon />
-                                </Button>
-                                <DeleteActionButton
-                                    id={item.id}
-                                    judul={item.title} />
                             </TableCell>
                         </TableRow>
                     ))}
@@ -155,7 +145,7 @@ export default function EmployeeTaskList({
                         data.length === 0 &&
                         <TableRow>
                             <TableCell colSpan={99} className="text-center">
-                                Tidak ada tugas karyawan.
+                                Tidak ada pekerjaan karyawan.
                             </TableCell>
                         </TableRow>
                     }
@@ -189,8 +179,8 @@ function DeleteActionButton({
                 });
             }),
             {
-                loading: `Menghapus tugas "${judul}"...`,
-                success: `Berhasil menghapus tugas karyawan "${judul}".`,
+                loading: `Menghapus pekerjaan "${judul}"...`,
+                success: `Berhasil menghapus pekerjaan karyawan "${judul}".`,
                 error: (err) => err.message,
                 position: "top-center"
             }
@@ -209,9 +199,9 @@ function DeleteActionButton({
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Hapus Tugas Karyawan</AlertDialogTitle>
+                    <AlertDialogTitle>Hapus Pekerjaan Karyawan</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Apakah Anda yakin ingin menghapus tugas karyawan <strong>{judul}</strong> ini? Tindakan ini tidak dapat dibatalkan.
+                        Apakah Anda yakin ingin menghapus pekerjaan karyawan <strong>{judul}</strong> ini? Tindakan ini tidak dapat dibatalkan.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

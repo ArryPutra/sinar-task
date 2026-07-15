@@ -86,9 +86,9 @@ export async function loginGoogle() {
     const response = await auth.api.signInSocial({
         body: {
             provider: "google",
-            callbackURL: "/employee/dashboard",
+            callbackURL: `${process.env.BETTER_AUTH_URL}/employee/dashboard`,
         }
     });
 
-    redirect(response.url as string);
+    return redirect(response.url as string);
 }

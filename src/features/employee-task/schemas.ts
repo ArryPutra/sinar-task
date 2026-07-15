@@ -12,7 +12,7 @@ const zonedDateSchema = z.preprocess((value) => {
 }, z.date());
 
 export const formEmployeeTaskSchema = z.object({
-  employeeTaskCategoryId: z.coerce.number().min(1, "Kategori tugas karyawan harus dipilih."),
+  employeeTaskCategoryId: z.coerce.number().min(1, "Kategori pekerjaan karyawan harus dipilih."),
   title: z.string().min(1, "Title harus diisi."),
   description: z.string(),
 

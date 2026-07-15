@@ -1,6 +1,6 @@
 "use server"
 
-import LoginForm from "@/features/auth/components/login-form";   
+import LoginForm from "@/features/auth/views/login-form";   
 
 export default async function LoginPage() {
     return (

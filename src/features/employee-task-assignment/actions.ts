@@ -1,12 +1,12 @@
 "use server"
 
+import { Prisma } from "@/generated/prisma/client";
 import { deleteFileFromCloudinary, uploadStreamToCloudinary } from "@/lib/cloudinary";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
 import { revalidatePath } from "next/cache";
 import { getAllEmployeeTaskAssignmentQuery, getEmployeeTaskAssignmentsByEmployeeIdActionQuery } from "./queris";
 import { submitEmployeeTaskAssignmentActionSchema } from "./schemas";
-import { Prisma } from "@/generated/prisma/client";
 
 export async function getAllEmployeeTaskAssignment({
     page = 1,
@@ -61,7 +61,7 @@ export async function getAllEmployeeTaskAssignment({
         console.error(error);
 
         return {
-            error: "Gagal mengambil daftar penugasan tugas karyawan.",
+            error: "Gagal mengambil daftar penugasan pekerjaan karyawan.",
             success: false,
             data: [],
             totalCount: 0
@@ -123,9 +123,9 @@ export async function submitEmployeeTaskAssignmentAction(
     });
     if (!taskAssignment) {
         return {
-            error: "Tugas tidak ditemukan atau tidak dimiliki oleh karyawan ini.",
+            error: "Pekerjaan tidak ditemukan atau tidak dimiliki oleh karyawan ini.",
             success: false,
-            message: "Tugas tidak ditemukan atau tidak dimiliki oleh karyawan ini.",
+            message: "Pekerjaan tidak ditemukan atau tidak dimiliki oleh karyawan ini.",
             fields: Object.fromEntries(formData.entries()),
             fieldErrors: null
         };
@@ -149,9 +149,9 @@ export async function submitEmployeeTaskAssignmentAction(
     // Memastikan bahwa status taskAssignment tidak boleh sama dengan 3 (selesai)
     if (taskAssignment.employeeTaskAssignmentStatusId === 4) {
         return {
-            error: "Tugas sudah selesai dan tidak dapat diubah.",
+            error: "Pekerjaan sudah selesai dan tidak dapat diubah.",
             success: false,
-            message: "Tugas sudah selesai dan tidak dapat diubah.",
+            message: "Pekerjaan sudah selesai dan tidak dapat diubah.",
             fields: Object.fromEntries(formData.entries()),
             fieldErrors: null
         };
@@ -160,9 +160,9 @@ export async function submitEmployeeTaskAssignmentAction(
     // Memastikan bahwa status task tidak boleh ditutup 3 (ditutup)
     if (taskAssignment.employeeTask.employeeTaskStatusId === 3) {
         return {
-            error: "Tugas sudah ditutup dan tidak dapat dikumpulkan.",
+            error: "Pekerjaan sudah ditutup dan tidak dapat dikumpulkan.",
             success: false,
-            message: "Tugas sudah ditutup dan tidak dapat dikumpulkan.",
+            message: "Pekerjaan sudah ditutup dan tidak dapat dikumpulkan.",
             fields: Object.fromEntries(formData.entries()),
             fieldErrors: null
         };
@@ -200,7 +200,7 @@ export async function submitEmployeeTaskAssignmentAction(
         return {
             error: null,
             success: true,
-            message: "Tugas berhasil dikumpulkan!"
+            message: "Pekerjaan berhasil dikumpulkan!"
         }
     } catch (error) {
         console.error(error);
@@ -210,9 +210,9 @@ export async function submitEmployeeTaskAssignmentAction(
         }
 
         return {
-            error: "Gagal mengirimkan penugasan tugas karyawan.",
+            error: "Gagal mengirimkan penugasan pekerjaan karyawan.",
             success: false,
-            message: "Terjadi kesalahan saat mengirimkan penugasan tugas karyawan. Silakan coba lagi.",
+            message: "Terjadi kesalahan saat mengirimkan penugasan pekerjaan karyawan. Silakan coba lagi.",
             fields: Object.fromEntries(formData.entries()),
             fieldErrors: null
         };
@@ -241,16 +241,16 @@ export async function updateEmployeeTaskAssignmentStatusAction(
         return {
             error: null,
             success: true,
-            message: "Status tugas berhasil diperbarui!"
+            message: "Status pekerjaan berhasil diperbarui!"
         }
     }
     catch (error) {
         console.error(error);
 
         return {
-            error: "Gagal memperbarui status tugas.",
+            error: "Gagal memperbarui status pekerjaan.",
             success: false,
-            message: "Terjadi kesalahan saat memperbarui status tugas. Silakan coba lagi."
+            message: "Terjadi kesalahan saat memperbarui status pekerjaan. Silakan coba lagi."
         };
     }
 }

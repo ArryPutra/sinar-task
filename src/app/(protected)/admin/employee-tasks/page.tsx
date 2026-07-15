@@ -1,9 +1,8 @@
-import { PaginationWithLinks } from "@/components/pagination-with-links";
+import { PaginationWithLinks } from "@/components/shared/pagination-with-links";
 import { Button } from "@/components/ui/button";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { getAllEmployeeTaskAction } from "@/features/employee-task/actions";
-import EmployeeTaskList from "@/features/employee-task/components/employee-task-list";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import EmployeeTaskManagementTable from "@/features/employee-task/components/table/employee-task-management";
+import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 
 export default async function AdminTugasKaryawanPage({
@@ -29,11 +28,11 @@ export default async function AdminTugasKaryawanPage({
         <>
             <Link href="/admin/employee-tasks/create" className="w-fit">
                 <Button variant="outline">
-                    Tambah Tugas <PlusIcon />
+                    Tambah Pekerjaan <PlusIcon />
                 </Button>
             </Link>
 
-            <EmployeeTaskList
+            <EmployeeTaskManagementTable
                 data={employeeTaskResponse.data}
                 page={page}
             />

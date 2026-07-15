@@ -1,8 +1,8 @@
 "use client"
 
-import BackButton from "@/components/back-button"
-import UploadFile from "@/components/file-upload"
-import LeafletMap from "@/components/leaflet-map/leaflet-map"
+import BackButton from "@/components/shared/back-button"
+import UploadFile from "@/components/shared/file-upload"
+import LeafletMap from "@/components/shared/leaflet-map/leaflet-map"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -32,7 +32,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { EmployeeTaskCategory, Prisma } from "@/generated/prisma/client"
 import { initialActionState } from "@/types/action-state"
-import { formatToDatetimeLocal } from "@/utils/date"
+import { formatToDateLocal } from "@/utils/date"
 import { useRouter } from "nextjs-toploader/app"
 import { Fragment, useActionState, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -104,24 +104,24 @@ export default function EmployeeTaskForm({
             <form action={formAction} className="space-y-4">
                 <FieldGroup className="grid grid-cols-2 max-md:flex">
                     <Field>
-                        <FieldLabel htmlFor="title">Judul {isEditMode.toString()}</FieldLabel>
+                        <FieldLabel htmlFor="title">Judul</FieldLabel>
                         <Input
                             id="title"
                             name="title"
-                            defaultValue={fields?.title ?? data?.title}
+                            defaultValue={fields?.title ?? data?.title ?? "Membuat Aplikasi"}
                             placeholder="Masukkan judul" />
                         <FieldError>{fieldErrors?.title}</FieldError>
                     </Field>
                     <Field className="w-full">
-                        <FieldLabel htmlFor="employeeTaskCategoryId">Kategori Tugas Karyawan</FieldLabel>
+                        <FieldLabel htmlFor="employeeTaskCategoryId">Kategori Pekerjaan Karyawan</FieldLabel>
                         <Select name="employeeTaskCategoryId"
-                            defaultValue={fields?.employeeTaskCategoryId ?? data?.employeeTaskCategoryId.toString()}>
+                            defaultValue={fields?.employeeTaskCategoryId ?? data?.employeeTaskCategoryId.toString() ?? "3"}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Pilih Kategori Tugas Karyawan" />
+                                <SelectValue placeholder="Pilih Kategori Pekerjaan Karyawan" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectLabel>Pilih Kategori Tugas Karyawan</SelectLabel>
+                                    <SelectLabel>Pilih Kategori Pekerjaan Karyawan</SelectLabel>
                                     {
                                         employeeTaskCategory.map((item) => (
                                             <SelectItem
@@ -141,8 +141,8 @@ export default function EmployeeTaskForm({
                         <Input
                             id="startAt"
                             name="startAt"
-                            type="datetime-local"
-                            defaultValue={formatToDatetimeLocal(fields?.startAt ?? data?.startAt)} />
+                            type="date"
+                            defaultValue={formatToDateLocal(fields?.startAt ?? data?.startAt)} />
                         <FieldError>{fieldErrors?.startAt}</FieldError>
                     </Field>
                     <Field>
@@ -150,8 +150,8 @@ export default function EmployeeTaskForm({
                         <Input
                             id="dueAt"
                             name="dueAt"
-                            type="datetime-local"
-                            defaultValue={formatToDatetimeLocal(fields?.dueAt ?? data?.dueAt)} />
+                            type="date"
+                            defaultValue={formatToDateLocal(fields?.dueAt ?? data?.dueAt)} />
                         <FieldError>{fieldErrors?.dueAt}</FieldError>
                     </Field>
                     <Field className="col-span-2">
@@ -208,7 +208,7 @@ export default function EmployeeTaskForm({
                         <Input
                             id="locationName"
                             name="locationName"
-                            defaultValue={fields?.locationName ?? data?.locationName}
+                            defaultValue={fields?.locationName ?? data?.locationName ?? "Murjani"}
                             placeholder="Masukkan nama lokasi" />
                         <FieldError>{fieldErrors?.locationName}</FieldError>
                     </Field>
@@ -238,13 +238,13 @@ export default function EmployeeTaskForm({
                                 Kirim notifikasi WhatsApp
                             </FieldLabel>
                             <FieldDescription>
-                                Kirim juga notifikasi pesan tugas ini ke nomor WhatsApp pegawai.
+                                Kirim juga notifikasi pesan pekerjaan ini ke nomor WhatsApp pegawai.
                             </FieldDescription>
                         </FieldContent>
                     </Field>
 
                     <Button type="submit" className="col-span-2 w-fit" disabled={isPending}>
-                        {isEditMode ? "Perbarui" : "Tambah"} Tugas {isPending && <Spinner />}
+                        {isEditMode ? "Perbarui" : "Tambah"} Pekerjaan {isPending && <Spinner />}
                     </Button>
                 </FieldGroup>
             </form>

@@ -1,8 +1,8 @@
 "use client"
 
-import { AttachmentList } from "@/components/attachment-list";
-import UploadFile from "@/components/file-upload";
-import LeafletMap from "@/components/leaflet-map/leaflet-map";
+import { AttachmentList } from "@/components/shared/attachment-list";
+import UploadFile from "@/components/shared/file-upload";
+import LeafletMap from "@/components/shared/leaflet-map/leaflet-map";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,11 +22,11 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { EmployeeTaskAssignmentByEmployeeId } from "@/features/employee-task-assignment/queris";
 import { initialActionState } from "@/types/action-state";
-import { formatDateTime } from "@/utils/date";
+import { formatDateOnly, formatDateTime } from "@/utils/date";
 import { CalendarIcon, ExternalLinkIcon, FileIcon, MapPinIcon } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { submitEmployeeTaskAssignmentAction } from "../actions";
+import { submitEmployeeTaskAssignmentAction } from "../../employee-task-assignment/actions";
 
 export default function EmployeeTaskAssignmentCard({
     data
@@ -57,7 +57,7 @@ export default function EmployeeTaskAssignmentCard({
             <CardContent className="space-y-3 text-sm text-muted-foreground pb-4 flex-1">
                 <div className="flex items-center gap-2">
                     <CalendarIcon className="h-4 w-4 shrink-0 text-primary" />
-                    <span>Deadline: {formatDateTime(data.employeeTask.dueAt)}</span>
+                    <span>Jatuh Tempo: {formatDateOnly(data.employeeTask.dueAt)}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -66,9 +66,9 @@ export default function EmployeeTaskAssignmentCard({
                 </div>
 
                 <div className="space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mb-2">
+                    <div className="flex items-center gap-2 mb-2">
                         <FileIcon className="h-3.5 w-3.5" />
-                        <span>Lampiran ({data.employeeTask.fileUrls.length}):</span>
+                        <span>Lampiran Pekerjaan ({data.employeeTask.fileUrls.length}):</span>
                     </div>
                     {data.employeeTask.fileUrls && data.employeeTask.fileUrls.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
@@ -96,7 +96,7 @@ export default function EmployeeTaskAssignmentCard({
 
             <CardFooter className="border-t pt-3 flex justify-between items-center bg-muted/10 rounded-b-xl gap-2">
                 <div className="flex flex-col">
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-2">Status Tugas Anda</span>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-2">Status Pekerjaan Anda</span>
                     <Badge style={{
                         backgroundColor: data.employeeTaskAssignmentStatus.colorHex
                     }}>
@@ -122,9 +122,9 @@ function ShowDialog({
 
     useEffect(() => {
         if (state.success) {
-            toast.success("Tugas berhasil dikumpulkan!", {
+            toast.success("Pekerjaan berhasil dikumpulkan!", {
                 position: "top-center",
-                description: "Tugas berhasil dikumpulkan. Silakan tunggu konfirmasi dari admin."
+                description: "Pekerjaan berhasil dikumpulkan. Silakan tunggu konfirmasi dari admin."
             });
             setIsOpen(false); // Tutup popup jika berhasil
         } else if (state.error) {
@@ -139,7 +139,7 @@ function ShowDialog({
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline">
-                    Lihat Tugas
+                    Lihat Detail
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
@@ -151,7 +151,7 @@ function ShowDialog({
                 </DialogHeader>
 
                 <Field>
-                    <FieldLabel>Lampiran Tugas</FieldLabel>
+                    <FieldLabel>Lampiran Pekerjaan</FieldLabel>
                     <AttachmentList fileUrls={data.employeeTask.fileUrls} />
                 </Field>
                 <Field>
@@ -209,18 +209,18 @@ function ShowDialog({
                     {
                         data.employeeTaskAssignmentStatusId === 4 &&
                         <Alert>
-                            <AlertTitle>Tugas Selesai</AlertTitle>
+                            <AlertTitle>Pekerjaan Selesai</AlertTitle>
                             <AlertDescription>
-                                Tugas ini sudah selesai dan tidak dapat diubah.
+                                Pekerjaan ini sudah selesai dan tidak dapat diubah.
                             </AlertDescription>
                         </Alert>
                     }
                     {
                         data.employeeTask.employeeTaskStatusId === 3 &&
                         <Alert variant={'destructive'}>
-                            <AlertTitle>Tugas Ditutup</AlertTitle>
+                            <AlertTitle>Pekerjaan Ditutup</AlertTitle>
                             <AlertDescription>
-                                Tugas ini sudah ditutup dan tidak dapat dikumpulkan.
+                                Pekerjaan ini sudah ditutup dan tidak dapat dikumpulkan.
                             </AlertDescription>
                         </Alert>
                     }
@@ -234,7 +234,7 @@ function ShowDialog({
                         {
                             (data.employeeTaskAssignmentStatusId !== 4 && data.employeeTask.employeeTaskStatusId !== 3) &&
                             <Button type="submit" disabled={isPending}>
-                                {isPending ? "Mengirim..." : "Kirim Tugas"}
+                                {isPending ? "Mengirim..." : "Kirim Pekerjaan"}
                             </Button>
                         }
                     </DialogFooter>

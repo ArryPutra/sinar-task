@@ -1,6 +1,6 @@
 "use client"
 
-import BackButton from '@/components/back-button'
+import BackButton from '@/components/shared/back-button'
 import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -66,7 +66,7 @@ export default function EmployeeTaskCategoryForm({
                     </Field>
 
                     <Button type="submit" className="col-span-2 w-fit" disabled={isPending}>
-                        {isEditMode ? "Perbarui" : "Tambah"} Kategori Tugas {isPending && <Spinner />}
+                        {isEditMode ? "Perbarui" : "Tambah"} Kategori Pekerjaan {isPending && <Spinner />}
                     </Button>
                 </FieldGroup>
             </form>

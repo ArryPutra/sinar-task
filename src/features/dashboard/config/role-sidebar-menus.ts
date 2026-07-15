@@ -1,4 +1,4 @@
-import { ClipboardListIcon, ClipboardPenIcon, PieChartIcon, UserIcon, UsersIcon } from "lucide-react";
+import { ClipboardListIcon, ClipboardPenIcon, HistoryIcon, PieChartIcon, UserIcon, UsersIcon } from "lucide-react";
 
 export type RoleSidebarMenu = {
     title: string;
@@ -17,13 +17,13 @@ export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; EMPLOYEE: RoleSidebar
                 isActive: true,
             },
             {
-                title: "Tugas Karyawan",
+                title: "Pekerjaan Karyawan",
                 url: "/admin/employee-tasks",
                 icon: ClipboardListIcon,
                 isActive: true
             },
             {
-                title: "Kategori Tugas Karyawan",
+                title: "Kategori Pekerjaan",
                 url: "/admin/employee-task-categories",
                 icon: ClipboardPenIcon,
                 isActive: true
@@ -40,6 +40,12 @@ export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; EMPLOYEE: RoleSidebar
             title: "Dashboard",
             url: "/employee/dashboard",
             icon: PieChartIcon,
+            isActive: true,
+        },
+        {
+            title: "Riwayat Pekerjaan",
+            url: "/employee/employee-task-history",
+            icon: HistoryIcon,
             isActive: true,
         },
         {

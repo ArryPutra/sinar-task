@@ -25,8 +25,10 @@ async function main() {
 
   await prisma.employeeTaskCategory.createMany({
     data: [
-      { name: "Kontruksi" },
+      { name: "Kontraktor" },
       { name: "IT Konsultan" },
+      { name: "Software Developer" },
+      { name: "Pengadaan Barang & Jasa" },
     ]
   });
 

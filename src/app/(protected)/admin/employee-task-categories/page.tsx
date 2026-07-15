@@ -11,7 +11,7 @@ export default async function EmployeeTaskCategoryPage() {
         <>
             <Link href={'/admin/employee-task-categories/create'}>
                 <Button className="w-fit" variant={'outline'}>
-                    Tambah Kategori Tugas <PlusIcon />
+                    Tambah Kategori Pekerjaan <PlusIcon />
                 </Button>
             </Link>
 

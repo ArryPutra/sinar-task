@@ -20,7 +20,7 @@ import {
 import { RoleSidebarMenu, roleSidebarMenus } from "@/features/dashboard/config/role-sidebar-menus"
 import { usePathname } from "next/navigation"
 import { NavHeader } from "./components/nav-header"
-import { NavMain } from "./components/nav-main"
+import { NavMenu } from "./components/nav-menu"
 import { NavUser } from "./components/nav-user"
 
 export default function DashboardView({
@@ -51,11 +51,11 @@ export default function DashboardView({
           <NavHeader />
         </SidebarHeader>
         <SidebarContent>
-          <NavMain items={roleSidebarMenu} />
+          <NavMenu items={roleSidebarMenu} />
         </SidebarContent>
         <SidebarFooter>
-          <NavUser 
-          user={user} />
+          <NavUser
+            user={user} />
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>

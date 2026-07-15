@@ -1,13 +1,12 @@
 "use client"
 
-import BackButton from "@/components/back-button";
+import BackButton from "@/components/shared/back-button";
+import TextLink from "@/components/shared/text-link";
 import { Badge } from "@/components/ui/badge";
 import { Field, FieldDescription, FieldGroup, FieldTitle } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import Link from "next/link";
 import { useRouter } from "nextjs-toploader/app";
 import { EmployeeWithUserAndTask } from "../queris";
-import TextLink from "@/components/text-link";
 
 export default function EmployeeDetail({
   data
@@ -34,7 +33,7 @@ export default function EmployeeDetail({
           <FieldTitle>{data.phoneNumber}</FieldTitle>
         </Field>
         <Field className="col-span-2">
-          <FieldDescription>Daftar Tugas</FieldDescription>
+          <FieldDescription>Daftar Pekerjaan</FieldDescription>
           <Table>
             <TableHeader>
               <TableRow>

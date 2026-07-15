@@ -4,14 +4,14 @@ import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
-import "./globals.css";
 import NextTopLoader from 'nextjs-toploader';
+import "./globals.css";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: "Sinar Task",
-  description: "Sistem Informasi Tugas Karyawan",
+  description: "Sistem Informasi Pekerjaan Karyawan",
   icons: {
     icon: "/images/logo-only.png"
   }
@@ -35,7 +35,7 @@ export default function RootLayout({
           disableTransitionOnChange>
           <TooltipProvider>
             <NextTopLoader
-            color="#1447e6" />
+              color="#1447e6" />
             <Toaster />
             {children}
           </TooltipProvider>

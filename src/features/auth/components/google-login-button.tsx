@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import { loginGoogle } from "@/features/auth/actions";
-import { Button } from "./ui/button";
+import { Button } from "../../../components/ui/button";
 
 export default function GoogleLoginButton() {
     const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +44,7 @@ export default function GoogleLoginButton() {
                             fill="currentColor"
                         />
                     </svg>
-                    Login atau daftar dengan Google
+                    Login dengan Google
                 </>
             )}
         </Button>

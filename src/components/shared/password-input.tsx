@@ -3,15 +3,15 @@
 
 "use client";
 
-import * as React from "react";
 import { cn } from "@/lib/utils";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import * as React from "react";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from "./ui/input-group";
+} from "../ui/input-group";
 
 const PasswordInput = ({
   className,
@@ -38,3 +38,4 @@ const PasswordInput = ({
 };
 
 export { PasswordInput };
+

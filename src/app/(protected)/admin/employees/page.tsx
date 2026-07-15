@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { getAllEmployeesAction } from '@/features/employee/action'
-import EmployeeList from '@/features/employee/components/employee-list'
+import EmployeeList from '@/features/employee/views/employee-list'
 import { PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 

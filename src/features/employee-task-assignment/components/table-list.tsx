@@ -1,8 +1,8 @@
 "use client";
 
-import { AttachmentList } from "@/components/attachment-list";
-import SearchInput from "@/components/search-input";
-import TextLink from "@/components/text-link";
+import { AttachmentList } from "@/components/shared/attachment-list";
+import SearchInput from "@/components/shared/search-input";
+import TextLink from "@/components/shared/text-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,7 +51,7 @@ export default function EmployeeTaskAssignmentList({
                         <TableHead>No</TableHead>
                         <TableHead>Nama</TableHead>
                         <TableHead>Nomor Telepon</TableHead>
-                        <TableHead>Judul Tugas</TableHead>
+                        <TableHead>Judul Pekerjaan</TableHead>
                         <TableHead>Jatuh Tempo</TableHead>
                         <TableHead>Status Pekerjaan</TableHead>
                         <TableHead>Dikumpulkan</TableHead>
@@ -105,8 +105,8 @@ export default function EmployeeTaskAssignmentList({
                     {
                         taskAssignments.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={99} className="text-center">
-                                    Tidak ada data tugas karyawan yang tersedia.
+                                <TableCell colSpan={99} className="text-center text-muted-foreground">
+                                    Tidak ada data pekerjaan karyawan yang tersedia.
                                 </TableCell>
                             </TableRow>
                         )
@@ -130,9 +130,9 @@ function ShowDialog({
 
     useEffect(() => {
         if (state.success) {
-            toast.success("Tugas karyawan berhasil diperbarui!", {
+            toast.success("Pekerjaan karyawan berhasil diperbarui!", {
                 position: "top-center",
-                description: "Status tugas berhasil diperbarui."
+                description: "Status pekerjaan berhasil diperbarui."
             });
             setIsOpen(false); // Tutup popup jika berhasil
         } else if (state.error) {
@@ -147,7 +147,7 @@ function ShowDialog({
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline">
-                    Lihat Tugas
+                    Lihat Pekerjaan
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">

@@ -2,12 +2,12 @@ import { SearchIcon, XIcon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "./ui/input-group";
+} from "../ui/input-group";
 
 export default function SearchInput() {
   const router = useRouter();

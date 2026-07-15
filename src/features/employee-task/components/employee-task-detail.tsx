@@ -1,10 +1,10 @@
 "use client"
 
-import { AttachmentList } from "@/components/attachment-list";
-import BackButton from "@/components/back-button";
-import LeafletMap from "@/components/leaflet-map/leaflet-map";
+import { AttachmentList } from "@/components/shared/attachment-list";
+import BackButton from "@/components/shared/back-button";
+import LeafletMap from "@/components/shared/leaflet-map/leaflet-map";
 import { Badge } from "@/components/ui/badge";
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field";
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Prisma } from "@/generated/prisma/client";
 import { formatDateTime } from "@/utils/date";
@@ -56,23 +56,23 @@ export default function EmployeeTaskDetail({
             <BackButton />
             <FieldGroup className="grid grid-cols-2 max-md:grid-cols-1">
                 <Field>
-                    <FieldLabel>Judul</FieldLabel>
+                    <FieldDescription>Judul</FieldDescription>
                     <FieldTitle>{data.title}</FieldTitle>
                 </Field>
                 <Field>
-                    <FieldLabel>Kategori Tugas</FieldLabel>
+                    <FieldDescription>Kategori Pekerjaan</FieldDescription>
                     <FieldTitle>{data.employeeTaskCategory.name}</FieldTitle>
                 </Field>
                 <Field>
-                    <FieldLabel>Waktu Mulai</FieldLabel>
+                    <FieldDescription>Waktu Mulai</FieldDescription>
                     <FieldTitle>{formatDateTime(data.startAt)}</FieldTitle>
                 </Field>
                 <Field>
-                    <FieldLabel>Jatuh Tempo</FieldLabel>
+                    <FieldDescription>Jatuh Tempo</FieldDescription>
                     <FieldTitle>{formatDateTime(data.dueAt)}</FieldTitle>
                 </Field>
                 <Field>
-                    <FieldLabel>Status</FieldLabel>
+                    <FieldDescription>Status</FieldDescription>
                     <FieldTitle>
                         <Badge style={{
                             backgroundColor: data.employeeTaskStatus.colorHex,
@@ -82,12 +82,12 @@ export default function EmployeeTaskDetail({
                     </FieldTitle>
                 </Field>
                 <Field>
-                    <FieldLabel>Nama Lokasi</FieldLabel>
+                    <FieldDescription>Nama Lokasi</FieldDescription>
                     <FieldTitle>{data.locationName}</FieldTitle>
                 </Field>
                 <Field className="col-span-2">
-                    <FieldLabel>Deskripsi</FieldLabel>
-                    <FieldDescription>{data.description || <span className="text-muted-foreground">Tidak ada deskripsi</span>}</FieldDescription>
+                    <FieldDescription>Deskripsi</FieldDescription>
+                    <FieldTitle>{data.description || <span className="text-muted-foreground font-normal italic">Tidak ada deskripsi</span>}</FieldTitle>
                 </Field>
                 <Field className="col-span-2">
                     <LeafletMap
@@ -95,13 +95,13 @@ export default function EmployeeTaskDetail({
                         longitude={data.longitude} />
                 </Field>
                 <Field className="col-span-2">
-                    <FieldLabel>
+                    <FieldDescription>
                         Daftar Lampiran File
-                    </FieldLabel>
+                    </FieldDescription>
                     <AttachmentList fileUrls={data.fileUrls} />
                 </Field>
                 <Field className="col-span-2">
-                    <FieldLabel>Daftar Karyawan Ditugaskan</FieldLabel>
+                    <FieldDescription>Daftar Karyawan Ditugaskan</FieldDescription>
                     <Table>
                         <TableHeader>
                             <TableRow>

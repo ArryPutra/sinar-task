@@ -87,7 +87,7 @@ export async function getAllEmployeeTaskAction({
 
         return {
             success: false,
-            error: "Gagal mengambil daftar tugas karyawan.",
+            error: "Gagal mengambil daftar pekerjaan karyawan.",
             data: [],
             totalCount: 0,
         };
@@ -146,7 +146,7 @@ export async function getEmployeeTaskByIdAction(id: string) {
         console.error(error);
 
         return {
-            error: "Gagal mengambil detail tugas karyawan.",
+            error: "Gagal mengambil detail pekerjaan karyawan.",
             success: false,
             data: null
         };
@@ -171,13 +171,19 @@ export async function createEmployeeTaskAction(
     }
 
     try {
+        // mengambil file di form
         const files = formData.getAll("fileUrls") as File[];
+        // daftar file yang diupload di cloudinary/storage (default kosong)
         const uploadedUrls: string[] = [];
 
         for (const file of files) {
+            // jika file kosong lewati (tidak diunggah ke cloudinary)
             if (file.size === 0) continue;
+            // fungsi upload file ke cloudinary
             const uploadResult = await uploadStreamToCloudinary(file, 'employee_tasks');
+            
             if (uploadResult.secure_url) {
+                // menambahkan url file yang diupload ke daftar array
                 uploadedUrls.push(uploadResult.secure_url);
             }
         }
@@ -191,7 +197,7 @@ export async function createEmployeeTaskAction(
                         validatedFields.data.startAt,
                         validatedFields.data.dueAt
                     ),
-                    adminId: (await getCurrentAdmin()).data?.id || ""
+                    adminId: (await getCurrentAdmin()).data?.id!
                 },
             });
 
@@ -209,13 +215,13 @@ export async function createEmployeeTaskAction(
         return {
             error: null,
             success: true,
-            message: `Tugas "${validatedFields.data.title}" berhasil ditambahkan.`,
+            message: `Pekerjaan "${validatedFields.data.title}" berhasil ditambahkan.`,
         };
     } catch (error: any) {
-        console.error("Transaction Error:", error);
+        console.error(error);
 
         return {
-            error: "Gagal membuat tugas.",
+            error: "Gagal membuat pekerjaan.",
             success: false,
             fields: Object.fromEntries(formData.entries()),
         };
@@ -300,13 +306,13 @@ export async function updateEmployeeTaskByIdAction(
         return {
             error: null,
             success: true,
-            message: `Tugas karyawan"${validatedFields.data.title}" berhasil diperbarui.`
+            message: `Pekerjaan karyawan"${validatedFields.data.title}" berhasil diperbarui.`
         };
-    } catch (error: any) {
+    } catch (error) {
         console.error(error);
 
         return {
-            error: "Gagal memperbarui tugas karyawan.",
+            error: "Gagal memperbarui pekerjaan karyawan.",
             success: false,
         };
     }
@@ -350,7 +356,7 @@ export async function deleteEmployeeTaskByIdAction(
         console.error(error);
 
         return {
-            error: "Gagal menghapus tugas karyawan.",
+            error: "Gagal menghapus pekerjaan karyawan.",
             success: false
         };
     }

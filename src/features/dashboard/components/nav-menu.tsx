@@ -6,11 +6,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem
-} from "@/components/ui/sidebar"
-import { usePathname } from "next/navigation"
+} from "@/components/ui/sidebar";
+import { usePathname } from "next/navigation";
 import { useRouter } from 'nextjs-toploader/app';
 
-export function NavMain({
+export function NavMenu({
   items,
 }: {
   items: {

@@ -1,6 +1,6 @@
 "use client"
 
-import BackButton from '@/components/back-button'
+import BackButton from '@/components/shared/back-button'
 import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'

@@ -4,8 +4,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
-import { Field, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 const markerIcon = typeof window !== "undefined" ? new L.Icon({
   iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",

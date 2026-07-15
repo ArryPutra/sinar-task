@@ -72,7 +72,7 @@ export default function EmployeeTaskCategoryListPage({
                     data.length === 0 &&
                     <TableRow>
                         <TableCell colSpan={6} className="text-center">
-                            Tidak ada kategori tugas karyawan.
+                            Tidak ada kategori pekerjaan karyawan.
                         </TableCell>
                     </TableRow>
                 }
@@ -105,8 +105,8 @@ function DeleteActionButton({
                 });
             }),
             {
-                loading: `Menghapus kategori tugas "${judul}"...`,
-                success: `Berhasil menghapus kategori tugas karyawan "${judul}".`,
+                loading: `Menghapus kategori pekerjaan "${judul}"...`,
+                success: `Berhasil menghapus kategori pekerjaan karyawan "${judul}".`,
                 error: (err) => err.message,
                 position: "top-center"
             }
@@ -124,9 +124,9 @@ function DeleteActionButton({
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Hapus Kategori Tugas Karyawan</AlertDialogTitle>
+                    <AlertDialogTitle>Hapus Kategori Pekerjaan Karyawan</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Apakah Anda yakin ingin menghapus kategori tugas karyawan <strong>{judul}</strong> ini? Tindakan ini tidak dapat dibatalkan.
+                        Apakah Anda yakin ingin menghapus kategori pekerjaan karyawan <strong>{judul}</strong> ini? Tindakan ini tidak dapat dibatalkan.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

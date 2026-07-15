@@ -7,22 +7,34 @@ cloudinary.config({
 });
 
 // Fungsi pembantu (helper) yang bisa diimpor dari mana saja
-export async function uploadStreamToCloudinary(file: File, folderName: string = 'general') {
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+export async function uploadStreamToCloudinary(
+    file: File,
+    folderName: string = "general"
+) {
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
 
-    return new Promise<any>((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-            {
-                resource_type: 'auto',
-                folder: folderName,
-            },
-            (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-            }
-        ).end(buffer);
-    });
+        return await new Promise<any>((resolve, reject) => {
+            cloudinary.uploader
+                .upload_stream(
+                    {
+                        resource_type: "auto",
+                        folder: folderName,
+                    },
+                    (error, result) => {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve(result);
+                        }
+                    }
+                )
+                .end(buffer);
+        });
+    } catch (error) {
+        throw new Error("Gagal mengunggah file ke Cloudinary.");
+    }
 }
 
 // Tambahkan di bawah fungsi uploadStreamToCloudinary Anda

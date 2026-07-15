@@ -1,17 +1,16 @@
 "use client"
 
-import { PasswordInput } from "@/components/password-input";
+import { PasswordInput } from "@/components/shared/password-input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
+import GoogleLoginButton from "@/features/auth/components/google-login-button";
 import { InfoIcon } from "lucide-react";
 import { useActionState } from "react";
 import { loginAction } from "../actions";
-import { authClient } from "@/lib/auth-client";
-import GoogleLoginButton from "@/components/google-login-button";
 
 export default function LoginForm() {
     const [state, formAction, isPending] = useActionState(loginAction, null);
@@ -47,7 +46,7 @@ export default function LoginForm() {
                                 id="email"
                                 type="email"
                                 placeholder="email@gmail.com"
-                                defaultValue="admin@gmail.com"
+                                defaultValue="sinartask@gmail.com"
                                 required />
                         </Field>
                         <Field>
@@ -72,10 +71,10 @@ export default function LoginForm() {
                             </span>
                             <Separator className="flex-1" />
                         </div>
-                        <GoogleLoginButton/>
+                        <GoogleLoginButton />
                     </FieldGroup>
                 </form>
-                <span className="font-medium tracking-wide text-xs text-gray-700 max-md:block">
+                <span className="font-medium tracking-wide text-xs text-muted-foreground max-md:block">
                     © 2026 PT. Sinar Sejati Group • v1.0.0
                 </span>
             </section>
@@ -86,7 +85,7 @@ export default function LoginForm() {
                 <img
                     src="/images/login.jpg"
                     alt="Login Background"
-                    className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.3]"
+                    className="absolute inset-0 h-full w-full object-cover pointer-events-none dark:brightness-[0.3]"
                 />
 
                 <div className="absolute inset-0 bg-linear-to-b from-blue-600/70 via-blue-900/80 to-slate-950/95 pointer-events-none" />
@@ -99,7 +98,7 @@ export default function LoginForm() {
                         Sinar Task
                     </h2>
                     <p className="text-blue-100/90 text-lg leading-relaxed">
-                        Sistem Informasi Manajemen Tugas Internal. Kelola koordinasi antar lini karyawan, supervisor, dan manajer demi produktivitas kerja yang transparan dan efisien.
+                        Sistem Informasi Manajemen Pekerjaan Internal. Kelola koordinasi antar lini karyawan, supervisor, dan manajer demi produktivitas kerja yang transparan dan efisien.
                     </p>
                 </div>
 

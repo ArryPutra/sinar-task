@@ -22,7 +22,7 @@ export async function getAllEmployeeTaskCategoryAction() {
         console.error(error);
 
         return {
-            error: "Gagal mengambil daftar kategori tugas karyawan.",
+            error: "Gagal mengambil daftar kategori pekerjaan karyawan.",
             success: false,
             data: []
         };
@@ -46,7 +46,7 @@ export async function getEmployeeTaskCategoryByIdAction(id: number) {
         console.error(error);
 
         return {
-            error: "Gagal mengambil detail kategori tugas karyawan.",
+            error: "Gagal mengambil detail kategori pekerjaan karyawan.",
             success: false,
             data: null
         };
@@ -76,7 +76,7 @@ export async function createEmployeeTaskCategoryAction(
 
     if (existingCategory) {
         return {
-            error: "Kategori tugas karyawan dengan nama tersebut sudah ada.",
+            error: "Kategori pekerjaan karyawan dengan nama tersebut sudah ada.",
             success: false,
             fields: Object.fromEntries(formData.entries()),
             fieldErrors: {
@@ -93,13 +93,13 @@ export async function createEmployeeTaskCategoryAction(
         return {
             error: null,
             success: true,
-            message: `Kategori tugas "${validatedFields.data.name}" berhasil ditambahkan.`,
+            message: `Kategori pekerjaan "${validatedFields.data.name}" berhasil ditambahkan.`,
         };
     } catch (error) {
         console.error(error);
 
         return {
-            error: "Gagal membuat kategori tugas karyawan.",
+            error: "Gagal membuat kategori pekerjaan karyawan.",
             success: false,
             fields: Object.fromEntries(formData.entries())
         };
@@ -135,7 +135,7 @@ export async function updateEmployeeTaskCategoryByIdAction(
         return {
             error: null,
             success: true,
-            message: `Kategori tugas karyawan "${validatedFields.data.name}" berhasil diperbarui.`,
+            message: `Kategori pekerjaan karyawan "${validatedFields.data.name}" berhasil diperbarui.`,
             fields: Object.fromEntries(formData.entries())
         };
     } catch (error: any) {
@@ -143,7 +143,7 @@ export async function updateEmployeeTaskCategoryByIdAction(
 
         if (error.code === "P2002") {
             return {
-                error: "Nama kategori tugas karyawan sudah digunakan.",
+                error: "Nama kategori pekerjaan karyawan sudah digunakan.",
                 success: false,
                 fields: Object.fromEntries(formData.entries()),
                 fieldErrors: {
@@ -153,7 +153,7 @@ export async function updateEmployeeTaskCategoryByIdAction(
         }
 
         return {
-            error: "Gagal memperbarui kategori tugas karyawan.",
+            error: "Gagal memperbarui kategori pekerjaan karyawan.",
             success: false,
         };
     }
@@ -183,11 +183,11 @@ export async function deleteEmployeeTaskCategoryByIdAction(
         let errorMessage;
 
         if (error.code === "P2003") {
-            errorMessage = "Kategori tugas karyawan ini tidak dapat dihapus karena masih digunakan."
+            errorMessage = "Kategori pekerjaan karyawan ini tidak dapat dihapus karena masih digunakan."
         }
 
         return {
-            error: errorMessage ?? "Gagal menghapus kategori tugas karyawan.",
+            error: errorMessage ?? "Gagal menghapus kategori pekerjaan karyawan.",
             success: false
         };
     }
