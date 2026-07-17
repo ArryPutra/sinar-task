@@ -24,24 +24,6 @@ export default async function AdminDashboardPage({
         {
             label: "Total Pekerjaan",
             value: await prisma.employeeTask.count()
-        },
-        {
-            label: "Pekerjaan Menunggu Review",
-            value: await prisma.employeeTaskAssignment.count({
-                where: {
-                    employeeTaskAssignmentStatusId: 2
-                }
-            })
-        },
-        {
-            label: "Pekerjaan Sedang Dikerjakan",
-            value: await prisma.employeeTaskAssignment.count({
-                where: {
-                    employeeTaskAssignmentStatusId: {
-                        in: [1, 3]
-                    }
-                }
-            })
         }
     ];
 

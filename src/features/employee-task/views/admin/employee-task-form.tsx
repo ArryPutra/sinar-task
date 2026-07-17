@@ -1,5 +1,6 @@
 "use client"
 
+import { AttachmentList } from "@/components/shared/attachment-list"
 import BackButton from "@/components/shared/back-button"
 import UploadFile from "@/components/shared/file-upload"
 import LeafletMap from "@/components/shared/leaflet-map/leaflet-map"
@@ -36,7 +37,7 @@ import { formatToDateLocal } from "@/utils/date"
 import { useRouter } from "nextjs-toploader/app"
 import { Fragment, useActionState, useEffect, useState } from "react"
 import { toast } from "sonner"
-import { createEmployeeTaskAction, updateEmployeeTaskByIdAction } from "../actions"
+import { createEmployeeTaskAction, updateEmployeeTaskByIdAction } from "../../actions"
 
 export default function EmployeeTaskForm({
     data,
@@ -216,6 +217,8 @@ export default function EmployeeTaskForm({
                         <FieldLabel>Lampiran File</FieldLabel>
                         <UploadFile
                             name="fileUrls" />
+                        <AttachmentList
+                            fileUrls={data?.fileUrls ?? []} />
                         <FieldError>{fieldErrors?.fileUrls}</FieldError>
                     </Field>
                     <Field className="col-span-2">

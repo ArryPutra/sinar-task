@@ -4,8 +4,10 @@ import { Prisma } from "@/generated/prisma/client";
 import { deleteFileFromCloudinary, uploadStreamToCloudinary } from "@/lib/cloudinary";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
+import { generateUniqueSlug } from "@/utils/generate-unique-slug";
 import { revalidatePath } from "next/cache";
-import { getCurrentAdmin } from "../admin/actions";
+import { getCurrentAdmin } from "../auth/actions";
+import { employeeTaskById } from "./queris";
 import { formEmployeeTaskSchema } from "./schemas";
 import { determineEmployeeTaskStatusId } from "./utils/determine-employee-task-status-id";
 
@@ -100,41 +102,7 @@ export async function getEmployeeTaskByIdAction(id: string) {
             where: {
                 id: id
             },
-            include: {
-                employeeTaskStatus: {
-                    select: {
-                        name: true,
-                        colorHex: true
-                    }
-                },
-                employeeTaskCategory: {
-                    select: {
-                        name: true
-                    }
-                },
-                employeeTaskAssignment: {
-                    select: {
-                        employeeId: true,
-                        employee: {
-                            select: {
-                                phoneNumber: true,
-                                user: {
-                                    select: {
-                                        name: true,
-                                        email: true
-                                    }
-                                }
-                            }
-                        },
-                        employeeTaskAssignmentStatus: {
-                            select: {
-                                name: true,
-                                colorHex: true
-                            }
-                        }
-                    }
-                }
-            }
+            ...employeeTaskById
         });
 
         return {
@@ -145,7 +113,7 @@ export async function getEmployeeTaskByIdAction(id: string) {
     } catch (error) {
         console.error(error);
 
-        return {
+        return {        
             error: "Gagal mengambil detail pekerjaan karyawan.",
             success: false,
             data: null
@@ -181,7 +149,7 @@ export async function createEmployeeTaskAction(
             if (file.size === 0) continue;
             // fungsi upload file ke cloudinary
             const uploadResult = await uploadStreamToCloudinary(file, 'employee_tasks');
-            
+
             if (uploadResult.secure_url) {
                 // menambahkan url file yang diupload ke daftar array
                 uploadedUrls.push(uploadResult.secure_url);
@@ -189,6 +157,15 @@ export async function createEmployeeTaskAction(
         }
 
         await prisma.$transaction(async (tx) => {
+            const slug = await generateUniqueSlug({
+                value: validatedFields.data.title,
+                exists: async (slug) => {
+                    return !!(await prisma.employeeTask.findUnique({
+                        where: { slug },
+                    }));
+                },
+            });
+
             const employeeTask = await tx.employeeTask.create({
                 data: {
                     ...validatedFields.data,
@@ -197,7 +174,8 @@ export async function createEmployeeTaskAction(
                         validatedFields.data.startAt,
                         validatedFields.data.dueAt
                     ),
-                    adminId: (await getCurrentAdmin()).data?.id!
+                    adminId: (await getCurrentAdmin()).data?.id!,
+                    slug: slug
                 },
             });
 

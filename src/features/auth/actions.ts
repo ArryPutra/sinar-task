@@ -2,6 +2,7 @@
 
 import { roleDashboardRoutesMap } from "@/features/dashboard/config/role-dashboard-routes";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { loginSchema } from "./schemas";
@@ -38,8 +39,8 @@ export async function loginAction(
         console.error(error);
 
         return {
-            error: "Email atau password salah.",
             success: false,
+            message: "Email atau password salah."
         }
     }
 
@@ -91,4 +92,30 @@ export async function loginGoogle() {
     });
 
     return redirect(response.url as string);
+}
+
+export async function getCurrentAdmin() {
+    const currentUserId = (await getCurrentUserAction()).user?.id;
+
+    try {
+        const data = await prisma.admin.findUnique({
+            where: {
+                userId: currentUserId
+            }
+        });
+
+        return {
+            error: null,
+            success: true,
+            data: data
+        };
+    } catch (error) {
+        console.error(error);
+
+        return {
+            error: "Gagal mengambil data karyawan saat ini.",
+            success: false,
+            data: null
+        };
+    }
 }

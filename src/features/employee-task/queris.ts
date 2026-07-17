@@ -1,6 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 
-export const employeeTasksByEmployeeId = {
+export const employeeTaskById = {
     include: {
         employeeTaskStatus: {
             select: {
@@ -15,10 +15,25 @@ export const employeeTasksByEmployeeId = {
         },
         employeeTaskAssignment: {
             select: {
-                employeeTaskAssignmentStatus: {
+                employeeId: true,
+                employee: {
                     select: {
-                        name: true,
-                        colorHex: true
+                        phoneNumber: true,
+                        user: {
+                            select: {
+                                name: true,
+                                email: true
+                            }
+                        }
+                    }
+                },
+            }
+        },
+        admin: {
+            select: {
+                user: {
+                    select: {
+                        name: true
                     }
                 }
             }
@@ -26,5 +41,23 @@ export const employeeTasksByEmployeeId = {
     }
 } satisfies Prisma.EmployeeTaskDefaultArgs;
 
+export const employeeTasksByEmployeeId = {
+    include: {
+        employeeTaskStatus: {
+            select: {
+                name: true,
+                colorHex: true
+            }
+        },
+        employeeTaskCategory: {
+            select: {
+                name: true
+            }
+        },
+    }
+} satisfies Prisma.EmployeeTaskDefaultArgs;
+
 export type EmployeeTasksByEmployeeId =
     Prisma.EmployeeTaskGetPayload<typeof employeeTasksByEmployeeId>;
+export type EmployeeTaskById =
+    Prisma.EmployeeTaskGetPayload<typeof employeeTaskById>;

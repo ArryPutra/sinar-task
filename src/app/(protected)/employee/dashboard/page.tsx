@@ -13,22 +13,21 @@ export default async function EmployeeDashboardPage() {
         return notFound();
     }
 
-    const taskAssignments = await getEmployeeTaskAssignmentsByEmployeeIdAction(currentEmployee.data?.id);
+    const taskAssignments = await getEmployeeTaskAssignmentsByEmployeeIdAction(currentEmployee.data.id);
 
     return (
         <>
-            <div className="grid grid-cols-3 max-xl:grid-cols-2 max-sm:grid-cols-1 gap-6">
+            <div className="grid grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1 gap-6">
                 <SummaryCard
                     label="Total Pekerjaan"
                     value={taskAssignments.length} />
             </div>
-            <div className="grid grid-cols-3 max-xl:grid-cols-2 max-sm:grid-cols-1 gap-6 mt-4">
-
+            <div className="grid grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1 gap-6 mt-4">
                 {
                     taskAssignments.map((item) => (
                         <EmployeeTaskAssignmentCard
                             key={item.id}
-                            data={item} />
+                            task={item} />
                     ))
                 }
             </div>

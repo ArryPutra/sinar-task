@@ -36,7 +36,7 @@ export default function RootLayout({
           <TooltipProvider>
             <NextTopLoader
               color="#1447e6" />
-            <Toaster />
+            <Toaster position="top-center" />
             {children}
           </TooltipProvider>
         </ThemeProvider>

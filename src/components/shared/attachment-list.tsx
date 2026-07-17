@@ -24,7 +24,7 @@ const getFileIcon = (url: string) => {
 };
 
 export function AttachmentList({ fileUrls, label = "Daftar Lampiran File" }: {
-    fileUrls: string[];
+    fileUrls: string[] | null;
     label?: string;
 }) {
     // State jika tidak ada file yang dikirim

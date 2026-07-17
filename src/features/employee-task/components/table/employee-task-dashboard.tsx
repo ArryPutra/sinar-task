@@ -95,7 +95,7 @@ export default function EmployeeTaskDashboardTable({
                     <TableRow>
                         <TableHead>No</TableHead>
                         <TableHead>Judul</TableHead>
-                        <TableHead>Butuh Review Laporan</TableHead>
+                        <TableHead>Jumlah Review</TableHead>
                         <TableHead>Waktu Mulai</TableHead>
                         <TableHead>Jatuh Tempo</TableHead>
                         <TableHead>Status</TableHead>
@@ -144,7 +144,7 @@ export default function EmployeeTaskDashboardTable({
                     {
                         data.length === 0 &&
                         <TableRow>
-                            <TableCell colSpan={99} className="text-center">
+                            <TableCell colSpan={99} className="text-center text-muted-foreground">
                                 Tidak ada pekerjaan karyawan.
                             </TableCell>
                         </TableRow>

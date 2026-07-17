@@ -154,7 +154,7 @@ export default function EmployeeTaskManagementTable({
                     {
                         data.length === 0 &&
                         <TableRow>
-                            <TableCell colSpan={99} className="text-center">
+                            <TableCell colSpan={99} className="text-center text-muted-foreground">
                                 Tidak ada pekerjaan karyawan.
                             </TableCell>
                         </TableRow>

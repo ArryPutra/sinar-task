@@ -33,3 +33,5 @@ export const formatToDateLocal = (dateInput: Date | string | null | undefined): 
 
     return localDate.toISOString().slice(0, 10);
 };
+
+export const today = (): string => format(new Date(), "yyyy-MM-dd", { locale: id });

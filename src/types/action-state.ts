@@ -1,5 +1,4 @@
 export type ActionState = {
-    error: string | null;
     success: boolean;
     message?: string | null;
     fields?: Record<string, any> | null;
@@ -7,7 +6,6 @@ export type ActionState = {
 };
 
 export const initialActionState: ActionState = {
-    error: null,
     success: false,
     message: null,
     fields: null,

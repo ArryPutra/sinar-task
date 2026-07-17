@@ -1,5 +1,5 @@
 import { getAllEmployeeTaskCategoryAction } from '@/features/employee-task-category/actions';
-import EmployeeTaskForm from '@/features/employee-task/components/employee-task-form';
+import EmployeeTaskForm from '@/features/employee-task/views/admin/employee-task-form';
 import { getAllEmployeesAction } from '@/features/employee/action';
 
 export default async function CreateEmployeeTaskPage() {

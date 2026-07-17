@@ -2,12 +2,6 @@ import { Prisma } from "@/generated/prisma/client";
 
 export const getEmployeeTaskAssignmentsByEmployeeIdActionQuery = {
     include: {
-        employeeTaskAssignmentStatus: {
-            select: {
-                name: true,
-                colorHex: true
-            }
-        },
         employeeTask: {
             include: {
                 employeeTaskStatus: {
@@ -48,17 +42,11 @@ export const getAllEmployeeTaskAssignmentQuery = {
             }
         },
         employeeTask: true,
-        employeeTaskAssignmentStatus: {
-            select: {
-                name: true,
-                colorHex: true
-            }
-        }
     }
 } satisfies Prisma.EmployeeTaskAssignmentDefaultArgs;
 
 export type EmployeeTaskAssignmentByEmployeeId =
     Prisma.EmployeeTaskAssignmentGetPayload<typeof getEmployeeTaskAssignmentsByEmployeeIdActionQuery>;
-    
+
 export type AllEmployeeTaskAssignments =
     Prisma.EmployeeTaskAssignmentGetPayload<typeof getAllEmployeeTaskAssignmentQuery>;

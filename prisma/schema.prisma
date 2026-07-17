@@ -111,6 +111,7 @@ model EmployeeTask {
   fileUrls     String[]
   locationName String
   adminId      String
+  slug         String   @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -183,34 +184,84 @@ model Admin {
 model EmployeeTaskAssignment {
   id String @id @default(cuid())
 
-  employeeTaskId                 String
-  employeeId                     String
-  employeeTaskAssignmentStatusId Int    @default(1)
-
-  note     String?
-  fileUrls String[]
+  employeeTaskId String
+  employeeId     String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employeeTask                 EmployeeTask                 @relation(fields: [employeeTaskId], references: [id])
-  employee                     Employee                     @relation(fields: [employeeId], references: [id])
-  employeeTaskAssignmentStatus EmployeeTaskAssignmentStatus @relation(fields: [employeeTaskAssignmentStatusId], references: [id])
+  employeeTask        EmployeeTask         @relation(fields: [employeeTaskId], references: [id])
+  employee            Employee             @relation(fields: [employeeId], references: [id])
+  employeeTaskReports EmployeeTaskReport[]
 
   @@unique([employeeTaskId, employeeId])
   @@map("employee_task_assignments")
 }
 
-model EmployeeTaskAssignmentStatus {
+model EmployeeTaskReport {
   id Int @id @default(autoincrement())
 
-  name     String @unique
+  employeeTaskAssignmentId   String
+  employeeTaskReportStatusId Int     @default(1)
+  isDocumentComplete         Boolean @default(false)
+
+  reportDate         DateTime
+  note               String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeTaskDocuments    EmployeeTaskDocument[]
+  employeeTaskReportStatus EmployeeTaskReportStatus @relation(fields: [employeeTaskReportStatusId], references: [id])
+  employeeTaskAssignment   EmployeeTaskAssignment   @relation(fields: [employeeTaskAssignmentId], references: [id])
+
+  @@unique([employeeTaskAssignmentId, reportDate])
+  @@map("employee_task_reports")
+}
+
+model EmployeeTaskReportStatus {
+  id Int @id @default(autoincrement())
+
+  name     String
   colorHex String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employeeTaskAssignment EmployeeTaskAssignment[]
+  employeeTaskReports EmployeeTaskReport[]
 
-  @@map("employee_task_assignment_statuses")
+  @@map("employee_task_report_statuses")
+}
+
+model EmployeeTaskDocument {
+  id Int @id @default(autoincrement())
+
+  employeeTaskReportId           Int
+  employeeTaskDocumentCategoryId Int
+
+  fileUrls String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeTaskReport           EmployeeTaskReport           @relation(fields: [employeeTaskReportId], references: [id])
+  employeeTaskDocumentCategory EmployeeTaskDocumentCategory @relation(fields: [employeeTaskDocumentCategoryId], references: [id])
+
+  @@unique([employeeTaskReportId, employeeTaskDocumentCategoryId])
+  @@map("employee_task_documents")
+}
+
+model EmployeeTaskDocumentCategory {
+  id Int @id @default(autoincrement())
+
+  name       String  @unique
+  isRequired Boolean @default(true)
+  slug       String  @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeTaskDocument EmployeeTaskDocument[]
+
+  @@map("employee_task_document_categories")
 }
