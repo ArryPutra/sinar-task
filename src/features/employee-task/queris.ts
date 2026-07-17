@@ -16,6 +16,12 @@ export const employeeTaskById = {
         employeeTaskAssignment: {
             select: {
                 employeeId: true,
+                employeeTaskAssignmentStatus: {
+                    select: {
+                        name: true,
+                        colorHex: true
+                    }
+                },
                 employee: {
                     select: {
                         phoneNumber: true,

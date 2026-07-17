@@ -1,5 +1,6 @@
 "use server"
 
+import { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
@@ -7,8 +8,6 @@ import { headers } from "next/headers";
 import { getCurrentUserAction } from "../auth/actions";
 import { employeeWithUser, employeeWithUserAndTask } from "./queris";
 import { createEmployeeSchema, createSelfEmployeeSchema, updateEmployeeSchema } from "./schemas";
-import { redirect } from "next/navigation";
-import { Prisma } from "@/generated/prisma/client";
 
 export async function getAllEmployeesAction() {
     try {
@@ -22,17 +21,17 @@ export async function getAllEmployeesAction() {
         });
 
         return {
-            error: null,
             success: true,
+            message: null,
             data: data
         }
     } catch (error) {
         console.error(error);
 
         return {
-            error: "Gagal mengambil daftar karyawan.",
             success: false,
-            data: []
+            data: [],
+            message: "Gagal mengambil daftar karyawan.",
         };
     }
 }
@@ -213,7 +212,6 @@ export async function createSelfEmployeeAction(
 
     if (!validatedFields.success) {
         return {
-            error: validatedFields.error?.message,
             success: false,
             fields: Object.fromEntries(formData.entries()),
             fieldErrors: validatedFields.error?.flatten().fieldErrors
@@ -225,7 +223,6 @@ export async function createSelfEmployeeAction(
 
         if (!currentUser.user) {
             return {
-                error: "Data user tidak ditemukan.",
                 success: false,
                 fields: Object.fromEntries(formData.entries()),
                 fieldErrors: null
@@ -243,7 +240,6 @@ export async function createSelfEmployeeAction(
         }
 
         return {
-            error: null,
             success: true,
             message: "Karyawan berhasil didaftarkan.",
             fields: null,
@@ -256,7 +252,6 @@ export async function createSelfEmployeeAction(
         ) {
             return {
                 success: false,
-                error: "Validasi gagal.",
                 fields: Object.fromEntries(formData.entries()),
                 fieldErrors: {
                     phoneNumber: [
@@ -267,7 +262,6 @@ export async function createSelfEmployeeAction(
         }
 
         return {
-            error: "Karyawan gagal didaftarkan.",
             success: false,
             fields: Object.fromEntries(formData.entries()),
             fieldErrors: null

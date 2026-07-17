@@ -1,6 +1,5 @@
 "use client";
 
-import { AttachmentList } from "@/components/shared/attachment-list";
 import SearchInput from "@/components/shared/search-input";
 import TextLink from "@/components/shared/text-link";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +14,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
     Select,
     SelectContent,
@@ -135,10 +134,10 @@ function ShowDialog({
                 description: "Status pekerjaan berhasil diperbarui."
             });
             setIsOpen(false); // Tutup popup jika berhasil
-        } else if (state.error) {
+        } else if (!state.success) {
             toast.error(state.message, {
                 position: "top-center",
-                description: state.error
+                description: state.message
             });
         }
     }, [state]);
@@ -161,14 +160,6 @@ function ShowDialog({
                     <span>Nama: {data.employee.user.name}</span>
                     <span>Nomor Telepon: {data.employee.phoneNumber}</span>
                 </div>
-                <Field>
-                    <FieldLabel>Catatan dari Karyawan:</FieldLabel>
-                    <FieldDescription>{data.note || "Tidak ada catatan"}</FieldDescription>
-                </Field>
-                <Field>
-                    <FieldLabel>Lampiran Kerja Karyawan:</FieldLabel>
-                    <AttachmentList fileUrls={data.fileUrls} />
-                </Field>
                 <form action={formAction} className="space-y-6">
                     <Field>
                         <FieldLabel>Status Pekerjaan:</FieldLabel>

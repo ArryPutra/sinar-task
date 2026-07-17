@@ -42,6 +42,12 @@ export const getAllEmployeeTaskAssignmentQuery = {
             }
         },
         employeeTask: true,
+        employeeTaskAssignmentStatus: {
+            select: {
+                name: true,
+                colorHex: true
+            }
+        }
     }
 } satisfies Prisma.EmployeeTaskAssignmentDefaultArgs;
 

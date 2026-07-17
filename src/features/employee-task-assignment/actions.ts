@@ -7,6 +7,7 @@ import { ActionState } from "@/types/action-state";
 import { startOfDay } from "date-fns";
 import { getCurrentEmployee } from "../employee/action";
 import { getAllEmployeeTaskAssignmentQuery, getEmployeeTaskAssignmentsByEmployeeIdActionQuery } from "./queris";
+import { revalidatePath } from "next/cache";
 
 export async function getAllEmployeeTaskAssignment({
     page = 1,
@@ -297,38 +298,36 @@ export async function getEmployeeTaskAssignmentsByEmployeeIdAction(employeeId: s
 //     }
 // }
 
-// export async function updateEmployeeTaskAssignmentStatusAction(
-//     id: string,
-//     prevState: ActionState,
-//     formData: FormData
-// ): Promise<ActionState> {
-//     const employeeTaskAssignmentStatusId = Number(formData.get("employeeTaskAssignmentStatusId"));
+export async function updateEmployeeTaskAssignmentStatusAction(
+    id: string,
+    prevState: ActionState,
+    formData: FormData
+): Promise<ActionState> {
+    const employeeTaskAssignmentStatusId = Number(formData.get("employeeTaskAssignmentStatusId"));
 
-//     try {
-//         await prisma.employeeTaskAssignment.update({
-//             where: {
-//                 id: id
-//             },
-//             data: {
-//                 employeeTaskAssignmentStatusId: employeeTaskAssignmentStatusId
-//             }
-//         });
+    try {
+        await prisma.employeeTaskAssignment.update({
+            where: {
+                id: id
+            },
+            data: {
+                employeeTaskAssignmentStatusId: employeeTaskAssignmentStatusId
+            }
+        });
 
-//         revalidatePath(`/admin/employee-tasks/${id}`);
+        revalidatePath(`/admin/employee-tasks/${id}`);
 
-//         return {
-//             error: null,
-//             success: true,
-//             message: "Status pekerjaan berhasil diperbarui!"
-//         }
-//     }
-//     catch (error) {
-//         console.error(error);
+        return {
+            success: true,
+            message: "Status pekerjaan berhasil diperbarui!"
+        }
+    }
+    catch (error) {
+        console.error(error);
 
-//         return {
-//             error: "Gagal memperbarui status pekerjaan.",
-//             success: false,
-//             message: "Terjadi kesalahan saat memperbarui status pekerjaan. Silakan coba lagi."
-//         };
-//     }
-// }
+        return {
+            success: false,
+            message: "Terjadi kesalahan saat memperbarui status pekerjaan. Silakan coba lagi."
+        };
+    }
+}

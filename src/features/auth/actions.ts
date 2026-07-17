@@ -18,8 +18,8 @@ export async function loginAction(
 
     if (!validatedFields.success) {
         return {
-            error: "Email atau password tidak valid secara format.",
-            success: false
+            success: false,
+            messagge: "Email atau password tidak valid secara format.",
         }
     }
 

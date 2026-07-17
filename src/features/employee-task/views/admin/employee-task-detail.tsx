@@ -4,51 +4,15 @@ import { AttachmentList } from "@/components/shared/attachment-list";
 import BackButton from "@/components/shared/back-button";
 import LeafletMap from "@/components/shared/leaflet-map/leaflet-map";
 import { Badge } from "@/components/ui/badge";
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldTitle } from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup, FieldTitle } from "@/components/ui/field";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Prisma } from "@/generated/prisma/client";
 import { formatDateTime } from "@/utils/date";
+import { EmployeeTaskById } from "../../queris";
 
 export default function EmployeeTaskDetail({
     data
 }: {
-    data: Prisma.EmployeeTaskGetPayload<{
-        include: {
-            employeeTaskStatus: {
-                select: {
-                    name: true,
-                    colorHex: true
-                }
-            },
-            employeeTaskCategory: {
-                select: {
-                    name: true
-                }
-            },
-            employeeTaskAssignment: {
-                select: {
-                    employeeId: true,
-                    employee: {
-                        select: {
-                            phoneNumber: true,
-                            user: {
-                                select: {
-                                    name: true,
-                                    email: true
-                                }
-                            }
-                        }
-                    },
-                    employeeTaskAssignmentStatus: {
-                        select: {
-                            name: true,
-                            colorHex: true
-                        }
-                    }
-                }
-            }
-        }
-    }>
+    data: EmployeeTaskById
 }) {
 
     return (

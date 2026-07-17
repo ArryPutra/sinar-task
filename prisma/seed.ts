@@ -14,6 +14,23 @@ async function main() {
     ]
   });
 
+  await prisma.employeeTaskAssignmentStatus.createMany({
+    data: [
+      {
+        name: "Belum Dikerjakan",
+        colorHex: "#94A3B8" // Abu-abu (Karyawan belum menyentuh tugas/laporan sama sekali)
+      },
+      {
+        name: "Sedang Dikerjakan",
+        colorHex: "#3B82F6" // Biru (Karyawan sudah mulai mencicil laporan/upload dokumen)
+      },
+      {
+        name: "Selesai Semuanya",
+        colorHex: "#10B981" // Hijau (Admin sudah ketok palu bahwa tugas ini sah & rampung)
+      },
+    ]
+  })
+
   await prisma.employeeTaskCategory.createMany({
     data: [
       { name: "Kontraktor" },

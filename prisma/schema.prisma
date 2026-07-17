@@ -184,18 +184,34 @@ model Admin {
 model EmployeeTaskAssignment {
   id String @id @default(cuid())
 
-  employeeTaskId String
-  employeeId     String
+  employeeTaskId                 String
+  employeeId                     String
+  employeeTaskAssignmentStatusId Int @default(1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employeeTask        EmployeeTask         @relation(fields: [employeeTaskId], references: [id])
-  employee            Employee             @relation(fields: [employeeId], references: [id])
-  employeeTaskReports EmployeeTaskReport[]
+  employeeTask                 EmployeeTask                 @relation(fields: [employeeTaskId], references: [id])
+  employee                     Employee                     @relation(fields: [employeeId], references: [id])
+  employeeTaskReports          EmployeeTaskReport[]
+  employeeTaskAssignmentStatus EmployeeTaskAssignmentStatus @relation(fields: [employeeTaskAssignmentStatusId], references: [id])
 
   @@unique([employeeTaskId, employeeId])
   @@map("employee_task_assignments")
+}
+
+model EmployeeTaskAssignmentStatus {
+  id Int @id @default(autoincrement())
+
+  name     String @unique
+  colorHex String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeTaskAssignment EmployeeTaskAssignment[]
+
+  @@map("employee_task_assignment_statuses")
 }
 
 model EmployeeTaskReport {
@@ -205,8 +221,8 @@ model EmployeeTaskReport {
   employeeTaskReportStatusId Int     @default(1)
   isDocumentComplete         Boolean @default(false)
 
-  reportDate         DateTime
-  note               String?
+  reportDate DateTime
+  note       String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
