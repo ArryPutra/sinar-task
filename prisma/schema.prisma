@@ -186,7 +186,7 @@ model EmployeeTaskAssignment {
 
   employeeTaskId                 String
   employeeId                     String
-  employeeTaskAssignmentStatusId Int @default(1)
+  employeeTaskAssignmentStatusId Int    @default(1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -218,7 +218,7 @@ model EmployeeTaskReport {
   id Int @id @default(autoincrement())
 
   employeeTaskAssignmentId   String
-  employeeTaskReportStatusId Int     @default(1)
+  employeeTaskReportStatusId Int
   isDocumentComplete         Boolean @default(false)
 
   reportDate DateTime
@@ -240,6 +240,7 @@ model EmployeeTaskReportStatus {
 
   name     String
   colorHex String
+  icon     String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

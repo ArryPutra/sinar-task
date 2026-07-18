@@ -1,6 +1,6 @@
-import { BUSINESS_TIMEZONE } from "@/lib/constants";
-import { format, parseISO } from "date-fns";
-import { formatInTimeZone, toZonedTime } from "date-fns-tz";
+import { APP_BUSINESS_TIMEZONE } from "@/lib/constants";
+import { format, isValid, parseISO } from "date-fns";
+import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 import { id } from "date-fns/locale";
 
 export const formatDateTime = (date: Date | string | null | undefined): string => {
@@ -62,8 +62,8 @@ export const formatDateTimeWitaString = (
     const parsedDate = new Date(date);
 
     // 1. Dapatkan tahun target dan tahun saat ini dalam zona waktu WITA
-    const dateYear = formatInTimeZone(parsedDate, BUSINESS_TIMEZONE, "yyyy");
-    const currentYear = formatInTimeZone(new Date(), BUSINESS_TIMEZONE, "yyyy");
+    const dateYear = formatInTimeZone(parsedDate, APP_BUSINESS_TIMEZONE, "yyyy");
+    const currentYear = formatInTimeZone(new Date(), APP_BUSINESS_TIMEZONE, "yyyy");
 
     // 2. Tentukan pola format
     const pattern =
@@ -72,7 +72,7 @@ export const formatDateTimeWitaString = (
             : "EEEE, dd MMMM yyyy HH:mm";
 
     // 3. Format tanggal menggunakan zona waktu yang ditentukan
-    const formattedDate = formatInTimeZone(parsedDate, BUSINESS_TIMEZONE, pattern, {
+    const formattedDate = formatInTimeZone(parsedDate, APP_BUSINESS_TIMEZONE, pattern, {
         locale: id
     });
 
@@ -81,21 +81,28 @@ export const formatDateTimeWitaString = (
 
 export const formatDateTimeBusinessTz = (date: Date | string) => {
     if (date instanceof Date) {
-        return toZonedTime(date, BUSINESS_TIMEZONE);
+        return toZonedTime(date, APP_BUSINESS_TIMEZONE);
     }
     if (typeof date === "string") {
-        return toZonedTime(parseISO(date), BUSINESS_TIMEZONE);
+        return toZonedTime(parseISO(date), APP_BUSINESS_TIMEZONE);
     }
 
     throw new Error("Format tanggal tidak valid. Harus berupa Date atau string ISO.");
 }
 
-// export const formatDateTimeBusinessToUtcTz = (date: Date | string) => {
-//     if (date instanceof Date) {
-//         return 
-//     }
-//     if (typeof date === "string") {
-//     }
+export const toDatabaseDateTime = (inputDate: Date | string, timezone = APP_BUSINESS_TIMEZONE) => {
+    // 1. Jika input berupa string "YYYY-MM-DD", kita asumsikan sebagai awal hari (00:00:00)
+    // Jika berupa objek Date atau format lain, kita normalisasi dulu.
+    let dateObj = inputDate instanceof Date ? inputDate : parseISO(inputDate);
 
-//     throw new Error("Format tanggal tidak valid. Harus berupa Date atau string ISO.");
-// }
+    if (!isValid(dateObj)) {
+        throw new Error("Format tanggal tidak valid");
+    }
+
+    // 2. Gunakan fromZonedTime untuk memastikan momen tersebut 
+    // diinterpretasikan di zona waktu bisnis, lalu ditarik ke UTC
+    const zonedDate = fromZonedTime(dateObj, timezone);
+
+    // 3. Kembalikan ke format ISO untuk database
+    return zonedDate.toISOString();
+};

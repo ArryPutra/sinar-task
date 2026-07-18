@@ -1,4 +1,4 @@
-import { BUSINESS_TIMEZONE } from "@/lib/constants";
+import { APP_BUSINESS_TIMEZONE } from "@/lib/constants";
 import { fromZonedTime } from "date-fns-tz";
 import { z } from "zod";
 
@@ -7,7 +7,7 @@ const zonedDateSchema = z.preprocess((value) => {
     return value;
   }
 
-  return fromZonedTime(value, BUSINESS_TIMEZONE);
+  return fromZonedTime(value, APP_BUSINESS_TIMEZONE);
 }, z.date());
 
 const zonedEndOfDaySchema = z.preprocess((value) => {
@@ -15,7 +15,7 @@ const zonedEndOfDaySchema = z.preprocess((value) => {
     return value;
   }
 
-  return fromZonedTime(`${value}T23:59:59.999`, BUSINESS_TIMEZONE);
+  return fromZonedTime(`${value}T23:59:59.999`, APP_BUSINESS_TIMEZONE);
 }, z.date());
 
 export const formEmployeeTaskSchema = z.object({

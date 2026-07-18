@@ -114,24 +114,24 @@ export default function TaskCardDetail({
                     </div>
                 </div>
             </CardContent>
-            {
-                detailRoute &&
-                <CardFooter className='border-t flex justify-between'>
-                    <div className='flex flex-col gap-2'>
-                        <span className='uppercase text-xs font-medium text-muted-foreground'>
-                            Status Kerja Anda
-                        </span>
-                        <Badge style={{ backgroundColor: taskAssignmentStatus?.colorHex }}>
-                            {taskAssignmentStatus?.name}
-                        </Badge>
-                    </div>
+            <CardFooter className='border-t flex justify-between'>
+                <div className='flex flex-col gap-2'>
+                    <span className='uppercase text-xs font-medium text-muted-foreground'>
+                        Status Kerja Anda
+                    </span>
+                    <Badge style={{ backgroundColor: taskAssignmentStatus?.colorHex }}>
+                        {taskAssignmentStatus?.name}
+                    </Badge>
+                </div>
+                {
+                    detailRoute &&
                     <Link href={detailRoute}>
                         <Button variant="outline" size="sm">
                             <span>Lihat Detail</span><ArrowRightIcon />
                         </Button>
                     </Link>
-                </CardFooter>
-            }
+                }
+            </CardFooter>
         </Card>
     )
 }

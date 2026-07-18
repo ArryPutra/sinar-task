@@ -54,12 +54,36 @@ async function main() {
 
   await prisma.employeeTaskReportStatus.createMany({
     data: [
-      { name: "Ditugaskan", colorHex: "#3B82F6" },
-      { name: "Menunggu Peninjauan", colorHex: "#F59E0B" },
-      { name: "Disetujui", colorHex: "#22C55E" },
-      { name: "Perlu Revisi", colorHex: "#F59E0B" },
-      { name: "Ditolak", colorHex: "#EF4444" },
-    ]
+      {
+        name: "Draft",
+        colorHex: "#6B7280",
+        icon: "FilePenLine",
+      }, // Laporan masih disimpan sebagai draf dan belum dikirim.
+
+      {
+        name: "Menunggu Peninjauan",
+        colorHex: "#F59E0B",
+        icon: "Clock3",
+      }, // Laporan telah dikirim dan sedang menunggu diperiksa oleh atasan.
+
+      {
+        name: "Perlu Revisi",
+        colorHex: "#F97316",
+        icon: "RotateCcw",
+      }, // Laporan perlu diperbaiki sesuai catatan dari peninjau.
+
+      {
+        name: "Disetujui",
+        colorHex: "#22C55E",
+        icon: "CircleCheckBig",
+      }, // Laporan telah diperiksa dan diterima.
+
+      {
+        name: "Ditolak",
+        colorHex: "#EF4444",
+        icon: "CircleX",
+      }, // Laporan ditolak dan tidak dapat diterima.
+    ],
   });
 
   console.log(`✅ Seeding selesai! Berhasil`);

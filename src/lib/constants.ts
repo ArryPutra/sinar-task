@@ -1,1 +1,1 @@
-export const BUSINESS_TIMEZONE = "Asia/Makassar";
+export const APP_BUSINESS_TIMEZONE = "Asia/Makassar";

@@ -17,12 +17,13 @@ export default async function EmployeeDashboardPage() {
             label: "Total Pekerjaan",
             value: await prisma.employeeTaskAssignment.count({
                 where: {
+                    employeeId: currentEmployee.data.id,
                     employeeTaskAssignmentStatusId: {
                         not: 3
                     }
                 }
             })
-        }
+        },
     ]
 
     const taskAssignments = await prisma.employeeTaskAssignment.findMany({
@@ -30,6 +31,7 @@ export default async function EmployeeDashboardPage() {
             employeeId: currentEmployee.data.id
         },
         select: {
+            id: true,
             employeeTaskAssignmentStatus: {
                 select: {
                     name: true, 
@@ -62,7 +64,7 @@ export default async function EmployeeDashboardPage() {
                             <TaskCardDetail
                                 key={index}
                                 task={item.employeeTask}
-                                detailRoute={`/employee/dashboard/${item.employeeTask.slug}`}
+                                detailRoute={`/employee/dashboard/${item.id}`}
                                 taskAssignmentStatus={item.employeeTaskAssignmentStatus} />
                         ))
                         :

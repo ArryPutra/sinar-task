@@ -1,7 +1,7 @@
 "use server"
 
 import { uploadStreamToCloudinary } from "@/lib/cloudinary";
-import { BUSINESS_TIMEZONE } from "@/lib/constants";
+import { APP_BUSINESS_TIMEZONE } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
 import { formatDateOnly } from "@/utils/date";
@@ -57,7 +57,7 @@ export async function submitTaskReportAction(
                         employeeTaskAssignmentId: taskAssignmentId,
                         reportDate: fromZonedTime(
                             startOfDay(selectedDate),
-                            BUSINESS_TIMEZONE
+                            APP_BUSINESS_TIMEZONE
                         ),
                     }
                 },
@@ -65,7 +65,7 @@ export async function submitTaskReportAction(
                     employeeTaskAssignmentId: taskAssignmentId,
                     reportDate: fromZonedTime(
                         startOfDay(selectedDate),
-                        BUSINESS_TIMEZONE
+                        APP_BUSINESS_TIMEZONE
                     ),
                     note: formData.get("note") as string,
                     isDocumentComplete: false
