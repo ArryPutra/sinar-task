@@ -68,7 +68,8 @@ export async function submitTaskReportAction(
                         APP_BUSINESS_TIMEZONE
                     ),
                     note: formData.get("note") as string,
-                    isDocumentComplete: false
+                    isDocumentComplete: false,
+                    employeeTaskReportStatusId: 1
                 },
                 update: {
                     note: formData.get("note") as string
