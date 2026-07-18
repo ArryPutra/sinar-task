@@ -30,7 +30,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { startTransition } from "react";
 import { toast } from "sonner";
 import { deleteEmployeeTaskByIdAction } from "../../actions";
-import { formatDateOnly } from "@/utils/date";
+import { formatDateTimeString } from "@/utils/date";
 
 export default function EmployeeTaskDashboardTable({
     data,
@@ -110,10 +110,10 @@ export default function EmployeeTaskDashboardTable({
                             <TableCell>{item.title}</TableCell>
                             <TableCell>1</TableCell>
                             <TableCell>
-                                {formatDateOnly(item.startAt)}
+                                {formatDateTimeString(item.startAt)}
                             </TableCell>
                             <TableCell>
-                                {formatDateOnly(item.dueAt)}
+                                {formatDateTimeString(item.dueAt)}
                             </TableCell>
                             <TableCell>
                                 {

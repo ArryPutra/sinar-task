@@ -3,19 +3,21 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { formatDateTimeBusinessTz } from '@/utils/date';
 import { eachDayOfInterval, format, isSameDay } from 'date-fns';
+import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 
 export default function EmployeeTaskReportDates({
   startAt,
   dueAt,
-  selectedDate,
+  selectedDateString,
   listDateStatus
 }: {
   startAt: Date;
   dueAt: Date;
-  selectedDate: Date;
+  selectedDateString: Date;
   listDateStatus: {
     reportDate: Date;
     employeeTaskReportStatus: {
@@ -28,10 +30,9 @@ export default function EmployeeTaskReportDates({
   const searchParams = useSearchParams();
 
   const dates = eachDayOfInterval({
-    start: startAt,
-    end: dueAt,
+    start: formatDateTimeBusinessTz(startAt),
+    end: formatDateTimeBusinessTz(dueAt),
   });
-  console.log(dates, selectedDate)
 
   const handleDateClick = (date: Date) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -55,7 +56,7 @@ export default function EmployeeTaskReportDates({
               variant="outline"
               className={cn(
                 "flex h-fit cursor-pointer flex-col items-start py-4 transition-all duration-200",
-                isSameDay(date, selectedDate) ? "" : "opacity-50 bg-transparent border-none"
+                isSameDay(date, selectedDateString) ? "" : "opacity-50 bg-transparent border-none"
               )}
               onClick={() => {
                 handleDateClick(date);
@@ -72,10 +73,7 @@ export default function EmployeeTaskReportDates({
                 })}
               </span>
 
-              <Badge className='mt-2' variant="outline"
-                style={{
-                  backgroundColor: status?.employeeTaskReportStatus.colorHex
-                }}>
+              <Badge className='mt-2' variant="outline">
                 {status?.employeeTaskReportStatus.name || "Ditugaskan"}
               </Badge>
             </Button>

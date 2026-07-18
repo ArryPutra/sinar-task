@@ -9,19 +9,18 @@ import { Field, FieldLabel } from '@/components/ui/field'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { initialActionState } from '@/types/action-state'
-import { formatDateOnly } from '@/utils/date'
-import { parseISO } from 'date-fns'
+import { formatDateOnly, formatDateTimeString } from '@/utils/date'
 import { useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { submitTaskReportAction } from '../actions'
 
 export default function EmployeeTaskReportSubmission({
-  selectedDate,
+  selectedDateString,
   taskDocumentCategories,
   taskAssignmentId,
   taskReport
 }: {
-  selectedDate: string
+  selectedDateString: string
   taskDocumentCategories: {
     name: string
     slug: string
@@ -34,12 +33,14 @@ export default function EmployeeTaskReportSubmission({
   taskReport: {
     id: number,
     note: string | null,
+    updatedAt: Date
   } | null
 }) {
   const [state, formAction, isPending] = useActionState(
-    submitTaskReportAction.bind(null, taskAssignmentId, parseISO(selectedDate)),
+    submitTaskReportAction.bind(null, taskAssignmentId, selectedDateString),
     initialActionState
   );
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     if (state.message && state.success) {
@@ -47,10 +48,14 @@ export default function EmployeeTaskReportSubmission({
     }
   }, [state]);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Laporan Harian: {formatDateOnly(selectedDate)}</CardTitle>
+        <CardTitle>Laporan Harian: {formatDateOnly(selectedDateString)}</CardTitle>
       </CardHeader>
       <CardContent>
         <form action={formAction} key={taskReport?.id} className='space-y-4'>
@@ -81,7 +86,14 @@ export default function EmployeeTaskReportSubmission({
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           }
-          <p className='text-muted-foreground mt-4'>Sebelum mengumpulkan pekerjaan, pastikan semua data terisi dengan benar.</p>
+          <p className='text-muted-foreground mt-4'>
+            {
+              taskReport?.updatedAt ?
+                <span>Terakhir diperbarui: {mounted && formatDateTimeString(taskReport.updatedAt.toString())}</span>
+                :
+                <span>Ini adalah laporan baru</span>
+            }
+          </p>
           <div className='w-full flex flex-wrap gap-4 items-center mt-4'>
             <Button
               type='submit'

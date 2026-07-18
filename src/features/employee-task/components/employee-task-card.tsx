@@ -4,8 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmployeeTaskAssignmentByEmployeeId } from "@/features/employee-task-assignment/queris";
-import { formatDateOnly } from "@/utils/date";
-import { eachDayOfInterval } from "date-fns";
+import { formatDateTimeString } from "@/utils/date";
 import { ArrowRightIcon, CalendarIcon, ExternalLinkIcon, FileIcon, MapPinIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -38,7 +37,7 @@ export default function EmployeeTaskAssignmentCard({
             <CardContent className="space-y-3 text-sm text-muted-foreground pb-4 flex-1">
                 <div className="flex items-center gap-2">
                     <CalendarIcon className="h-4 w-4 shrink-0 text-primary" />
-                    <span>Jatuh Tempo: {formatDateOnly(task.employeeTask.dueAt)}</span>
+                    {/* <span>Jatuh Tempo: {task.employeeTask.dueAt.toString()}</span> */}
                 </div>
 
                 <div className="flex items-center gap-2">

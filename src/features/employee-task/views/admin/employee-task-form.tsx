@@ -138,7 +138,7 @@ export default function EmployeeTaskForm({
                         <FieldError>{fieldErrors?.employeeTaskCategoryId}</FieldError>
                     </Field>
                     <Field>
-                        <FieldLabel htmlFor="startAt">Tanggal Mulai Tempo</FieldLabel>
+                        <FieldLabel htmlFor="startAt">Tanggal Mulai Tempo (WITA)</FieldLabel>
                         <Input
                             id="startAt"
                             name="startAt"
@@ -147,7 +147,7 @@ export default function EmployeeTaskForm({
                         <FieldError>{fieldErrors?.startAt}</FieldError>
                     </Field>
                     <Field>
-                        <FieldLabel htmlFor="dueAt">Tanggal Jatuh Tempo</FieldLabel>
+                        <FieldLabel htmlFor="dueAt">Tanggal Jatuh Tempo (WITA)</FieldLabel>
                         <Input
                             id="dueAt"
                             name="dueAt"

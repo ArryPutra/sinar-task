@@ -1,14 +1,23 @@
+"use client"
+
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatDateOnly } from '@/utils/date';
+import { formatDateTimeString } from '@/utils/date';
 import { CalendarDays, ClockIcon, ExternalLinkIcon, FileIcon, MapPinIcon, UserIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { EmployeeTaskById } from '../queris';
 
-export default function TaskCardPreview({
+export default function TaskCardDetail({
   task
 }: {
   task: EmployeeTaskById
 }) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   return (
     <Card className='h-fit'>
       <CardHeader>
@@ -26,11 +35,11 @@ export default function TaskCardPreview({
       <CardContent className='space-y-2'>
         <div className='flex items-center'>
           <CalendarDays className='size-4 mr-2' />
-          <span>Tanggal Mulai: <strong>{formatDateOnly(task.startAt)}</strong></span>
+          <span>Tanggal Mulai: <strong>{isMounted ? formatDateTimeString(task.startAt.toString()) : "..."}</strong></span>
         </div>
         <div className='flex items-center'>
           <ClockIcon className='size-4 mr-2' />
-          <span>Jatuh Tempo: <strong>{formatDateOnly(task.dueAt)}</strong></span>
+          <span>Jatuh Tempo: <strong>{isMounted ? formatDateTimeString(task.dueAt.toString()) : "..."}</strong></span>
         </div>
         <div className='flex items-center'>
           <MapPinIcon className='size-4 mr-2' />

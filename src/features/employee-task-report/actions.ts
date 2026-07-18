@@ -1,14 +1,17 @@
 "use server"
 
 import { uploadStreamToCloudinary } from "@/lib/cloudinary";
+import { BUSINESS_TIMEZONE } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
 import { formatDateOnly } from "@/utils/date";
+import { startOfDay } from "date-fns";
+import { fromZonedTime } from "date-fns-tz";
 import { revalidatePath } from "next/cache";
 
 export async function submitTaskReportAction(
     taskAssignmentId: string,
-    selectedDate: Date,
+    selectedDate: string,
     prevState: ActionState,
     formData: FormData
 ): Promise<ActionState> {
@@ -52,12 +55,18 @@ export async function submitTaskReportAction(
                 where: {
                     employeeTaskAssignmentId_reportDate: {
                         employeeTaskAssignmentId: taskAssignmentId,
-                        reportDate: selectedDate,
+                        reportDate: fromZonedTime(
+                            startOfDay(selectedDate),
+                            BUSINESS_TIMEZONE
+                        ),
                     }
                 },
                 create: {
                     employeeTaskAssignmentId: taskAssignmentId,
-                    reportDate: selectedDate,
+                    reportDate: fromZonedTime(
+                        startOfDay(selectedDate),
+                        BUSINESS_TIMEZONE
+                    ),
                     note: formData.get("note") as string,
                     isDocumentComplete: false
                 },

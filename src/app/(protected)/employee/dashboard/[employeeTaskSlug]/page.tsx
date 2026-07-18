@@ -1,12 +1,16 @@
+"use server"
+
 import BackButton from '@/components/shared/back-button';
 import EmployeeTaskReportDates from '@/features/employee-task-report/components/list-date';
 import EmployeeTaskReportSubmission from '@/features/employee-task-report/components/submission';
 import { getEmployeeTaskByIdAction } from '@/features/employee-task/actions';
-import TaskCardPreview from '@/features/employee-task/components/task-detail-card';
+import TaskCardDetail from '@/features/employee-task/components/task-card-detail';
 import { getCurrentEmployee } from '@/features/employee/action';
+import { BUSINESS_TIMEZONE } from '@/lib/constants';
 import { prisma } from '@/lib/prisma';
 import { today } from '@/utils/date';
 import { parseISO } from 'date-fns';
+import { fromZonedTime } from 'date-fns-tz';
 import { notFound } from 'next/navigation';
 
 export default async function EmployeeTaskDashboardPage({
@@ -19,6 +23,8 @@ export default async function EmployeeTaskDashboardPage({
 
   const { employeeTaskSlug } = await params
   const { date } = await searchParams
+
+  const selectedDateString = date ?? today();
 
   const currentEmployee = await getCurrentEmployee();
   if (!currentEmployee.data) {
@@ -49,16 +55,19 @@ export default async function EmployeeTaskDashboardPage({
     return notFound();
   }
 
-  const taskReportResponse = await prisma.employeeTaskReport.findUnique({
+  let taskReportResponse = null;
+
+  taskReportResponse = await prisma.employeeTaskReport.findUnique({
     where: {
       employeeTaskAssignmentId_reportDate: {
         employeeTaskAssignmentId: taskAssignmentResponse.id,
-        reportDate: date ? parseISO(date) : parseISO(today())
+        reportDate: fromZonedTime(parseISO(selectedDateString), BUSINESS_TIMEZONE)
       }
     },
     select: {
       id: true,
       note: true,
+      updatedAt: true
     }
   });
 
@@ -93,10 +102,6 @@ export default async function EmployeeTaskDashboardPage({
     }
   });
 
-  console.log(listDateStatus)
-
-  const selectedDate = date ?? today();
-
   return (
     <>
       <BackButton href='/employee/dashboard' />
@@ -104,19 +109,19 @@ export default async function EmployeeTaskDashboardPage({
       <EmployeeTaskReportDates
         startAt={taskResponse.startAt}
         dueAt={taskResponse.dueAt}
-        selectedDate={parseISO(selectedDate)}
+        selectedDateString={parseISO(selectedDateString)}
         listDateStatus={listDateStatus} />
 
       <div className='grid grid-cols-[2fr_1fr] gap-4 max-xl:grid-cols-2 max-lg:flex max-lg:flex-col-reverse'>
         <EmployeeTaskReportSubmission
           key={taskAssignmentResponse.id}
-          selectedDate={selectedDate}
+          selectedDateString={selectedDateString}
           taskDocumentCategories={taskDocumentCategoriesResponse}
           taskAssignmentId={taskAssignmentResponse.id}
           taskReport={taskReportResponse}
         />
 
-        <TaskCardPreview
+        <TaskCardDetail
           task={taskResponse} />
       </div>
     </>

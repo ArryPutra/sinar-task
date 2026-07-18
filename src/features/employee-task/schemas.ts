@@ -1,14 +1,21 @@
+import { BUSINESS_TIMEZONE } from "@/lib/constants";
 import { fromZonedTime } from "date-fns-tz";
 import { z } from "zod";
-
-const TIME_ZONE = "Asia/Makassar";
 
 const zonedDateSchema = z.preprocess((value) => {
   if (typeof value !== "string" || value.trim() === "") {
     return value;
   }
 
-  return fromZonedTime(value, TIME_ZONE);
+  return fromZonedTime(value, BUSINESS_TIMEZONE);
+}, z.date());
+
+const zonedEndOfDaySchema = z.preprocess((value) => {
+  if (typeof value !== "string" || value.trim() === "") {
+    return value;
+  }
+
+  return fromZonedTime(`${value}T23:59:59.999`, BUSINESS_TIMEZONE);
 }, z.date());
 
 export const formEmployeeTaskSchema = z.object({
@@ -17,7 +24,7 @@ export const formEmployeeTaskSchema = z.object({
   description: z.string(),
 
   startAt: zonedDateSchema,
-  dueAt: zonedDateSchema,
+  dueAt: zonedEndOfDaySchema,
 
   latitude: z.coerce.number()
     .min(-90, "Latitude harus lebih besar dari -90.")
