@@ -4,7 +4,7 @@ import BackButton from '@/components/shared/back-button';
 import EmployeeTaskReportDates from '@/features/employee-task-report/components/list-date';
 import EmployeeTaskReportSubmission from '@/features/employee-task-report/components/submission';
 import { getEmployeeTaskByIdAction } from '@/features/employee-task/actions';
-import TaskCardDetail from '@/features/employee-task/components/task-card-detail';
+import TaskCardDetail from '@/features/employee-task/components/card-submission';
 import { getCurrentEmployee } from '@/features/employee/action';
 import { BUSINESS_TIMEZONE } from '@/lib/constants';
 import { prisma } from '@/lib/prisma';

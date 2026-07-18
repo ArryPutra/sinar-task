@@ -1,5 +1,37 @@
 import { Prisma } from "@/generated/prisma/client";
 
+export const taskCardDetailQuery = {
+    select: {
+        title: true,
+        startAt: true,
+        dueAt: true,
+        locationName: true,
+        fileUrls: true,
+        slug: true,
+        description: true,
+        admin: {
+            select: {
+                user: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        },
+        employeeTaskCategory: {
+            select: {
+                name: true,
+            }
+        },
+        employeeTaskStatus: {
+            select: {
+                name: true,
+                colorHex: true
+            }
+        }
+    }
+} satisfies Prisma.EmployeeTaskDefaultArgs
+
 export const employeeTaskById = {
     include: {
         employeeTaskStatus: {
@@ -63,6 +95,8 @@ export const employeeTasksByEmployeeId = {
     }
 } satisfies Prisma.EmployeeTaskDefaultArgs;
 
+export type TaskCardDetailQuery =
+    Prisma.EmployeeTaskGetPayload<typeof taskCardDetailQuery>;
 export type EmployeeTasksByEmployeeId =
     Prisma.EmployeeTaskGetPayload<typeof employeeTasksByEmployeeId>;
 export type EmployeeTaskById =

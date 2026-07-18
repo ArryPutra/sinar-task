@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDateTimeString } from '@/utils/date';
-import { CalendarDays, ClockIcon, ExternalLinkIcon, FileIcon, MapPinIcon, UserIcon } from 'lucide-react';
+import { CalendarDays, CalendarDaysIcon, ClockIcon, ExternalLinkIcon, FileIcon, MapPinIcon, UserIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { EmployeeTaskById } from '../queris';
 
@@ -34,7 +34,7 @@ export default function TaskCardDetail({
       </CardHeader>
       <CardContent className='space-y-2'>
         <div className='flex items-center'>
-          <CalendarDays className='size-4 mr-2' />
+          <CalendarDaysIcon className='size-4 mr-2' />
           <span>Tanggal Mulai: <strong>{isMounted ? formatDateTimeString(task.startAt.toString()) : "..."}</strong></span>
         </div>
         <div className='flex items-center'>

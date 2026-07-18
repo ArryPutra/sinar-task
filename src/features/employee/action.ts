@@ -187,7 +187,6 @@ export async function getCurrentEmployee() {
         });
 
         return {
-            error: null,
             success: true,
             data: data
         };
@@ -195,7 +194,6 @@ export async function getCurrentEmployee() {
         console.error(error);
 
         return {
-            error: "Gagal mengambil data karyawan saat ini.",
             success: false,
             data: null
         };
