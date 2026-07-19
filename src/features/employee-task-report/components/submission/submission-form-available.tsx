@@ -13,7 +13,8 @@ import { uploadStreamToCloudinary } from '@/lib/cloudinary'
 import { initialActionState } from '@/types/action-state'
 import { hexWithOpacity } from '@/utils/colors'
 import { formatDateOnly } from '@/utils/date'
-import { SaveIcon, SendIcon } from 'lucide-react'
+import { generatePdfFromImages } from '@/utils/pdf'
+import { ClipboardCheckIcon, ClipboardIcon, SaveIcon, SendIcon } from 'lucide-react'
 import { useActionState, useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { removeDocumentFileUrlAction, submitTaskReportAction } from '../../actions'
@@ -47,6 +48,7 @@ export default function TaskReportSubmissionForm({
   const [isPendingSubmitTask, startTransitionSubmitTask] = useTransition();
   const [isPendingUploadFile, setIsPendingUploadFile] = useState<boolean>(false);
   const [isPendingRemoveFileUrl, startTransitionRemoveFileUrl] = useTransition();
+  const [isPendingDownloadReportPdf, startTransitionDownloadReportPdf] = useTransition();
 
   // STATE: Hanya melacak file baru yang diunggah di client-side
   const [clientFilesCount, setClientFilesCount] = useState<Record<string, number>>({});
@@ -139,10 +141,24 @@ export default function TaskReportSubmissionForm({
 
   const isAllRequiredDocumentFilled = requiredDocumentLength === uploadedRequiredDocumentLength;
 
+  const downloadReportPdf = async () => {
+    startTransitionDownloadReportPdf(() => {
+      generatePdfFromImages(taskDocumentCategories.map((category) => category.employeeTaskDocument?.at(0)?.fileUrls ?? []).flat(), `laporan-harian-${selectedDateString}.pdf`);
+    })
+  }
+
   return (
-    <>
+    <div className='flex flex-col gap-4'>
+      <div>
+        <Button variant="outline"
+          onClick={downloadReportPdf}
+          disabled={isPendingDownloadReportPdf}
+          className='cursor-pointer'>
+          <ClipboardCheckIcon className='w-4 h-4' /> Download Laporan Final {isPendingDownloadReportPdf && <Spinner />}
+        </Button>
+      </div>
       <Card>
-        <CardHeader className='border-b flex justify-between flex-wrap items-center gap-6'>
+        <CardHeader className='border-b flex justify-between flex-wrap items-start gap-6'>
           <div>
             <CardTitle>Laporan Harian: {formatDateOnly(selectedDateString)}</CardTitle>
             <CardDescription>
@@ -231,6 +247,6 @@ export default function TaskReportSubmissionForm({
           </CardFooter>
         </form>
       </Card>
-    </>
+    </div>
   )
 }
