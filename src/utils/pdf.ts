@@ -16,13 +16,12 @@ export async function generatePdfFromImages(
 
     const bytes = await response.arrayBuffer();
 
-    let image;
+    const lowerUrl = url.toLowerCase();
 
-    if (url.toLowerCase().includes(".png")) {
-      image = await pdfDoc.embedPng(bytes);
-    } else {
-      image = await pdfDoc.embedJpg(bytes);
-    }
+    const image =
+      lowerUrl.endsWith(".png")
+        ? await pdfDoc.embedPng(bytes)
+        : await pdfDoc.embedJpg(bytes);
 
     const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
 
@@ -46,7 +45,12 @@ export async function generatePdfFromImages(
 
   const pdfBytes = await pdfDoc.save();
 
-  const blob = new Blob([pdfBytes], {
+  const arrayBuffer = pdfBytes.buffer.slice(
+    pdfBytes.byteOffset,
+    pdfBytes.byteOffset + pdfBytes.byteLength
+  ) as ArrayBuffer;
+
+  const blob = new Blob([arrayBuffer], {
     type: "application/pdf",
   });
 
