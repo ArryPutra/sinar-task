@@ -219,7 +219,6 @@ model EmployeeTaskReport {
 
   employeeTaskAssignmentId   String
   employeeTaskReportStatusId Int
-  isDocumentComplete         Boolean @default(false)
 
   reportDate DateTime
   note       String?
@@ -257,6 +256,7 @@ model EmployeeTaskDocument {
   employeeTaskDocumentCategoryId Int
 
   fileUrls String[]
+  removedFileUrls String[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

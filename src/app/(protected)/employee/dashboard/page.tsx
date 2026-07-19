@@ -41,6 +41,11 @@ export default async function EmployeeDashboardPage() {
             employeeTask: {
                 ...taskCardDetailQuery
             }
+        },
+        orderBy: {
+            employeeTask: {
+                dueAt: "asc" // Urutkan berdasarkan deadline paling dekat
+            }
         }
     })
 

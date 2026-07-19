@@ -68,11 +68,11 @@ export async function submitTaskReportAction(
                         APP_BUSINESS_TIMEZONE
                     ),
                     note: formData.get("note") as string,
-                    isDocumentComplete: false,
-                    employeeTaskReportStatusId: 1
+                    employeeTaskReportStatusId: 1,
                 },
                 update: {
-                    note: formData.get("note") as string
+                    note: formData.get("note") as string,
+                    employeeTaskReportStatusId: 1,
                 },
             });
 
@@ -114,13 +114,13 @@ export async function submitTaskReportAction(
                         }
                     }
                 });
-                const isDocumentComplete = (totalRequiredCategories === uploadedRequiredDocuments);
+                const hasAllDocumentComplete = (totalRequiredCategories === uploadedRequiredDocuments);
                 await tx.employeeTaskReport.update({
                     where: {
                         id: taskReport.id
                     },
                     data: {
-                        isDocumentComplete: isDocumentComplete
+                        employeeTaskReportStatusId: hasAllDocumentComplete ? 2 : 1
                     }
                 });
             }
@@ -135,9 +135,56 @@ export async function submitTaskReportAction(
     } catch (error) {
         console.error(error);
 
+        revalidatePath('/employee/dashboard/[employeeTaskSlug]', 'page');
+
         return {
             success: false,
-            message: "Gagal submit laporan pekerjaan.",
+            message: "Gagal submit laporan pekerjaan, silahkan coba lagi.",
         }
     }
+}
+
+export async function removeDocumentFileUrlAction(
+    removeFileUrl: string,
+    documentId: number
+) {
+    // 1. Ambil fileUrls dan removedFileUrls saat ini
+    const taskDocument = await prisma.employeeTaskDocument.findUnique({
+        where: {
+            id: documentId,
+        },
+        select: {
+            fileUrls: true,
+            removedFileUrls: true, // Tambahkan ini untuk mengambil data yang sudah ada
+        },
+    });
+
+    if (!taskDocument) {
+        throw new Error("Dokumen tidak ditemukan.");
+    }
+
+    // 2. Hapus URL dari daftar file aktif
+    const updatedFileUrls = taskDocument.fileUrls.filter(
+        (url) => url !== removeFileUrl
+    );
+
+    // 3. Gabungkan URL yang baru dihapus ke dalam array removedFileUrls yang lama
+    // Gunakan fallback [] jika removedFileUrls sebelumnya kosong/null
+    const updatedRemovedFileUrls = [
+        ...(taskDocument.removedFileUrls || []),
+        removeFileUrl
+    ];
+
+    // 4. Update database
+    await prisma.employeeTaskDocument.update({
+        where: {
+            id: documentId,
+        },
+        data: {
+            fileUrls: updatedFileUrls,
+            removedFileUrls: updatedRemovedFileUrls,
+        },
+    });
+
+    revalidatePath("/employee/dashboard/[employeeTaskSlug]", "page");
 }

@@ -17,11 +17,7 @@ async function main() {
   await prisma.employeeTaskAssignmentStatus.createMany({
     data: [
       {
-        name: "Belum Dikerjakan",
-        colorHex: "#94A3B8" // Abu-abu (Karyawan belum menyentuh tugas/laporan sama sekali)
-      },
-      {
-        name: "Sedang Dikerjakan",
+        name: "Ditugaskan",
         colorHex: "#3B82F6" // Biru (Karyawan sudah mulai mencicil laporan/upload dokumen)
       },
       {
@@ -59,19 +55,16 @@ async function main() {
         colorHex: "#6B7280",
         icon: "FilePenLine",
       }, // Laporan masih disimpan sebagai draf dan belum dikirim.
-
       {
         name: "Menunggu Peninjauan",
         colorHex: "#F59E0B",
         icon: "Clock3",
       }, // Laporan telah dikirim dan sedang menunggu diperiksa oleh atasan.
-
       {
         name: "Perlu Revisi",
         colorHex: "#F97316",
         icon: "RotateCcw",
       }, // Laporan perlu diperbaiki sesuai catatan dari peninjau.
-
       {
         name: "Disetujui",
         colorHex: "#22C55E",

@@ -10,11 +10,11 @@ import { Field, FieldLabel } from '@/components/ui/field'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { initialActionState } from '@/types/action-state'
-import { formatDateOnly, formatDateTimeString } from '@/utils/date'
+import { formatDateOnly } from '@/utils/date'
 import { SaveIcon, SendIcon } from 'lucide-react'
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
-import { submitTaskReportAction } from '../actions'
+import { removeDocumentFileUrlAction, submitTaskReportAction } from '../actions'
 import { TaskReportSubmissionFormData } from '../queris'
 
 export default function TaskReportSubmissionForm({
@@ -25,10 +25,12 @@ export default function TaskReportSubmissionForm({
 }: {
   selectedDateString: string
   taskDocumentCategories: {
+    id: number,
     name: string
     slug: string
     isRequired: boolean,
     employeeTaskDocument: {
+      id: number,
       fileUrls: string[] | undefined
     }[] | undefined
   }[]
@@ -39,17 +41,60 @@ export default function TaskReportSubmissionForm({
     submitTaskReportAction.bind(null, taskAssignmentId, selectedDateString),
     initialActionState
   );
-  const [mounted, setMounted] = useState(false);
+
+  const [isPendingRemoveFileUrl, startTransitionRemoveFileUrl] = useTransition();
+
+  // STATE: Hanya melacak file baru yang diunggah di client-side
+  const [clientFilesCount, setClientFilesCount] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    if (state.message && state.success) {
-      toast(state.message);
+    if (!isPending && state.message) {
+      if (state.success) {
+        toast.success(state.message, { id: "save-draft" });
+        setClientFilesCount({}); // Reset setelah save
+      } else {
+        toast.error(state.message, { id: "save-draft" });
+      }
     }
-  }, [state]);
+  }, [isPending, state]);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (isPending) {
+      toast.loading("Menyimpan draft...", { id: "save-draft" });
+    }
+  }, [isPending]);
+
+  const onRemoveDocumentFileUrl = (
+    fileUrl: string,
+    documentId: number
+  ) => {
+    startTransitionRemoveFileUrl(() => {
+      toast.promise(
+        removeDocumentFileUrlAction(fileUrl, documentId),
+        {
+          loading: "Menghapus file...",
+          success: "File berhasil dihapus.",
+          error: "Gagal menghapus file.",
+        }
+      );
+    });
+  };
+
+  // Kalkulasi fleksibel
+  const requiredCategories = taskDocumentCategories.filter((category) => category.isRequired);
+  const requiredDocumentLength = requiredCategories.length;
+
+  const uploadedRequiredDocumentLength = requiredCategories.filter((category) => {
+    // Berapa file yang ada di database saat ini? (Akan otomatis update karena revalidatePath)
+    const serverFilesCount = category.employeeTaskDocument?.at(0)?.fileUrls?.length ?? 0;
+
+    // Berapa file baru yang dimasukkan via ImageUpload?
+    const newClientFilesCount = clientFilesCount[category.slug] ?? 0;
+
+    return (serverFilesCount + newClientFilesCount) > 0;
+  }).length;
+
+  const isAllRequiredDocumentFilled = requiredDocumentLength === uploadedRequiredDocumentLength;
 
   return (
     <Card>
@@ -57,7 +102,7 @@ export default function TaskReportSubmissionForm({
         <div>
           <CardTitle>Laporan Harian: {formatDateOnly(selectedDateString)}</CardTitle>
           <CardDescription>
-            0 dari {taskDocumentCategories.filter((category) => category.isRequired).length} dokumen wajib telah diunggah
+            {uploadedRequiredDocumentLength} dari {requiredDocumentLength} dokumen wajib telah diunggah
           </CardDescription>
         </div>
         <div className='flex flex-col gap-2 items-end max-lg:items-start'>
@@ -84,11 +129,28 @@ export default function TaskReportSubmissionForm({
                 <FieldLabel>
                   {category.isRequired && <span className='text-destructive'>*</span>}<span>{category.name}</span>
                 </FieldLabel>
-                <ImageUpload name={category.slug} />
-                {
-                  <AttachmentList
-                    fileUrls={category.employeeTaskDocument?.at(0)?.fileUrls ?? []} />
-                }
+
+                {/* Lacak penambahan file baru */}
+                <ImageUpload
+                  name={category.slug}
+                  onChange={(e: any) => {
+                    const filesCount = e?.target?.files
+                      ? e.target.files.length
+                      : (Array.isArray(e) ? e.length : 0);
+
+                    setClientFilesCount((prev) => ({
+                      ...prev,
+                      [category.slug]: filesCount
+                    }));
+                  }}
+                />
+
+                <AttachmentList
+                  fileUrls={category.employeeTaskDocument?.at(0)?.fileUrls ?? []}
+                  onRemove={(fileUrl) => {
+                    onRemoveDocumentFileUrl(fileUrl, category.employeeTaskDocument?.at(0)?.id!)
+                  }}
+                />
               </Field>
             ))
           }
@@ -106,16 +168,20 @@ export default function TaskReportSubmissionForm({
             </Alert>
           }
         </CardContent>
-        <CardFooter className='border-t flex justify-end gap-4'>
+        <CardFooter className='border-t flex justify-end gap-4 flex-wrap'>
+          {
+            !isAllRequiredDocumentFilled &&
+            <Button
+              type='submit'
+              variant="secondary"
+              disabled={isPending}>
+              <SaveIcon /> Simpan Draft {isPending && <Spinner />}
+            </Button>
+          }
           <Button
             type='submit'
-            variant="secondary">
-            <SaveIcon /> Simpan Draft
-          </Button>
-          <Button
-            type='submit'
-            disabled={isPending}>
-            <SendIcon /> Kumpulkan Laporan {isPending && <Spinner />}
+            disabled={!isAllRequiredDocumentFilled || isPending}>
+            <SendIcon /> Kumpulkan Laporan ({uploadedRequiredDocumentLength}/{requiredDocumentLength}) {isAllRequiredDocumentFilled && (isPending && <Spinner />)}
           </Button>
         </CardFooter>
       </form>
