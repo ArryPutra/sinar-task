@@ -71,16 +71,6 @@ export default function LeafletMapClient({
     setCenter([lat, lng]);
   };
 
-  // useEffect(() => {
-  //   const lat = parseFloat(latInput);
-  //   const lng = parseFloat(lngInput);
-
-  //   if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-  //     setPosition([lat, lng]);
-  //     setCenter([lat, lng]);
-  //   }
-  // }, [latInput, lngInput]);  
-
   const updateCoordinates = (lat: string, lng: string) => {
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lng);

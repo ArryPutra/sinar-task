@@ -1,6 +1,5 @@
 "use server"
 
-import { uploadStreamToCloudinary } from "@/lib/cloudinary";
 import { APP_BUSINESS_TIMEZONE } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
@@ -15,8 +14,7 @@ export async function submitTaskReportAction(
     prevState: ActionState,
     formData: FormData
 ): Promise<ActionState> {
-    const uploadedFilesString = formData.get("uploadedFilesData") as string;
-    const filesDocumentClient = uploadedFilesString ? JSON.parse(uploadedFilesString) : [];
+    const uploadedFilesString = JSON.parse(formData.get("uploadedFilesData") as string);
 
     try {
         await prisma.$transaction(async (tx) => {
@@ -47,8 +45,9 @@ export async function submitTaskReportAction(
             });
 
             // jika filesDocument tidak kosong
-            if (filesDocumentClient.length > 0) {
-                for (const fileItem of filesDocumentClient) {
+            if (uploadedFilesString.length > 0) {
+                for (const fileItem of uploadedFilesString) {
+                    // pengecekan data dokumen sesuai input file
                     const existingDocument = await tx.employeeTaskDocument.findUnique({
                         where: {
                             employeeTaskReportId_employeeTaskDocumentCategoryId: {
@@ -58,17 +57,20 @@ export async function submitTaskReportAction(
                         },
                     });
 
+                    // jika dokumen tersedia (sudah ada upload sebelumnya)
                     if (existingDocument) {
                         await tx.employeeTaskDocument.update({
                             where: { id: existingDocument.id },
                             data: {
                                 fileUrls: [
                                     ...existingDocument.fileUrls,
-                                    ...fileItem.fileUrls, // Menambahkan URL baru dari Cloudinary
+                                    ...fileItem.fileUrls, // Menambahkan file URL baru
                                 ],
                             },
                         });
-                    } else {
+                    }
+                    // jika dokumen belum ada
+                    else {
                         await tx.employeeTaskDocument.create({
                             data: {
                                 employeeTaskReportId: taskReport.id,
@@ -97,14 +99,17 @@ export async function submitTaskReportAction(
                     }
                 });
                 const hasAllDocumentComplete = (totalRequiredCategories === uploadedRequiredDocuments);
-                await tx.employeeTaskReport.update({
-                    where: {
-                        id: taskReport.id
-                    },
-                    data: {
-                        employeeTaskReportStatusId: hasAllDocumentComplete ? 2 : 1
-                    }
-                });
+                // jika semua dokumen wajib sudah diisi
+                if (hasAllDocumentComplete) {
+                    await tx.employeeTaskReport.update({
+                        where: {
+                            id: taskReport.id
+                        },
+                        data: {
+                            employeeTaskReportStatusId: 2 // update status laporan (id 2: Menunggu Peninjauan)
+                        }
+                    });
+                }
             }
         });
 

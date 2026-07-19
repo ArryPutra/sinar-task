@@ -50,19 +50,20 @@ export function AttachmentList({
   }
 
   return (
-    <div className="grid gap-2 sm:grid-cols-2 w-full">
+    <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 w-full">
       {fileUrls.map((fileUrl, index) => {
         const fileName = getFilenameFromUrl(fileUrl);
 
         return (
           <div
             key={index}
-            className="flex items-center justify-between rounded-xl border bg-card p-3 shadow-sm transition-all hover:bg-accent/50 group"
+            // className="flex flex-1 flex-wrap items-center justify-between rounded-xl border bg-card p-3 shadow-sm transition-all hover:bg-accent/50 group"
+            className="flex min-w-0 flex-1 items-center justify-between rounded-xl border bg-card p-3 shadow-sm transition-all hover:bg-accent/50 group"
           >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="flex min-w-0 items-center gap-3 w-full">
               {getFileIcon(fileUrl)}
 
-              <span className="truncate text-sm font-medium">
+              <span className="flex-1 truncate text-sm font-medium">
                 {fileName}
               </span>
             </div>

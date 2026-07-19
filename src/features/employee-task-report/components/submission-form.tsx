@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
-import { uploadToCloudinaryClient } from '@/lib/cloudinary-client'
+import { uploadStreamToCloudinary } from '@/lib/cloudinary'
 import { initialActionState } from '@/types/action-state'
 import { formatDateOnly } from '@/utils/date'
 import { SaveIcon, SendIcon } from 'lucide-react'
@@ -42,62 +42,59 @@ export default function TaskReportSubmissionForm({
     submitTaskReportAction.bind(null, taskAssignmentId, selectedDateString),
     initialActionState
   );
-  const [, startTransition] = useTransition();
 
+  const [isPendingSubmitTask, startTransitionSubmitTask] = useTransition();
+  const [isPendingUploadFile, setIsPendingUploadFile] = useState<boolean>(false);
   const [isPendingRemoveFileUrl, startTransitionRemoveFileUrl] = useTransition();
 
   // STATE: Hanya melacak file baru yang diunggah di client-side
   const [clientFilesCount, setClientFilesCount] = useState<Record<string, number>>({});
 
-  const [isUploading, setIsUploading] = useState(false);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsUploading(true);
 
     const formData = new FormData(e.currentTarget);
     const filesDocumentPayload = [];
 
     try {
-      for (const category of taskDocumentCategories) {
-        const files = formData.getAll(category.slug) as File[];
+      setIsPendingUploadFile(true);
+      for (const documentCategory of taskDocumentCategories) {
+        const files = formData.getAll(documentCategory.slug) as File[];
 
+        // jika ada file yang diunggah
         if (files.length > 0 && files[0].size > 0) {
-          // UPLOAD KE CLOUDINARY
           const uploadResults = await Promise.all(
-            files.map(file => uploadToCloudinaryClient(file, "task_documents"))
+            files.map(file => uploadStreamToCloudinary(file, "task_documents"))
           );
 
           filesDocumentPayload.push({
-            documentCategoryId: category.id,
+            documentCategoryId: documentCategory.id,
             fileUrls: uploadResults.map(res => res.secure_url),
           });
         }
 
-        // --- TAMBAHKAN BARIS INI ---
         // Hapus input file dari FormData agar tidak ikut terkirim ke server
-        formData.delete(category.slug);
+        formData.delete(documentCategory.slug);
       }
 
       // Tambahkan payload hasil upload
       formData.set("uploadedFilesData", JSON.stringify(filesDocumentPayload));
 
-      // Kirim formData yang sekarang sudah "bersih" (hanya berisi note dan json string)
-      startTransition(() => {
+      startTransitionSubmitTask(() => {
         formAction(formData);
       });
-
     } catch (error) {
       console.error(error);
       toast.error("Gagal mengunggah file.");
     } finally {
-      setIsUploading(false);
+      setIsPendingUploadFile(false);
     }
   };
 
   useEffect(() => {
-    if (isPending) {
+    if (isPendingUploadFile) {
       toast.loading("Menyimpan laporan...", { id: "save-draft" });
-    } else if (!isPending && state.message) {
+    } else if (!isPendingUploadFile && state.message) {
       if (state.success) {
         toast.success(state.message, { id: "save-draft" });
         setClientFilesCount({}); // Reset setelah save
@@ -105,7 +102,7 @@ export default function TaskReportSubmissionForm({
         toast.error(state.message, { id: "save-draft" });
       }
     }
-  }, [isPending, state]);
+  }, [isPendingUploadFile, state]);
 
   const onRemoveDocumentFileUrl = (
     fileUrl: string,
@@ -221,14 +218,14 @@ export default function TaskReportSubmissionForm({
               <Button
                 type='submit'
                 variant="secondary"
-                disabled={isPending}>
-                <SaveIcon /> Simpan Draft {isPending && <Spinner />}
+                disabled={isPendingUploadFile}>
+                <SaveIcon /> Simpan Draft {isPendingUploadFile && <Spinner />}
               </Button>
             }
             <Button
               type='submit'
-              disabled={!isAllRequiredDocumentFilled || isPending}>
-              <SendIcon /> Kumpulkan Laporan ({uploadedRequiredDocumentLength}/{requiredDocumentLength}) {isAllRequiredDocumentFilled && (isPending && <Spinner />)}
+              disabled={!isAllRequiredDocumentFilled || isPendingUploadFile}>
+              <SendIcon /> Kumpulkan Laporan ({uploadedRequiredDocumentLength}/{requiredDocumentLength}) {isAllRequiredDocumentFilled && (isPendingUploadFile && <Spinner />)}
             </Button>
           </CardFooter>
         </form>
