@@ -15,38 +15,8 @@ export async function submitTaskReportAction(
     prevState: ActionState,
     formData: FormData
 ): Promise<ActionState> {
-    const documentRequirements = await prisma.employeeTaskDocumentCategory.findMany({
-        select: { id: true, slug: true, isRequired: true }
-    });
-
-    // array untuk menyimpan file url yang sdh jadi
-    const filesArray: {
-        fileUrls: string[]
-        documentCategoryId: number
-        isRequired: boolean
-    }[] = [];
-
-    // perulangan untuk tiap inputan file
-    for (const documentRequirement of documentRequirements) {
-        const files = formData.getAll(documentRequirement.slug) as File[];
-
-        // memastikan setiap file tidak kosong
-        if (files[0].size !== 0) {
-            // memasukkan setiap file ke cloudinary
-            let fileUrls: string[] = [];
-            for (const file of files) {
-                const uploadResult = await uploadStreamToCloudinary(file, 'task_documents');
-                // tampung di variabel fileUrls sementara
-                fileUrls.push(uploadResult.secure_url);
-            }
-            // tambahkan ke filesArray
-            filesArray.push({
-                fileUrls,
-                documentCategoryId: documentRequirement.id,
-                isRequired: documentRequirement.isRequired
-            })
-        }
-    }
+    const uploadedFilesString = formData.get("uploadedFilesData") as string;
+    const filesDocumentClient = uploadedFilesString ? JSON.parse(uploadedFilesString) : [];
 
     try {
         await prisma.$transaction(async (tx) => {
@@ -76,25 +46,37 @@ export async function submitTaskReportAction(
                 },
             });
 
-            // jika filesArray tidak kosong
-            if (filesArray.length > 0) {
-                for (const fileItem of filesArray) {
-                    await tx.employeeTaskDocument.upsert({
+            // jika filesDocument tidak kosong
+            if (filesDocumentClient.length > 0) {
+                for (const fileItem of filesDocumentClient) {
+                    const existingDocument = await tx.employeeTaskDocument.findUnique({
                         where: {
                             employeeTaskReportId_employeeTaskDocumentCategoryId: {
                                 employeeTaskReportId: taskReport.id,
                                 employeeTaskDocumentCategoryId: fileItem.documentCategoryId,
-                            }
-                        },
-                        create: {
-                            employeeTaskReportId: taskReport.id,
-                            employeeTaskDocumentCategoryId: fileItem.documentCategoryId,
-                            fileUrls: fileItem.fileUrls
-                        },
-                        update: {
-                            fileUrls: fileItem.fileUrls
+                            },
                         },
                     });
+
+                    if (existingDocument) {
+                        await tx.employeeTaskDocument.update({
+                            where: { id: existingDocument.id },
+                            data: {
+                                fileUrls: [
+                                    ...existingDocument.fileUrls,
+                                    ...fileItem.fileUrls, // Menambahkan URL baru dari Cloudinary
+                                ],
+                            },
+                        });
+                    } else {
+                        await tx.employeeTaskDocument.create({
+                            data: {
+                                employeeTaskReportId: taskReport.id,
+                                employeeTaskDocumentCategoryId: fileItem.documentCategoryId,
+                                fileUrls: fileItem.fileUrls,
+                            },
+                        });
+                    }
                 }
 
                 // cek apakah semua dokumen wajib sudah diupload
@@ -126,7 +108,7 @@ export async function submitTaskReportAction(
             }
         });
 
-        revalidatePath('/employee/dashboard/[employeeTaskSlug]', 'page');
+        revalidatePath('/employee/dashboard/${employeeTaskSlug}', 'page');
 
         return {
             success: true,

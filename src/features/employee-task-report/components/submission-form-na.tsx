@@ -8,7 +8,6 @@ export default function TaskReportSubmissionFormNa({
 }: {
     selectedDateString: string
 }) {
-
     return (
         <Card>
             <CardHeader className='border-b flex justify-between flex-wrap items-center gap-6'>

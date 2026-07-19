@@ -27,6 +27,7 @@ export default async function DashboardTaskAssignmentPage({
         date: string
     }>
 }) {
+    const start = performance.now();
     const { taskAssignmentId } = await params;
     const { date } = await searchParams;
 
@@ -97,6 +98,8 @@ export default async function DashboardTaskAssignmentPage({
         start: formatDateTimeBusinessTz(task.startAt),
         end: formatDateTimeBusinessTz(task.dueAt),
     });
+    const end = performance.now();
+    console.log(`DB_QUERY_DURATION: ${(end - start).toFixed(2)}ms`);
 
     return (
         <>

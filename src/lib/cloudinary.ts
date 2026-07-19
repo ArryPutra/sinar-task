@@ -1,3 +1,5 @@
+"use server"
+
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 
 cloudinary.config({
@@ -10,33 +12,30 @@ cloudinary.config({
 export async function uploadStreamToCloudinary(
     file: File,
     folderName: string = "general"
-): Promise<UploadApiResponse>  {
-    try {
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+): Promise<UploadApiResponse> {
+    const sign = await getCloudinarySignature(folderName);
 
-        return await new Promise<any>((resolve, reject) => {
-            cloudinary.uploader
-                .upload_stream(
-                    {
-                        resource_type: "auto",
-                        folder: folderName,
-                    },
-                    (error, result) => {
-                        if (error) {
-                            reject(error);
-                        } else {
-                            resolve(result);
-                        }
-                    }
-                )
-                .end(buffer);
-        });
-    } catch (error) {
-        console.error(error);
-        
-        throw new Error("Gagal mengunggah file ke Cloudinary.");
+    const formData = new FormData();
+
+    formData.append("file", file);
+    formData.append("api_key", sign.apiKey);
+    formData.append("timestamp", String(sign.timestamp));
+    formData.append("signature", sign.signature);
+    formData.append("folder", sign.folder);
+
+    const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${sign.cloudName}/auto/upload`,
+        {
+            method: "POST",
+            body: formData,
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error("Upload gagal");
     }
+
+    return await res.json();
 }
 
 // Tambahkan di bawah fungsi uploadStreamToCloudinary Anda
@@ -79,4 +78,28 @@ export async function deleteFileFromCloudinary(fileUrl: string) {
         console.error('Terjadi kesalahan saat mengekstrak URL atau menghapus file:', error);
         throw error;
     }
+}
+
+export async function getCloudinarySignature(
+    folderName = "general"
+) {
+    const timestamp = Math.floor(Date.now() / 1000);
+
+    const params = {
+        timestamp,
+        folder: folderName,
+    };
+
+    const signature = cloudinary.utils.api_sign_request(
+        params,
+        process.env.CLOUDINARY_API_SECRET!
+    );
+
+    return {
+        signature,
+        timestamp,
+        apiKey: process.env.CLOUDINARY_API_KEY!,
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
+        folder: folderName,
+    };
 }
