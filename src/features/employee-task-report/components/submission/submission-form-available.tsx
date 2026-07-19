@@ -11,12 +11,13 @@ import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { uploadStreamToCloudinary } from '@/lib/cloudinary'
 import { initialActionState } from '@/types/action-state'
+import { hexWithOpacity } from '@/utils/colors'
 import { formatDateOnly } from '@/utils/date'
 import { SaveIcon, SendIcon } from 'lucide-react'
 import { useActionState, useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
-import { removeDocumentFileUrlAction, submitTaskReportAction } from '../actions'
-import { TaskReportSubmissionFormData } from '../queris'
+import { removeDocumentFileUrlAction, submitTaskReportAction } from '../../actions'
+import { TaskReportSubmissionFormData } from '../../queris'
 
 export default function TaskReportSubmissionForm({
   selectedDateString,
@@ -154,7 +155,7 @@ export default function TaskReportSubmissionForm({
             </span>
             {
               taskReport ?
-                <Badge style={{ backgroundColor: taskReport.employeeTaskReportStatus.colorHex }}>
+                <Badge style={{ backgroundColor: hexWithOpacity(taskReport.employeeTaskReportStatus.colorHex, 0.1), color: taskReport.employeeTaskReportStatus.colorHex }}>
                   {taskReport.employeeTaskReportStatus.name}
                 </Badge>
                 :
@@ -218,8 +219,8 @@ export default function TaskReportSubmissionForm({
               <Button
                 type='submit'
                 variant="secondary"
-                disabled={isPendingUploadFile}>
-                <SaveIcon /> Simpan Draft {isPendingUploadFile && <Spinner />}
+                disabled={isPendingUploadFile || isPending}>
+                <SaveIcon /> Simpan Draft {isPendingUploadFile || isPending && <Spinner />}
               </Button>
             }
             <Button

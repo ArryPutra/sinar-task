@@ -1,8 +1,11 @@
 import BackButton from "@/components/shared/back-button";
+import LeafletMap from "@/components/shared/leaflet-map/leaflet-map";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DateReport from "@/features/employee-task-report/components/date";
-import TaskReportSubmissionForm from "@/features/employee-task-report/components/submission-form";
-import TaskReportSubmissionFormNa from "@/features/employee-task-report/components/submission-form-na";
+import TaskReportSubmissionFormAvailable from "@/features/employee-task-report/components/submission/submission-form-available";
+import TaskReportSubmissionFormClosed from "@/features/employee-task-report/components/submission/submission-form-closed";
+import TaskReportSubmissionFormPending from "@/features/employee-task-report/components/submission/submission-form-pending";
 import { taskReportSubmissionFormQuery } from "@/features/employee-task-report/queris";
 import TaskCardDetail from "@/features/employee-task/components/card-detail";
 import { taskCardDetailQuery } from "@/features/employee-task/queris";
@@ -14,7 +17,9 @@ import { eachDayOfInterval, format, isBefore, isSameDay } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { id } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { userAgent } from "next/server";
 
 export default async function DashboardTaskAssignmentPage({
     params,
@@ -28,6 +33,7 @@ export default async function DashboardTaskAssignmentPage({
     }>
 }) {
     const start = performance.now();
+    // <------------------------------------------------------------->
     const { taskAssignmentId } = await params;
     const { date } = await searchParams;
 
@@ -50,7 +56,11 @@ export default async function DashboardTaskAssignmentPage({
                 }
             },
             employeeTask: {
-                ...taskCardDetailQuery
+                select: {
+                    ...taskCardDetailQuery.select,
+                    latitude: true,
+                    longitude: true
+                }
             }
         }
     });
@@ -98,6 +108,10 @@ export default async function DashboardTaskAssignmentPage({
         start: formatDateTimeBusinessTz(task.startAt),
         end: formatDateTimeBusinessTz(task.dueAt),
     });
+
+    const headersList = await headers();
+    const { device } = userAgent({ headers: headersList });
+    // <------------------------------------------------------------->
     const end = performance.now();
     console.log(`DB_QUERY_DURATION: ${(end - start).toFixed(2)}ms`);
 
@@ -129,30 +143,92 @@ export default async function DashboardTaskAssignmentPage({
                     })
                 }
             </div>
-            <div className="grid grid-cols-[2fr_1fr] gap-6 max-xl:grid-cols-2 max-lg:flex max-lg:flex-col-reverse">
-                {
-                    // pastikan tanggal laporan tidak melebihi tanggal sekarang
-                    isBefore(selectedDateString, new Date()) ?
-                        <TaskReportSubmissionForm
-                            selectedDateString={selectedDateString}
-                            taskDocumentCategories={taskDocumentCategoriesResponse}
-                            taskAssignmentId={taskAssignmentResponse.id}
-                            taskReport={taskReportSelected ?? null} />
-                        :
-                        <TaskReportSubmissionFormNa
-                            selectedDateString={selectedDateString} />
-                }
-                <div className="flex flex-col gap-6">
-                    <TaskCardDetail
-                        task={taskAssignmentResponse.employeeTask}
-                        taskAssignmentStatus={taskAssignmentResponse.employeeTaskAssignmentStatus} />
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Progres</CardTitle>
-                        </CardHeader>
-                    </Card>
-                </div>
-            </div>
+            {
+                device.type === "mobile" ?
+                    <Tabs defaultValue="laporan" className="">
+                        <TabsList className="mb-6">
+                            <TabsTrigger value="laporan">Laporan</TabsTrigger>
+                            <TabsTrigger value="detail">Detail</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="laporan">
+                            {
+                                // pastikan tanggal laporan tidak melebihi tanggal sekarang
+                                isSameDay(selectedDateString, new Date()) ?
+                                    <TaskReportSubmissionFormAvailable
+                                        selectedDateString={selectedDateString}
+                                        taskDocumentCategories={taskDocumentCategoriesResponse}
+                                        taskAssignmentId={taskAssignmentResponse.id}
+                                        taskReport={taskReportSelected ?? null} />
+                                    :
+                                    isBefore(selectedDateString, new Date())
+                                        ?
+                                        <TaskReportSubmissionFormClosed
+                                            selectedDateString={selectedDateString} />
+                                        :
+                                        <TaskReportSubmissionFormPending
+                                            selectedDateString={selectedDateString} />
+                            }
+                        </TabsContent>
+                        <TabsContent value="detail">
+                            <DetailView
+                                taskAssignmentResponse={taskAssignmentResponse}
+                                task={task} />
+                        </TabsContent>
+                    </Tabs>
+                    :
+                    <>
+                        <div className="grid grid-cols-[2fr_1fr] gap-6 max-xl:grid-cols-2 max-lg:flex max-lg:flex-col-reverse">
+                            {
+                                // pastikan tanggal laporan tidak melebihi tanggal sekarang
+                                isSameDay(selectedDateString, new Date()) ?
+                                    <TaskReportSubmissionFormAvailable
+                                        selectedDateString={selectedDateString}
+                                        taskDocumentCategories={taskDocumentCategoriesResponse}
+                                        taskAssignmentId={taskAssignmentResponse.id}
+                                        taskReport={taskReportSelected ?? null} />
+                                    :
+                                    isBefore(selectedDateString, new Date())
+                                        ?
+                                        <TaskReportSubmissionFormClosed
+                                            selectedDateString={selectedDateString} />
+                                        :
+                                        <TaskReportSubmissionFormPending
+                                            selectedDateString={selectedDateString} />
+                            }
+                            <DetailView
+                                taskAssignmentResponse={taskAssignmentResponse}
+                                task={task} />
+                        </div>
+                    </>
+            }
         </>
+    )
+}
+
+function DetailView({
+    taskAssignmentResponse,
+    task
+}: {
+    taskAssignmentResponse: any
+    task: any
+}) {
+    return (
+        <div className="flex flex-col gap-6">
+            <TaskCardDetail
+                task={taskAssignmentResponse.employeeTask}
+                taskAssignmentStatus={taskAssignmentResponse.employeeTaskAssignmentStatus} />
+            <Card>
+                <CardHeader>
+                    <CardTitle className="mb-3">Lokasi Pekerjaan</CardTitle>
+                    <LeafletMap
+                        latitude={task.latitude}
+                        longitude={task.longitude} />
+                    <div className="flex flex-col mt-2">
+                        <span>Alamat: </span>
+                        <span className="font-medium">{task.locationName}</span>
+                    </div>
+                </CardHeader>
+            </Card>
+        </div>
     )
 }

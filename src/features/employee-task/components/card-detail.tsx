@@ -107,7 +107,7 @@ export default function TaskCardDetail({
                                     )
                                 })
                                 :
-                                <span className='text-xs text-muted-foreground'>
+                                <span className='text-sm italic text-muted-foreground'>
                                     Tidak ada lampiran
                                 </span>
                         }
