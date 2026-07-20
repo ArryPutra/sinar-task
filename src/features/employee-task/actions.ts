@@ -7,7 +7,7 @@ import { ActionState } from "@/types/action-state";
 import { generateUniqueSlug } from "@/utils/generate-unique-slug";
 import { revalidatePath } from "next/cache";
 import { getCurrentAdmin } from "../auth/actions";
-import { employeeTaskById } from "./queris";
+import { getemployeeTaskByIdActionQuery } from "./queris";
 import { formEmployeeTaskSchema } from "./schemas";
 import { determineEmployeeTaskStatusId } from "./utils/determine-employee-task-status-id";
 
@@ -15,10 +15,12 @@ export async function getAllEmployeeTaskAction({
     page = 1,
     search = "",
     employeeTaskStatusId,
+    query
 }: {
     page: number
     search?: string
     employeeTaskStatusId?: number
+    query: Prisma.EmployeeTaskDefaultArgs
 }) {
     try {
         const pageSize = 10;
@@ -49,29 +51,7 @@ export async function getAllEmployeeTaskAction({
                 orderBy: {
                     createdAt: "desc",
                 },
-                include: {
-                    employeeTaskStatus: {
-                        select: {
-                            name: true,
-                            colorHex: true,
-                        },
-                    },
-                    employeeTaskCategory: {
-                        select: {
-                            name: true,
-                        },
-                    },
-                    employeeTaskAssignment: true,
-                    admin: {
-                        select: {
-                            user: {
-                                select: {
-                                    name: true
-                                }
-                            }
-                        }
-                    }
-                },
+                ...query,
             }),
             prisma.employeeTask.count({
                 where,
@@ -102,7 +82,7 @@ export async function getEmployeeTaskByIdAction(id: string) {
             where: {
                 id: id
             },
-            ...employeeTaskById
+            ...getemployeeTaskByIdActionQuery
         });
 
         return {
@@ -113,7 +93,7 @@ export async function getEmployeeTaskByIdAction(id: string) {
     } catch (error) {
         console.error(error);
 
-        return {        
+        return {
             error: "Gagal mengambil detail pekerjaan karyawan.",
             success: false,
             data: null

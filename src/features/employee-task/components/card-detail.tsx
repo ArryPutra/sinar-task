@@ -1,34 +1,25 @@
 "use client"
 
+import { DateTimeText } from '@/components/shared/date-time-text'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { formatDateTimeString } from '@/utils/date'
 import { ArrowRightIcon, CalendarDaysIcon, ClockIcon, ExternalLinkIcon, FileIcon, MapPinIcon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { TaskCardDetailQuery } from '../queris'
+import { TaskReportSubmissionFormAvailable } from '../queris'
 
 export default function TaskCardDetail({
     task,
     detailRoute,
     taskAssignmentStatus
 }: {
-    task: TaskCardDetailQuery
+    task: TaskReportSubmissionFormAvailable
     detailRoute?: string
     taskAssignmentStatus?: {
         name: string
         colorHex: string
     }
 }) {
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-
     return (
         <Card className={`${!detailRoute && "h-fit"}`}>
             <CardHeader>
@@ -50,31 +41,11 @@ export default function TaskCardDetail({
             <CardContent className='space-y-2'>
                 <div className='flex items-center'>
                     <CalendarDaysIcon className='size-4 mr-2' />
-                    <span>Tanggal Mulai:{" "}
-                        {
-                            mounted
-                            &&
-                            <strong>{formatDateTimeString(task.startAt)}</strong>
-                        }
-                    </span>
-                    {
-                        !mounted &&
-                        <Skeleton className='ml-2 h-3 w-[25%]' />
-                    }
+                    <span>Tanggal Mulai: <DateTimeText date={task.startAt} /></span>
                 </div>
                 <div className='flex items-center'>
                     <ClockIcon className='size-4 mr-2' />
-                    <span>Jatuh Tempo:{" "}
-                        {
-                            mounted
-                            &&
-                            <strong>{formatDateTimeString(task.dueAt)}</strong>
-                        }
-                    </span>
-                    {
-                        !mounted &&
-                        <Skeleton className='ml-2 h-3 w-[25%]' />
-                    }
+                    <span>Jatuh Tempo: <DateTimeText date={task.startAt} /></span>
                 </div>
                 <div className='flex items-center'>
                     <MapPinIcon className='size-4 mr-2' />

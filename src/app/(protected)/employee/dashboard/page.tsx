@@ -69,7 +69,7 @@ export default async function EmployeeDashboardPage() {
                             <TaskCardDetail
                                 key={index}
                                 task={item.employeeTask}
-                                detailRoute={`/employee/dashboard/${item.id}`}
+                                detailRoute={`/employee/dashboard/task-assignment/${item.id}`}
                                 taskAssignmentStatus={item.employeeTaskAssignmentStatus} />
                         ))
                         :

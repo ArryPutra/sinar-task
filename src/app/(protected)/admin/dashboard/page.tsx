@@ -1,10 +1,8 @@
-import ChartBarDefault from "@/components/charts/chart-bar-default";
 import { PaginationWithLinks } from "@/components/shared/pagination-with-links";
 import SummaryCard from "@/components/shared/summary-card";
-import { getAllEmployeeTaskAssignment } from "@/features/employee-task-assignment/actions";
-import EmployeeTaskAssignmentList from "@/features/employee-task-assignment/components/table-list";
 import { getAllEmployeeTaskAction } from "@/features/employee-task/actions";
-import EmployeeTaskDashboardTable from "@/features/employee-task/components/table/employee-task-dashboard";
+import TaskDashboardTable from "@/features/employee-task/components/table/task-dashboard";
+import { AllEmployeeTaskDashboardData, getAllEmployeeTaskDashboardActionQuery } from "@/features/employee-task/queris";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboardPage({
@@ -22,16 +20,42 @@ export default async function AdminDashboardPage({
 
     const summaryCards = [
         {
-            label: "Total Pekerjaan",
+            label: "Total Semua Pekerjaan",
             value: await prisma.employeeTask.count()
+        },
+        {
+            label: "Total Pekerjaan Aktif",
+            value: await prisma.employeeTask.count({
+                where: {
+                    startAt: {
+                        lte: new Date(),
+                    },
+                    dueAt: {
+                        gte: new Date(),
+                    },
+                }
+            })
+        },
+        {
+            label: "Total Permintaan Peninjauan",
+            value: await prisma.employeeTaskReport.count({
+                where: {
+                    employeeTaskReportStatusId: {
+                        in: [2]
+                    }
+                }
+            })
         }
     ];
 
     const employeeTaskResponse = await getAllEmployeeTaskAction({
-            page,
-            search: params.search ?? "",
-            employeeTaskStatusId: Number(params.employeeTaskStatusId ?? "") || undefined,
-        });
+        page,
+        search: params.search ?? "",
+        employeeTaskStatusId: Number(params.employeeTaskStatusId ?? "") || undefined,
+        query: getAllEmployeeTaskDashboardActionQuery
+    });
+
+    console.log(JSON.stringify(employeeTaskResponse.data, null, 2))
 
     return (
         <>
@@ -43,13 +67,13 @@ export default async function AdminDashboardPage({
                 }
             </div>
 
-            <EmployeeTaskDashboardTable
-                data={employeeTaskResponse.data}
+            <TaskDashboardTable
+                data={employeeTaskResponse.data as AllEmployeeTaskDashboardData[]}
                 page={page} />
-            {/* <PaginationWithLinks
+            <PaginationWithLinks
                 page={page}
                 pageSize={10}
-                totalCount={getAllTaskAssignmentsResponse.totalCount} /> */}
+                totalCount={employeeTaskResponse.totalCount} />
         </>
     )
 }

@@ -25,42 +25,20 @@ import {
 } from "@/components/ui/table";
 import { Prisma } from "@/generated/prisma/client";
 import { initialActionState } from "@/types/action-state";
-import { ArrowRightIcon, TrashIcon } from "lucide-react";
+import { formatDateTime } from "@/utils/date";
+import { EditIcon, EyeIcon, TrashIcon } from "lucide-react";
 import { useRouter } from "nextjs-toploader/app";
 import { startTransition } from "react";
 import { toast } from "sonner";
 import { deleteEmployeeTaskByIdAction } from "../../actions";
-import { formatDateTimeString } from "@/utils/date";
+import { AllEmployeeTaskManagementData } from "../../queris";
+import { DateTimeText } from "@/components/shared/date-time-text";
 
-export default function EmployeeTaskDashboardTable({
+export default function TaskManagementTable({
     data,
     page
 }: {
-    data: Prisma.EmployeeTaskGetPayload<{
-        include: {
-            employeeTaskStatus: {
-                select: {
-                    name: true,
-                    colorHex: true
-                }
-            },
-            employeeTaskCategory: {
-                select: {
-                    name: true
-                }
-            },
-            employeeTaskAssignment: true,
-            admin: {
-                select: {
-                    user: {
-                        select: {
-                            name: true
-                        }
-                    }
-                }
-            }
-        }
-    }>[]
+    data: AllEmployeeTaskManagementData[]
     page: number
 }) {
 
@@ -95,11 +73,12 @@ export default function EmployeeTaskDashboardTable({
                     <TableRow>
                         <TableHead>No</TableHead>
                         <TableHead>Judul</TableHead>
-                        <TableHead>Jumlah Review</TableHead>
+                        <TableHead>Kategori</TableHead>
                         <TableHead>Waktu Mulai</TableHead>
                         <TableHead>Jatuh Tempo</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Ditugaskan</TableHead>
+                        <TableHead>Karyawan Ditugaskan</TableHead>
+                        <TableHead>Penanggung Jawab</TableHead>
                         <TableHead>Aksi</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -108,36 +87,42 @@ export default function EmployeeTaskDashboardTable({
                         <TableRow key={item.id}>
                             <TableCell className="font-medium">{(page - 1) * 10 + index + 1}</TableCell>
                             <TableCell>{item.title}</TableCell>
-                            <TableCell>1</TableCell>
+                            <TableCell>{item.employeeTaskCategory?.name}</TableCell>
                             <TableCell>
-                                {formatDateTimeString(item.startAt)}
+                                <DateTimeText date={item.startAt} />
                             </TableCell>
                             <TableCell>
-                                {formatDateTimeString(item.dueAt)}
+                                <DateTimeText date={item.dueAt} />
                             </TableCell>
                             <TableCell>
-                                {
-
-                                }
                                 <Badge style={{ backgroundColor: item.employeeTaskStatus.colorHex }}>
                                     {item.employeeTaskStatus.name}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 {
-                                    item.employeeTaskAssignment.length === 0 ? (
+                                    item._count.employeeTaskAssignment === 0 ? (
                                         <span className="text-red-500">Belum ditugaskan</span>
                                     ) : (
                                         <span>
-                                            {item.employeeTaskAssignment.length === 1 ? "1 Karyawan" : `${item.employeeTaskAssignment.length} Karyawan`}
+                                            {`${item._count.employeeTaskAssignment} Karyawan`}
                                         </span>
                                     )
                                 }
                             </TableCell>
+                            <TableCell>{item.admin?.user?.name || "Penanggung jawab tidak ditemukan"}</TableCell>
                             <TableCell className="space-x-2">
-                                <Button variant="outline" size="sm">
-                                    Lihat Detail <ArrowRightIcon />
+                                <Button variant={'outline'} size={'icon'}
+                                    onClick={() => router.push(`/admin/employee-tasks/${item.id}`)}>
+                                    <EyeIcon />
                                 </Button>
+                                <Button size={'icon'}
+                                    onClick={() => router.push(`/admin/employee-tasks/${item.id}/edit`)}>
+                                    <EditIcon />
+                                </Button>
+                                <DeleteActionButton
+                                    id={item.id}
+                                    judul={item.title} />
                             </TableCell>
                         </TableRow>
                     ))}

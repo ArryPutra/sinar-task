@@ -22,6 +22,7 @@ import { usePathname } from "next/navigation"
 import { NavHeader } from "./components/nav-header"
 import { NavMenu } from "./components/nav-menu"
 import { NavUser } from "./components/nav-user"
+import { useHeader } from "./header-context"
 
 export default function DashboardView({
   user,
@@ -43,6 +44,7 @@ export default function DashboardView({
   }[user.roleId] || [];
 
   const breadcrumbTitle = roleSidebarMenu.find((item) => pathName.startsWith(item.url))?.title;
+  const { title } = useHeader();
 
   return (
     <SidebarProvider>
@@ -72,7 +74,8 @@ export default function DashboardView({
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage>
-                    {breadcrumbTitle}
+                    <span>{breadcrumbTitle}</span>
+                    <span className="ml-2 font-bold">{title && "/ " + title}</span>
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>

@@ -9,12 +9,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
+import { useHeader } from '@/features/dashboard/header-context'
 import { uploadStreamToCloudinary } from '@/lib/cloudinary'
 import { initialActionState } from '@/types/action-state'
-import { hexWithOpacity } from '@/utils/colors'
 import { formatDateOnly } from '@/utils/date'
 import { generatePdfFromImages } from '@/utils/pdf'
-import { ClipboardCheckIcon, ClipboardIcon, SaveIcon, SendIcon } from 'lucide-react'
+import { ClipboardCheckIcon, SaveIcon, SendIcon } from 'lucide-react'
 import { useActionState, useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { removeDocumentFileUrlAction, submitTaskReportAction } from '../../actions'
@@ -40,6 +40,14 @@ export default function TaskReportSubmissionForm({
   taskAssignmentId: string
   taskReport: TaskReportSubmissionFormData | null
 }) {
+  const { setTitle } = useHeader();
+
+  useEffect(() => {
+    setTitle("Pekerjaan Saya");
+
+    return () => setTitle("");
+  }, [setTitle]);
+
   const [state, formAction, isPending] = useActionState(
     submitTaskReportAction.bind(null, taskAssignmentId, selectedDateString),
     initialActionState
@@ -94,15 +102,16 @@ export default function TaskReportSubmissionForm({
     }
   };
 
+  // untuk kejadian ketika upload file atau submit form
   useEffect(() => {
     if (isPendingUploadFile) {
-      toast.loading("Menyimpan laporan...", { id: "save-draft" });
+      toast.loading("Menyimpan laporan pekerjaan...", { id: "submit-task" });
     } else if (!isPendingUploadFile && state.message) {
       if (state.success) {
-        toast.success(state.message, { id: "save-draft" });
+        toast.success(state.message, { id: "submit-task" });
         setClientFilesCount({}); // Reset setelah save
       } else {
-        toast.error(state.message, { id: "save-draft" });
+        toast.error(state.message, { id: "submit-task" });
       }
     }
   }, [isPendingUploadFile, state]);
@@ -171,7 +180,7 @@ export default function TaskReportSubmissionForm({
             </span>
             {
               taskReport ?
-                <Badge style={{ backgroundColor: hexWithOpacity(taskReport.employeeTaskReportStatus.colorHex, 0.1), color: taskReport.employeeTaskReportStatus.colorHex }}>
+                <Badge style={{ backgroundColor: taskReport.employeeTaskReportStatus.colorHex, color: "white" }}>
                   {taskReport.employeeTaskReportStatus.name}
                 </Badge>
                 :
@@ -236,7 +245,7 @@ export default function TaskReportSubmissionForm({
                 type='submit'
                 variant="secondary"
                 disabled={isPendingUploadFile || isPending}>
-                <SaveIcon /> Simpan Draft {isPendingUploadFile || isPending && <Spinner />}
+                <SaveIcon /> Simpan Draft {(isPendingUploadFile || isPending) && <Spinner />}
               </Button>
             }
             <Button

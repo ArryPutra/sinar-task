@@ -1,6 +1,6 @@
 import { getCurrentUserAction } from "@/features/auth/actions";
+import { HeaderProvider } from "@/features/dashboard/header-context";
 import DashboardView from "@/features/dashboard/view";
-import { getCurrentEmployee } from "@/features/employee/action";
 
 export default async function AdminLayout({
     children
@@ -14,13 +14,15 @@ export default async function AdminLayout({
     }
 
     return (
-        <DashboardView
-            user={{
-                name: currentUser.user?.name,
-                email: currentUser.user?.email,
-                roleId: currentUser.user?.userRoleId
-            }}>
-            {children}
-        </DashboardView>
+        <HeaderProvider>
+            <DashboardView
+                user={{
+                    name: currentUser.user?.name,
+                    email: currentUser.user?.email,
+                    roleId: currentUser.user?.userRoleId
+                }}>
+                {children}
+            </DashboardView>
+        </HeaderProvider>
     )
 }

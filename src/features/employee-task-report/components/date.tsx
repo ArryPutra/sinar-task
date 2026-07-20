@@ -22,6 +22,7 @@ export default function DateReport({
     report: {
         status: string
         icon: string
+        colorHex: string
     }
 }) {
     const Icon = (Icons[report.icon as keyof typeof Icons] ?? Icons.CircleDashed) as LucideIcon;
@@ -54,7 +55,7 @@ export default function DateReport({
                 {date.dayMonth}
             </span>
 
-            <Badge variant="outline">
+            <Badge style={{ backgroundColor: report.colorHex, color: "white" }}>
                 {report?.status}
             </Badge>
         </Button>

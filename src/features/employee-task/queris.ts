@@ -1,5 +1,85 @@
 import { Prisma } from "@/generated/prisma/client";
 
+export const getAllEmployeeTaskDashboardActionQuery = {
+    select: {
+        id: true,
+        title: true,
+        dueAt: true,
+        _count: {
+            select: {
+                employeeTaskAssignment: true,
+            }
+        },
+        employeeTaskStatus: {
+            select: {
+                name: true,
+                colorHex: true,
+            },
+        },
+        employeeTaskCategory: {
+            select: {
+                name: true,
+            },
+        },
+        employeeTaskAssignment: {
+            select: {
+                _count: {
+                    select: {
+                        employeeTaskReports: {
+                            where: {
+                                employeeTaskReportStatusId: 2
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        admin: {
+            select: {
+                user: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        }
+    }
+} satisfies Prisma.EmployeeTaskDefaultArgs
+
+export const getAllEmployeeTaskManagementActionQuery = {
+    select: {
+        id: true,
+        title: true,
+        startAt: true,
+        dueAt: true,
+        _count: {
+            select: {
+                employeeTaskAssignment: true
+            }
+        },
+        employeeTaskCategory: {
+            select: {
+                name: true
+            }
+        },
+        employeeTaskStatus: {
+            select: {
+                name: true,
+                colorHex: true
+            }
+        },
+        admin: {
+            select: {
+                user: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        }
+    }
+} satisfies Prisma.EmployeeTaskDefaultArgs
+
 export const taskCardDetailQuery = {
     select: {
         title: true,
@@ -32,7 +112,7 @@ export const taskCardDetailQuery = {
     }
 } satisfies Prisma.EmployeeTaskDefaultArgs
 
-export const employeeTaskById = {
+export const getemployeeTaskByIdActionQuery = {
     include: {
         employeeTaskStatus: {
             select: {
@@ -79,25 +159,30 @@ export const employeeTaskById = {
     }
 } satisfies Prisma.EmployeeTaskDefaultArgs;
 
-export const employeeTasksByEmployeeId = {
-    include: {
-        employeeTaskStatus: {
-            select: {
-                name: true,
-                colorHex: true
-            }
-        },
-        employeeTaskCategory: {
-            select: {
-                name: true
-            }
-        },
-    }
-} satisfies Prisma.EmployeeTaskDefaultArgs;
+// export const employeeTasksByEmployeeId = {
+//     include: {
+//         employeeTaskStatus: {
+//             select: {
+//                 name: true,
+//                 colorHex: true
+//             }
+//         },
+//         employeeTaskCategory: {
+//             select: {
+//                 name: true
+//             }
+//         },
+//     }
+// } satisfies Prisma.EmployeeTaskDefaultArgs;
 
-export type TaskCardDetailQuery =
+export type AllEmployeeTaskDashboardData =
+    Prisma.EmployeeTaskGetPayload<typeof getAllEmployeeTaskDashboardActionQuery>;
+export type AllEmployeeTaskManagementData =
+    Prisma.EmployeeTaskGetPayload<typeof getAllEmployeeTaskManagementActionQuery>;
+
+export type TaskCardDetailData =
     Prisma.EmployeeTaskGetPayload<typeof taskCardDetailQuery>;
-export type EmployeeTasksByEmployeeId =
-    Prisma.EmployeeTaskGetPayload<typeof employeeTasksByEmployeeId>;
+// export type EmployeeTasksByEmployeeId =
+//     Prisma.EmployeeTaskGetPayload<typeof employeeTasksByEmployeeId>;
 export type EmployeeTaskById =
-    Prisma.EmployeeTaskGetPayload<typeof employeeTaskById>;
+    Prisma.EmployeeTaskGetPayload<typeof getemployeeTaskByIdActionQuery>;

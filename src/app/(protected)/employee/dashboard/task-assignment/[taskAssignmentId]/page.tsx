@@ -21,7 +21,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { userAgent } from "next/server";
 
-export default async function DashboardTaskAssignmentPage({
+export default async function EmployeeDashboardTaskAssignmentPage({
     params,
     searchParams
 }: {
@@ -39,7 +39,11 @@ export default async function DashboardTaskAssignmentPage({
 
     const currentEmployeeResponse = await getCurrentEmployee();
 
-    const selectedDateString = date ?? formatInTimeZone(new Date(), APP_BUSINESS_TIMEZONE, "yyyy-MM-dd");
+    // sesuaikan dengan zona waktu bisnis (wita) siapapun usernya
+    const todayString = formatInTimeZone(
+        new Date(), // ini awalnya utc (sesuai server)
+        APP_BUSINESS_TIMEZONE, "yyyy-MM-dd");// lalu diubah ke asia/makassar
+    const selectedDateString = date ?? todayString;
 
     // penting agar task assignment ini milik employee yang sedang login
     const taskAssignmentResponse = await prisma.employeeTaskAssignment.findUnique({
@@ -70,7 +74,7 @@ export default async function DashboardTaskAssignmentPage({
 
     const taskReportsResponse = await prisma.employeeTaskReport.findMany({
         where: {
-            employeeTaskAssignmentId: taskAssignmentId,
+            employeeTaskAssignmentId: taskAssignmentResponse.id,
             reportDate: {
                 gte: task.startAt,
                 lte: task.dueAt,
@@ -92,15 +96,18 @@ export default async function DashboardTaskAssignmentPage({
             name: true,
             slug: true,
             isRequired: true,
-            employeeTaskDocument: {
-                where: {
-                    employeeTaskReportId: taskReportSelected?.id
+            // taskReport bisa null maka jika tidak ditemukan tidak perlu documents
+            ...(taskReportSelected && {
+                employeeTaskDocument: {
+                    where: {
+                        employeeTaskReportId: taskReportSelected?.id,
+                    },
+                    select: {
+                        id: true,
+                        fileUrls: true
+                    },
                 },
-                select: {
-                    id: true,
-                    fileUrls: true
-                },
-            },
+            })
         }
     });
 
@@ -136,8 +143,9 @@ export default async function DashboardTaskAssignmentPage({
                                 }}
                                 isSelected={isSameDay(date, selectedDateString)}
                                 report={{
-                                    status: report?.employeeTaskReportStatus.name ?? "Belum Diisi",
+                                    status: report?.employeeTaskReportStatus.name ?? "Belum Dimulai",
                                     icon: report?.employeeTaskReportStatus?.icon ?? "CircleDashed",
+                                    colorHex: report?.employeeTaskReportStatus?.colorHex ?? "black",
                                 }} />
                         )
                     })
@@ -153,14 +161,14 @@ export default async function DashboardTaskAssignmentPage({
                         <TabsContent value="laporan">
                             {
                                 // pastikan tanggal laporan tidak melebihi tanggal sekarang
-                                isSameDay(selectedDateString, new Date()) ?
+                                isSameDay(selectedDateString, todayString) ?
                                     <TaskReportSubmissionFormAvailable
                                         selectedDateString={selectedDateString}
                                         taskDocumentCategories={taskDocumentCategoriesResponse}
                                         taskAssignmentId={taskAssignmentResponse.id}
                                         taskReport={taskReportSelected ?? null} />
                                     :
-                                    isBefore(selectedDateString, new Date())
+                                    isBefore(selectedDateString, todayString)
                                         ?
                                         <TaskReportSubmissionFormClosed
                                             selectedDateString={selectedDateString} />
@@ -180,14 +188,14 @@ export default async function DashboardTaskAssignmentPage({
                         <div className="grid grid-cols-[2fr_1fr] gap-6 max-xl:grid-cols-2 max-lg:flex max-lg:flex-col-reverse">
                             {
                                 // pastikan tanggal laporan tidak melebihi tanggal sekarang
-                                isSameDay(selectedDateString, new Date()) ?
+                                isSameDay(selectedDateString, todayString) ?
                                     <TaskReportSubmissionFormAvailable
                                         selectedDateString={selectedDateString}
                                         taskDocumentCategories={taskDocumentCategoriesResponse}
                                         taskAssignmentId={taskAssignmentResponse.id}
                                         taskReport={taskReportSelected ?? null} />
                                     :
-                                    isBefore(selectedDateString, new Date())
+                                    isBefore(selectedDateString, todayString)
                                         ?
                                         <TaskReportSubmissionFormClosed
                                             selectedDateString={selectedDateString} />

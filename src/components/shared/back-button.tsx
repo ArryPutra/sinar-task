@@ -22,7 +22,7 @@ export default function BackButton({ className, href }: BackButtonProps) {
 
     return (
         <Button
-            className={className + " mb-3 w-fit"}
+            className={className + " w-fit"}
             variant={'outline'}
             onClick={handleBack}
         >

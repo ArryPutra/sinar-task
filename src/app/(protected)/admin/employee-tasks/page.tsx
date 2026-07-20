@@ -1,7 +1,8 @@
 import { PaginationWithLinks } from "@/components/shared/pagination-with-links";
 import { Button } from "@/components/ui/button";
 import { getAllEmployeeTaskAction } from "@/features/employee-task/actions";
-import EmployeeTaskManagementTable from "@/features/employee-task/components/table/employee-task-management";
+import TaskManagementTable from "@/features/employee-task/components/table/task-management";
+import { AllEmployeeTaskManagementData, getAllEmployeeTaskManagementActionQuery } from "@/features/employee-task/queris";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -22,6 +23,7 @@ export default async function AdminTugasKaryawanPage({
         page,
         search: params.search ?? "",
         employeeTaskStatusId: Number(params.employeeTaskStatusId ?? "") || undefined,
+        query: getAllEmployeeTaskManagementActionQuery
     });
 
     return (
@@ -32,8 +34,8 @@ export default async function AdminTugasKaryawanPage({
                 </Button>
             </Link>
 
-            <EmployeeTaskManagementTable
-                data={employeeTaskResponse.data}
+            <TaskManagementTable
+                data={employeeTaskResponse.data as AllEmployeeTaskManagementData[]}
                 page={page}
             />
 
