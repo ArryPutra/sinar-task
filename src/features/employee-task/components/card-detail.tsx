@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowRightIcon, CalendarDaysIcon, ClockIcon, ExternalLinkIcon, FileIcon, MapPinIcon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
-import { TaskReportSubmissionFormAvailable } from '../queris'
+import { TaskCardDetailData } from '../queris'
 
 export default function TaskCardDetail({
     task,
     detailRoute,
     taskAssignmentStatus
 }: {
-    task: TaskReportSubmissionFormAvailable
+    task: TaskCardDetailData
     detailRoute?: string
     taskAssignmentStatus?: {
         name: string

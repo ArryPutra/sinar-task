@@ -17,7 +17,7 @@ interface DropdownSelectProps {
     placeholder: string;
     label: string;
     items: {
-        value: string;
+        value: string | number;
         label: string;
     }[];
     showAll?: boolean;
@@ -72,7 +72,7 @@ export default function DropdownSelect({
                     {items.map((item) => (
                         <SelectItem
                             key={item.value}
-                            value={item.value}
+                            value={item.value.toString()}
                         >
                             {item.label}
                         </SelectItem>

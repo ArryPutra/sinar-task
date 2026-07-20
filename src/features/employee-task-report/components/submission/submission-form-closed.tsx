@@ -8,6 +8,7 @@ export default function TaskReportSubmissionFormClosed({
 }: {
   selectedDateString: string;
 }) {
+  
   return (
     <Card className="h-fit">
       <CardHeader className="border-b flex justify-between flex-wrap items-center gap-6">

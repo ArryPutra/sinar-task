@@ -35,16 +35,6 @@ export default async function AdminDashboardPage({
                     },
                 }
             })
-        },
-        {
-            label: "Total Permintaan Peninjauan",
-            value: await prisma.employeeTaskReport.count({
-                where: {
-                    employeeTaskReportStatusId: {
-                        in: [2]
-                    }
-                }
-            })
         }
     ];
 
@@ -54,8 +44,6 @@ export default async function AdminDashboardPage({
         employeeTaskStatusId: Number(params.employeeTaskStatusId ?? "") || undefined,
         query: getAllEmployeeTaskDashboardActionQuery
     });
-
-    console.log(JSON.stringify(employeeTaskResponse.data, null, 2))
 
     return (
         <>

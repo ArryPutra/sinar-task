@@ -11,7 +11,6 @@ import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { useHeader } from '@/features/dashboard/header-context'
 import { uploadStreamToCloudinary } from '@/lib/cloudinary'
-import { initialActionState } from '@/types/action-state'
 import { formatDateOnly } from '@/utils/date'
 import { generatePdfFromImages } from '@/utils/pdf'
 import { ClipboardCheckIcon, SaveIcon, SendIcon } from 'lucide-react'
@@ -19,12 +18,14 @@ import { useActionState, useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { removeDocumentFileUrlAction, submitTaskReportAction } from '../../actions'
 import { TaskReportSubmissionFormData } from '../../queris'
+import { initialActionState } from '@/types/action-state'
 
 export default function TaskReportSubmissionForm({
   selectedDateString,
   taskDocumentCategories,
   taskAssignmentId,
-  taskReport
+  taskReport,
+  isAdmin
 }: {
   selectedDateString: string
   taskDocumentCategories: {
@@ -39,16 +40,21 @@ export default function TaskReportSubmissionForm({
   }[]
   taskAssignmentId: string
   taskReport: TaskReportSubmissionFormData | null
+  isAdmin: boolean
 }) {
   const { setTitle } = useHeader();
 
   useEffect(() => {
-    setTitle("Pekerjaan Saya");
+    if (isAdmin) {
+      setTitle("Pekerjaan Karyawan");
+    } else {
+      setTitle("Pekerjaan Saya");
+    }
 
     return () => setTitle("");
   }, [setTitle]);
 
-  const [state, formAction, isPending] = useActionState(
+  const [stateSubmitReport, formActionSubmitReport, isPendingSubmitReport] = useActionState(
     submitTaskReportAction.bind(null, taskAssignmentId, selectedDateString),
     initialActionState
   );
@@ -64,9 +70,10 @@ export default function TaskReportSubmissionForm({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    
     const formData = new FormData(e.currentTarget);
     const filesDocumentPayload = [];
-
+    
     try {
       setIsPendingUploadFile(true);
       for (const documentCategory of taskDocumentCategories) {
@@ -92,7 +99,7 @@ export default function TaskReportSubmissionForm({
       formData.set("uploadedFilesData", JSON.stringify(filesDocumentPayload));
 
       startTransitionSubmitTask(() => {
-        formAction(formData);
+        formActionSubmitReport(formData);
       });
     } catch (error) {
       console.error(error);
@@ -104,17 +111,17 @@ export default function TaskReportSubmissionForm({
 
   // untuk kejadian ketika upload file atau submit form
   useEffect(() => {
-    if (isPendingUploadFile) {
+    if (isPendingUploadFile || isPendingSubmitReport) {
       toast.loading("Menyimpan laporan pekerjaan...", { id: "submit-task" });
-    } else if (!isPendingUploadFile && state.message) {
-      if (state.success) {
-        toast.success(state.message, { id: "submit-task" });
+    } else if (!isPendingUploadFile && stateSubmitReport.message) {
+      if (stateSubmitReport.success) {
+        toast.success(stateSubmitReport.message, { id: "submit-task" });
         setClientFilesCount({}); // Reset setelah save
       } else {
-        toast.error(state.message, { id: "submit-task" });
+        toast.error(stateSubmitReport.message, { id: "submit-task" });
       }
     }
-  }, [isPendingUploadFile, state]);
+  }, [isPendingUploadFile, stateSubmitReport, isPendingSubmitReport]);
 
   const onRemoveDocumentFileUrl = (
     fileUrl: string,
@@ -200,20 +207,23 @@ export default function TaskReportSubmissionForm({
                   </FieldLabel>
 
                   {/* Lacak penambahan file baru */}
-                  <ImageUpload
-                    key={`${documentCategory.employeeTaskDocument?.at(0)?.fileUrls?.length}`}
-                    name={documentCategory.slug}
-                    onChange={(e: any) => {
-                      const filesCount = e?.target?.files
-                        ? e.target.files.length
-                        : (Array.isArray(e) ? e.length : 0);
+                  {
+                    !isAdmin &&
+                    <ImageUpload
+                      key={`${documentCategory.employeeTaskDocument?.at(0)?.fileUrls?.length}`}
+                      name={documentCategory.slug}
+                      onChange={(e: any) => {
+                        const filesCount = e?.target?.files
+                          ? e.target.files.length
+                          : (Array.isArray(e) ? e.length : 0);
 
-                      setClientFilesCount((prev) => ({
-                        ...prev,
-                        [documentCategory.slug]: filesCount
-                      }));
-                    }}
-                  />
+                        setClientFilesCount((prev) => ({
+                          ...prev,
+                          [documentCategory.slug]: filesCount
+                        }));
+                      }}
+                    />
+                  }
 
                   <AttachmentList
                     fileUrls={documentCategory.employeeTaskDocument?.at(0)?.fileUrls ?? []}
@@ -229,31 +239,35 @@ export default function TaskReportSubmissionForm({
               <Textarea
                 name='note'
                 placeholder='Masukkan catatan...'
-                defaultValue={taskReport?.note ?? ""} />
+                defaultValue={taskReport?.note ?? ""}
+                disabled={isAdmin} />
             </Field>
             {
-              (!state.success && state.message) &&
+              (!stateSubmitReport.success && stateSubmitReport.message) &&
               <Alert variant="destructive">
-                <AlertDescription>{state.message}</AlertDescription>
+                <AlertDescription>{stateSubmitReport.message}</AlertDescription>
               </Alert>
             }
           </CardContent>
-          <CardFooter className='border-t flex justify-end gap-4 flex-wrap'>
-            {
-              !isAllRequiredDocumentFilled &&
+          {
+            !isAdmin &&
+            <CardFooter className='border-t flex justify-end gap-4 flex-wrap'>
+              {
+                !isAllRequiredDocumentFilled &&
+                <Button
+                  type='submit'
+                  variant="secondary"
+                  disabled={isPendingUploadFile || isPendingSubmitReport}>
+                  <SaveIcon /> Simpan Draft {(isPendingUploadFile || isPendingSubmitReport) && <Spinner />}
+                </Button>
+              }
               <Button
                 type='submit'
-                variant="secondary"
-                disabled={isPendingUploadFile || isPending}>
-                <SaveIcon /> Simpan Draft {(isPendingUploadFile || isPending) && <Spinner />}
+                disabled={!isAllRequiredDocumentFilled || isPendingUploadFile || isPendingSubmitReport}>
+                <SendIcon /> Kumpulkan Laporan ({uploadedRequiredDocumentLength}/{requiredDocumentLength}) {isAllRequiredDocumentFilled && ((isPendingUploadFile || isPendingSubmitReport) && <Spinner />)}
               </Button>
-            }
-            <Button
-              type='submit'
-              disabled={!isAllRequiredDocumentFilled || isPendingUploadFile}>
-              <SendIcon /> Kumpulkan Laporan ({uploadedRequiredDocumentLength}/{requiredDocumentLength}) {isAllRequiredDocumentFilled && (isPendingUploadFile && <Spinner />)}
-            </Button>
-          </CardFooter>
+            </CardFooter>
+          }
         </form>
       </Card>
     </div>

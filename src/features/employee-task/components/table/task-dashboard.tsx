@@ -54,7 +54,7 @@ export default function TaskDashboardTable({
                     <TableRow>
                         <TableHead>No</TableHead>
                         <TableHead>Judul</TableHead>
-                        <TableHead>Laporan Peninjauan</TableHead>
+                        <TableHead>Butuh Peninjauan</TableHead>
                         <TableHead>Jatuh Tempo</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Ditugaskan</TableHead>
@@ -95,7 +95,7 @@ export default function TaskDashboardTable({
                                     }
                                 </TableCell>
                                 <TableCell className="space-x-2">
-                                    <Link href={`/admin/dashboard/tasks/${item.id}`}>
+                                    <Link href={`/admin/dashboard/task/${item.id}`}>
                                         <Button variant="outline" size="sm">
                                             Lihat Detail <ArrowRightIcon />
                                         </Button>
