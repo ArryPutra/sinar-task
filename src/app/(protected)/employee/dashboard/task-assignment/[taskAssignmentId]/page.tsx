@@ -1,5 +1,5 @@
 import BackButton from "@/components/shared/back-button";
-import SubmissionView from "@/features/employee-task-report/views/submission-view";
+import EmployeeTaskAssignmentView from "@/features/employee-task-assignment/views/employee-task-assignment";
 import { getCurrentEmployee } from "@/features/employee/action";
 import { notFound } from "next/navigation";
 
@@ -29,10 +29,9 @@ export default async function EmployeeDashboardTaskAssignmentPage({
         <>
             <BackButton href="/employee/dashboard" />
 
-            <SubmissionView
+            <EmployeeTaskAssignmentView
                 date={date}
                 taskAssignmentId={taskAssignmentId}
-                employeeId={currentEmployeeResponse.data.id}
                 isAdmin={false} />
         </>
     )

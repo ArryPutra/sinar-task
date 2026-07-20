@@ -175,3 +175,39 @@ export async function removeDocumentFileUrlAction(
 
     revalidatePath("/employee/dashboard/[employeeTaskSlug]", "page");
 }
+
+export async function updateReportStatusAction(
+    prevState: ActionState,
+    formData: FormData
+): Promise<ActionState> {
+    const taskReportId = Number(formData.get("taskReportId"));
+    const taskReportStatusId = Number(formData.get("taskReportStatusId"));
+    const noteByAdmin = formData.get("noteByAdmin") as string;
+
+    try {
+        await prisma.employeeTaskReport.update({
+            where: {
+                id: taskReportId
+            },
+            data: {
+                employeeTaskReportStatusId: taskReportStatusId,
+                noteByAdmin: noteByAdmin
+            }
+        });
+
+        revalidatePath(`/admin/employee-tasks/${taskReportId}`);
+
+        return {
+            success: true,
+            message: "Status laporan berhasil diperbarui!"
+        }
+    } catch (error) {
+        console.error(error);
+
+        return {
+
+            success: false,
+            message: "Terjadi kesalahan saat memperbarui status laporan."
+        }
+    }
+}

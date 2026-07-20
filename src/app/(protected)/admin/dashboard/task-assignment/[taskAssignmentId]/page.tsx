@@ -1,5 +1,6 @@
 import BackButton from "@/components/shared/back-button";
-import SubmissionView from "@/features/employee-task-report/views/submission-view";
+import EmployeeTaskAssignmentView from "@/features/employee-task-assignment/views/employee-task-assignment";
+import { prisma } from "@/lib/prisma";
 
 export default async function TaskAssignmentPage({
     params,
@@ -15,15 +16,27 @@ export default async function TaskAssignmentPage({
     }>
 }) {
     const { taskAssignmentId } = await params;
-    const { date, employeeId, taskId } = await searchParams;
+    const { date } = await searchParams;
+
+    const employeeTaskIdResponse = await prisma.employeeTaskAssignment.findUnique({
+        where: {
+            id: taskAssignmentId
+        },
+        select: {
+            employeeTask: {
+                select: {
+                    id: true
+                }
+            }
+        }
+    });
 
     return (
         <>
-            <BackButton href={`/admin/dashboard/task/${taskId}`} />
-            <SubmissionView
+            <BackButton href={`/admin/dashboard/task/${employeeTaskIdResponse?.employeeTask.id}`} />
+            <EmployeeTaskAssignmentView
                 date={date}
                 taskAssignmentId={taskAssignmentId}
-                employeeId={employeeId}
                 isAdmin={true} />
         </>
     )

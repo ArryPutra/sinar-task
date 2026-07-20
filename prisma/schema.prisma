@@ -220,8 +220,9 @@ model EmployeeTaskReport {
   employeeTaskAssignmentId   String
   employeeTaskReportStatusId Int
 
-  reportDate DateTime
-  note       String?
+  reportDate  DateTime
+  note        String?
+  noteByAdmin String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -255,7 +256,7 @@ model EmployeeTaskDocument {
   employeeTaskReportId           Int
   employeeTaskDocumentCategoryId Int
 
-  fileUrls String[]
+  fileUrls        String[]
   removedFileUrls String[]
 
   createdAt DateTime @default(now())

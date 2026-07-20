@@ -11,6 +11,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { useHeader } from '@/features/dashboard/header-context'
 import { uploadStreamToCloudinary } from '@/lib/cloudinary'
+import { initialActionState } from '@/types/action-state'
 import { formatDateOnly } from '@/utils/date'
 import { generatePdfFromImages } from '@/utils/pdf'
 import { ClipboardCheckIcon, SaveIcon, SendIcon } from 'lucide-react'
@@ -18,7 +19,6 @@ import { useActionState, useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { removeDocumentFileUrlAction, submitTaskReportAction } from '../../actions'
 import { TaskReportSubmissionFormData } from '../../queris'
-import { initialActionState } from '@/types/action-state'
 
 export default function TaskReportSubmissionForm({
   selectedDateString,
@@ -70,10 +70,10 @@ export default function TaskReportSubmissionForm({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    
+
     const formData = new FormData(e.currentTarget);
     const filesDocumentPayload = [];
-    
+
     try {
       setIsPendingUploadFile(true);
       for (const documentCategory of taskDocumentCategories) {
@@ -164,112 +164,113 @@ export default function TaskReportSubmissionForm({
   }
 
   return (
-    <div className='flex flex-col gap-4'>
-      <div>
-        <Button variant="outline"
-          onClick={downloadReportPdf}
-          disabled={isPendingDownloadReportPdf}
-          className='cursor-pointer'>
-          <ClipboardCheckIcon className='w-4 h-4' /> Download Laporan Final {isPendingDownloadReportPdf && <Spinner />}
-        </Button>
-      </div>
-      <Card>
-        <CardHeader className='border-b flex justify-between flex-wrap items-start gap-6'>
-          <div>
-            <CardTitle>Laporan Harian: {formatDateOnly(selectedDateString)}</CardTitle>
-            <CardDescription>
-              {uploadedRequiredDocumentLength} dari {requiredDocumentLength} dokumen wajib telah diunggah
-            </CardDescription>
-          </div>
-          <div className='flex flex-col gap-2 items-end max-lg:items-start'>
-            <span className='uppercase text-xs font-medium text-muted-foreground'>
-              Status Laporan Anda
-            </span>
-            {
-              taskReport ?
-                <Badge style={{ backgroundColor: taskReport.employeeTaskReportStatus.colorHex, color: "white" }}>
-                  {taskReport.employeeTaskReportStatus.name}
-                </Badge>
-                :
-                <Badge variant='outline'>
-                  Belum Diunggah
-                </Badge>
-            }
-          </div>
-        </CardHeader>
-        <form onSubmit={handleSubmit} key={taskReport?.id} className='space-y-4'>
-          <CardContent className='space-y-4'>
-            {
-              taskDocumentCategories.map((documentCategory) => (
-                <Field key={documentCategory.slug}>
-                  <FieldLabel>
-                    {documentCategory.isRequired && <span className='text-destructive'>*</span>}<span>{documentCategory.name}</span>
-                  </FieldLabel>
+    <Card>
+      <CardHeader className='border-b flex justify-between flex-wrap items-start gap-6'>
+        <div>
+          <CardTitle>Laporan Harian: {formatDateOnly(selectedDateString)}</CardTitle>
+          <CardDescription>
+            {uploadedRequiredDocumentLength} dari {requiredDocumentLength} dokumen wajib telah diunggah
+          </CardDescription>
+          <Button variant="outline"
+            onClick={downloadReportPdf}
+            disabled={isPendingDownloadReportPdf}
+            size="sm"
+            className='cursor-pointer mt-4'>
+            <ClipboardCheckIcon className='w-4 h-4' /> Download Laporan Final {isPendingDownloadReportPdf && <Spinner />}
+          </Button>
+        </div>
+        <div className='flex flex-col gap-2 items-end max-lg:items-start'>
+          <span className='uppercase text-xs font-medium text-muted-foreground'>
+            Status Laporan Anda
+          </span>
+          {
+            taskReport ?
+              <Badge style={{ backgroundColor: taskReport.employeeTaskReportStatus.colorHex, color: "white" }}>
+                {taskReport.employeeTaskReportStatus.name}
+              </Badge>
+              :
+              <Badge variant='outline'>
+                Belum Diunggah
+              </Badge>
+          }
+        </div>
+      </CardHeader>
+      <form onSubmit={handleSubmit} key={taskReport?.id} className='space-y-4'>
+        <CardContent className='space-y-4'>
+          {
+            taskDocumentCategories.map((documentCategory) => (
+              <Field key={documentCategory.slug}>
+                <FieldLabel>
+                  {documentCategory.isRequired && <span className='text-destructive'>*</span>}<span>{documentCategory.name}</span>
+                </FieldLabel>
 
-                  {/* Lacak penambahan file baru */}
-                  {
-                    !isAdmin &&
-                    <ImageUpload
-                      key={`${documentCategory.employeeTaskDocument?.at(0)?.fileUrls?.length}`}
-                      name={documentCategory.slug}
-                      onChange={(e: any) => {
-                        const filesCount = e?.target?.files
-                          ? e.target.files.length
-                          : (Array.isArray(e) ? e.length : 0);
+                {/* Lacak penambahan file baru */}
+                {
+                  !isAdmin &&
+                  <ImageUpload
+                    key={`${documentCategory.employeeTaskDocument?.at(0)?.fileUrls?.length}`}
+                    name={documentCategory.slug}
+                    onChange={(e: any) => {
+                      const filesCount = e?.target?.files
+                        ? e.target.files.length
+                        : (Array.isArray(e) ? e.length : 0);
 
-                        setClientFilesCount((prev) => ({
-                          ...prev,
-                          [documentCategory.slug]: filesCount
-                        }));
-                      }}
-                    />
-                  }
-
-                  <AttachmentList
-                    fileUrls={documentCategory.employeeTaskDocument?.at(0)?.fileUrls ?? []}
-                    onRemove={(fileUrl) => {
-                      onRemoveDocumentFileUrl(fileUrl, documentCategory.employeeTaskDocument?.at(0)?.id!)
+                      setClientFilesCount((prev) => ({
+                        ...prev,
+                        [documentCategory.slug]: filesCount
+                      }));
                     }}
                   />
-                </Field>
-              ))
-            }
-            <Field>
-              <FieldLabel>Catatan (Opsional)</FieldLabel>
-              <Textarea
-                name='note'
-                placeholder='Masukkan catatan...'
-                defaultValue={taskReport?.note ?? ""}
-                disabled={isAdmin} />
-            </Field>
-            {
-              (!stateSubmitReport.success && stateSubmitReport.message) &&
-              <Alert variant="destructive">
-                <AlertDescription>{stateSubmitReport.message}</AlertDescription>
-              </Alert>
-            }
-          </CardContent>
+                }
+
+                <AttachmentList
+                  fileUrls={documentCategory.employeeTaskDocument?.at(0)?.fileUrls ?? []}
+                  {
+                  ...(!isAdmin && {
+                    onRemove: (fileUrl) => {
+                      onRemoveDocumentFileUrl(fileUrl, documentCategory.employeeTaskDocument?.at(0)?.id!)
+                    }
+                  })
+                  }
+                />
+              </Field>
+            ))
+          }
+          <Field>
+            <FieldLabel>Catatan (Opsional)</FieldLabel>
+            <Textarea
+              name='note'
+              placeholder='Masukkan catatan...'
+              defaultValue={taskReport?.note ?? ""}
+              disabled={isAdmin} />
+          </Field>
           {
-            !isAdmin &&
-            <CardFooter className='border-t flex justify-end gap-4 flex-wrap'>
-              {
-                !isAllRequiredDocumentFilled &&
-                <Button
-                  type='submit'
-                  variant="secondary"
-                  disabled={isPendingUploadFile || isPendingSubmitReport}>
-                  <SaveIcon /> Simpan Draft {(isPendingUploadFile || isPendingSubmitReport) && <Spinner />}
-                </Button>
-              }
+            (!stateSubmitReport.success && stateSubmitReport.message) &&
+            <Alert variant="destructive">
+              <AlertDescription>{stateSubmitReport.message}</AlertDescription>
+            </Alert>
+          }
+        </CardContent>
+        {
+          !isAdmin &&
+          <CardFooter className='border-t flex justify-end gap-4 flex-wrap'>
+            {
+              !isAllRequiredDocumentFilled &&
               <Button
                 type='submit'
-                disabled={!isAllRequiredDocumentFilled || isPendingUploadFile || isPendingSubmitReport}>
-                <SendIcon /> Kumpulkan Laporan ({uploadedRequiredDocumentLength}/{requiredDocumentLength}) {isAllRequiredDocumentFilled && ((isPendingUploadFile || isPendingSubmitReport) && <Spinner />)}
+                variant="secondary"
+                disabled={isPendingUploadFile || isPendingSubmitReport}>
+                <SaveIcon /> Simpan Draft {(isPendingUploadFile || isPendingSubmitReport) && <Spinner />}
               </Button>
-            </CardFooter>
-          }
-        </form>
-      </Card>
-    </div>
+            }
+            <Button
+              type='submit'
+              disabled={!isAllRequiredDocumentFilled || isPendingUploadFile || isPendingSubmitReport}>
+              <SendIcon /> Kumpulkan Laporan ({uploadedRequiredDocumentLength}/{requiredDocumentLength}) {isAllRequiredDocumentFilled && ((isPendingUploadFile || isPendingSubmitReport) && <Spinner />)}
+            </Button>
+          </CardFooter>
+        }
+      </form>
+    </Card>
   )
 }

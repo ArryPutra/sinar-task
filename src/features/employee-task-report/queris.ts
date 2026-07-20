@@ -4,11 +4,11 @@ export const taskReportSubmissionFormQuery = {
     select: {
         id: true,
         note: true,
+        noteByAdmin: true,
         reportDate: true,
         updatedAt: true,
         employeeTaskReportStatus: {
             omit: {
-                id: true,
                 createdAt: true,
                 updatedAt: true
             }

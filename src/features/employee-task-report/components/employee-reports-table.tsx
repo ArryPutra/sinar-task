@@ -35,8 +35,6 @@ export default function EmployeeReportsTable({
 
         const params = new URLSearchParams();
         params.set("date", formattedDate);
-        params.set("employeeId", employeeId);
-        params.set("taskId", taskId);
 
         router.push(`/admin/dashboard/task-assignment/${taskAssignmentId}?${params}`);
     }

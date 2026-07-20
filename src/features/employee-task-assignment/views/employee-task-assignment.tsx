@@ -8,7 +8,6 @@ import TaskReportSubmissionFormPending from "@/features/employee-task-report/com
 import { taskReportSubmissionFormQuery } from "@/features/employee-task-report/queris";
 import TaskCardDetail from "@/features/employee-task/components/card-detail";
 import { taskCardDetailQuery } from "@/features/employee-task/queris";
-import { getCurrentEmployee } from "@/features/employee/action";
 import { APP_BUSINESS_TIMEZONE } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { formatDateTimeBusinessTz } from "@/utils/date";
@@ -19,17 +18,15 @@ import { CalendarIcon } from "lucide-react";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { userAgent } from "next/server";
+import ChooseReportStatus from "../../employee-task-report/components/choose-report-status";
 
-
-export default async function SubmissionView({
+export default async function EmployeeTaskAssignmentView({
   date,
   taskAssignmentId,
-  employeeId,
   isAdmin
 }: {
   date: string | null,
   taskAssignmentId: string
-  employeeId: string
   isAdmin: boolean
 }) {
 
@@ -43,7 +40,6 @@ export default async function SubmissionView({
   const taskAssignmentResponse = await prisma.employeeTaskAssignment.findUnique({
     where: {
       id: taskAssignmentId,
-      employeeId: employeeId
     },
     select: {
       id: true,
@@ -149,55 +145,49 @@ export default async function SubmissionView({
               <TabsTrigger value="detail">Detail</TabsTrigger>
             </TabsList>
             <TabsContent value="laporan">
-              {
-                // pastikan tanggal laporan tidak melebihi tanggal sekarang
-                isSameDay(selectedDateString, todayString) ?
-                  <TaskReportSubmissionFormAvailable
-                    selectedDateString={selectedDateString}
-                    taskDocumentCategories={taskDocumentCategoriesResponse}
-                    taskAssignmentId={taskAssignmentResponse.id}
-                    taskReport={taskReportSelected ?? null}
-                    isAdmin={isAdmin} />
-                  :
-                  isBefore(selectedDateString, todayString)
-                    ?
-                    <TaskReportSubmissionFormClosed
-                      selectedDateString={selectedDateString} />
-                    :
-                    <TaskReportSubmissionFormPending
-                      selectedDateString={selectedDateString} />
-              }
+              <LeftSection
+                isAdmin={isAdmin}
+                taskAssignmentResponse={taskAssignmentResponse}
+                taskDocumentCategoriesResponse={taskDocumentCategoriesResponse}
+                taskReportSelected={taskReportSelected}
+                selectedDateString={selectedDateString}
+                todayString={todayString} />
             </TabsContent>
             <TabsContent value="detail">
-              <DetailView
+              <RightSection
                 taskAssignmentResponse={taskAssignmentResponse}
-                task={task} />
+                task={task}
+                adminData={{
+                  selectedTaskReport: taskReportSelected && {
+                    id: taskReportSelected.id,
+                    employeeTaskReportStatusId: taskReportSelected.employeeTaskReportStatus.id,
+                    noteByAdmin: taskReportSelected.noteByAdmin
+                  }
+                }}
+                isAdmin={isAdmin} />
             </TabsContent>
           </Tabs>
           :
           <>
             <div className="grid grid-cols-[2fr_1fr] gap-6 max-xl:grid-cols-2 max-lg:flex max-lg:flex-col-reverse">
-              {
-                // pastikan tanggal laporan tidak melebihi tanggal sekarang
-                isSameDay(selectedDateString, todayString) ?
-                  <TaskReportSubmissionFormAvailable
-                    selectedDateString={selectedDateString}
-                    taskDocumentCategories={taskDocumentCategoriesResponse}
-                    taskAssignmentId={taskAssignmentResponse.id}
-                    taskReport={taskReportSelected ?? null}
-                    isAdmin={isAdmin} />
-                  :
-                  isBefore(selectedDateString, todayString)
-                    ?
-                    <TaskReportSubmissionFormClosed
-                      selectedDateString={selectedDateString} />
-                    :
-                    <TaskReportSubmissionFormPending
-                      selectedDateString={selectedDateString} />
-              }
-              <DetailView
+              <LeftSection
+                isAdmin={isAdmin}
                 taskAssignmentResponse={taskAssignmentResponse}
-                task={task} />
+                taskDocumentCategoriesResponse={taskDocumentCategoriesResponse}
+                taskReportSelected={taskReportSelected}
+                selectedDateString={selectedDateString}
+                todayString={todayString} />
+              <RightSection
+                taskAssignmentResponse={taskAssignmentResponse}
+                task={task}
+                adminData={{
+                  selectedTaskReport: taskReportSelected && {
+                    id: taskReportSelected.id,
+                    employeeTaskReportStatusId: taskReportSelected.employeeTaskReportStatus.id,
+                    noteByAdmin: taskReportSelected.noteByAdmin
+                  }
+                }}
+                isAdmin={isAdmin} />
             </div>
           </>
       }
@@ -205,15 +195,87 @@ export default async function SubmissionView({
   )
 }
 
-function DetailView({
+function LeftSection({
+  todayString,
+  selectedDateString,
   taskAssignmentResponse,
-  task
+  taskDocumentCategoriesResponse,
+  taskReportSelected,
+  isAdmin
 }: {
-  taskAssignmentResponse: any
-  task: any
+  todayString: string;
+  selectedDateString: string;
+  taskAssignmentResponse: any;
+  taskDocumentCategoriesResponse: any;
+  taskReportSelected: any;
+  isAdmin: boolean
 }) {
   return (
     <div className="flex flex-col gap-6">
+      {
+        // pastikan tanggal laporan tidak melebihi tanggal sekarang
+        isSameDay(selectedDateString, todayString) ?
+          <TaskReportSubmissionFormAvailable
+            selectedDateString={selectedDateString}
+            taskDocumentCategories={taskDocumentCategoriesResponse}
+            taskAssignmentId={taskAssignmentResponse.id}
+            taskReport={taskReportSelected ?? null}
+            isAdmin={isAdmin} />
+          :
+          isBefore(selectedDateString, todayString)
+            ?
+            isAdmin ?
+              // pastikan admin dapat melihat laporan kemarin
+              <TaskReportSubmissionFormAvailable
+                selectedDateString={selectedDateString}
+                taskDocumentCategories={taskDocumentCategoriesResponse}
+                taskAssignmentId={taskAssignmentResponse.id}
+                taskReport={taskReportSelected ?? null}
+                isAdmin={isAdmin} />
+              : <TaskReportSubmissionFormClosed
+                selectedDateString={selectedDateString} />
+            :
+            <TaskReportSubmissionFormPending
+              selectedDateString={selectedDateString} />
+      }
+    </div>
+  )
+}
+
+async function RightSection({
+  taskAssignmentResponse,
+  task,
+  adminData,
+  isAdmin
+}: {
+  taskAssignmentResponse: any
+  task: any
+  adminData: {
+    selectedTaskReport?: {
+      id: number,
+      employeeTaskReportStatusId: number,
+      noteByAdmin: string | null
+    } | null
+  }
+  isAdmin: boolean
+}) {
+
+  const taskReportStatusesResponse = isAdmin
+    ? await prisma.employeeTaskReportStatus.findMany()
+    : [];
+
+  return (
+    <div className="flex flex-col gap-6">
+      {
+        ((isAdmin && adminData.selectedTaskReport)
+          &&
+          adminData.selectedTaskReport.employeeTaskReportStatusId !== 1)
+        &&
+        <ChooseReportStatus
+          key={adminData.selectedTaskReport.id}
+          taskReportStatuses={taskReportStatusesResponse}
+          selectedTaskReport={adminData.selectedTaskReport} />
+      }
       <TaskCardDetail
         task={taskAssignmentResponse.employeeTask}
         taskAssignmentStatus={taskAssignmentResponse.employeeTaskAssignmentStatus} />
