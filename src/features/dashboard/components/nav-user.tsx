@@ -2,7 +2,8 @@
 
 import {
   Avatar,
-  AvatarFallback
+  AvatarFallback,
+  AvatarImage
 } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -43,7 +44,7 @@ export function NavUser({
   const handleLogout = () => {
     loader.start();
     logoutAction();
-  } 
+  }
 
   return (
     <SidebarMenu>

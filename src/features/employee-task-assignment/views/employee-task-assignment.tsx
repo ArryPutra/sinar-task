@@ -1,6 +1,7 @@
 import LeafletMap from "@/components/shared/leaflet-map/leaflet-map";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ChooseReportStatus from "@/features/employee-task-report/components/choose-report-status";
 import DateReport from "@/features/employee-task-report/components/date";
 import TaskReportSubmissionFormAvailable from "@/features/employee-task-report/components/submission/submission-form-available";
 import TaskReportSubmissionFormClosed from "@/features/employee-task-report/components/submission/submission-form-closed";
@@ -8,6 +9,7 @@ import TaskReportSubmissionFormPending from "@/features/employee-task-report/com
 import { taskReportSubmissionFormQuery } from "@/features/employee-task-report/queris";
 import TaskCardDetail from "@/features/employee-task/components/card-detail";
 import { taskCardDetailQuery } from "@/features/employee-task/queris";
+import EmployeeProfileCard from "@/features/employee/components/employee-profile-card";
 import { APP_BUSINESS_TIMEZONE } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { formatDateTimeBusinessTz } from "@/utils/date";
@@ -18,7 +20,6 @@ import { CalendarIcon } from "lucide-react";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { userAgent } from "next/server";
-import ChooseReportStatus from "../../employee-task-report/components/choose-report-status";
 
 export default async function EmployeeTaskAssignmentView({
   date,
@@ -142,7 +143,7 @@ export default async function EmployeeTaskAssignmentView({
           <Tabs defaultValue="laporan" className="">
             <TabsList className="mb-6">
               <TabsTrigger value="laporan">Laporan</TabsTrigger>
-              <TabsTrigger value="detail">Detail</TabsTrigger>
+              <TabsTrigger value="detail">Detail Pekerjaan</TabsTrigger>
             </TabsList>
             <TabsContent value="laporan">
               <LeftSection
@@ -151,20 +152,19 @@ export default async function EmployeeTaskAssignmentView({
                 taskDocumentCategoriesResponse={taskDocumentCategoriesResponse}
                 taskReportSelected={taskReportSelected}
                 selectedDateString={selectedDateString}
-                todayString={todayString} />
+                todayString={todayString}
+                adminData={{
+                  selectedTaskReport: taskReportSelected ? {
+                    id: taskReportSelected.id,
+                    employeeTaskReportStatusId: taskReportSelected.employeeTaskReportStatus.id,
+                    noteByAdmin: taskReportSelected.noteByAdmin
+                  } : null
+                }} />
             </TabsContent>
             <TabsContent value="detail">
               <RightSection
                 taskAssignmentResponse={taskAssignmentResponse}
-                task={task}
-                adminData={{
-                  selectedTaskReport: taskReportSelected && {
-                    id: taskReportSelected.id,
-                    employeeTaskReportStatusId: taskReportSelected.employeeTaskReportStatus.id,
-                    noteByAdmin: taskReportSelected.noteByAdmin
-                  }
-                }}
-                isAdmin={isAdmin} />
+                task={task} />
             </TabsContent>
           </Tabs>
           :
@@ -176,18 +176,17 @@ export default async function EmployeeTaskAssignmentView({
                 taskDocumentCategoriesResponse={taskDocumentCategoriesResponse}
                 taskReportSelected={taskReportSelected}
                 selectedDateString={selectedDateString}
-                todayString={todayString} />
-              <RightSection
-                taskAssignmentResponse={taskAssignmentResponse}
-                task={task}
+                todayString={todayString}
                 adminData={{
-                  selectedTaskReport: taskReportSelected && {
+                  selectedTaskReport: taskReportSelected ? {
                     id: taskReportSelected.id,
                     employeeTaskReportStatusId: taskReportSelected.employeeTaskReportStatus.id,
                     noteByAdmin: taskReportSelected.noteByAdmin
-                  }
-                }}
-                isAdmin={isAdmin} />
+                  } : null
+                }} />
+              <RightSection
+                taskAssignmentResponse={taskAssignmentResponse}
+                task={task} />
             </div>
           </>
       }
@@ -195,23 +194,72 @@ export default async function EmployeeTaskAssignmentView({
   )
 }
 
-function LeftSection({
+async function LeftSection({
   todayString,
   selectedDateString,
   taskAssignmentResponse,
   taskDocumentCategoriesResponse,
   taskReportSelected,
-  isAdmin
+  isAdmin,
+  adminData,
 }: {
   todayString: string;
   selectedDateString: string;
   taskAssignmentResponse: any;
   taskDocumentCategoriesResponse: any;
   taskReportSelected: any;
-  isAdmin: boolean
+  isAdmin: boolean,
+  adminData: {
+    selectedTaskReport: {
+      id: number,
+      employeeTaskReportStatusId: number,
+      noteByAdmin: string | null
+    } | null
+  }
 }) {
+
+  const taskReportStatusesResponse = isAdmin
+    ? await prisma.employeeTaskReportStatus.findMany()
+    : [];
+
+  const employeeResponse = isAdmin ? await prisma.employeeTaskAssignment.findUnique({
+    where: {
+      id: taskAssignmentResponse.id
+    },
+    select: {
+      employee: {
+        select: {
+          id: true,
+          user: {
+            select: {
+              name: true,
+              image: true
+            }
+          },
+          phoneNumber: true
+        }
+      }
+    }
+  }) : null;
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 max">
+      {
+        isAdmin &&
+        <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
+          <>
+            <ChooseReportStatus
+              taskReportStatuses={taskReportStatusesResponse}
+              selectedTaskReport={adminData.selectedTaskReport} />
+            <EmployeeProfileCard
+              employee={employeeResponse ? {
+                id: employeeResponse.employee.id,
+                name: employeeResponse.employee.user.name ?? "Tidak ada nama",
+                phoneNumber: employeeResponse.employee.phoneNumber
+              } : null} />
+          </>
+        </div>
+      }
       {
         // pastikan tanggal laporan tidak melebihi tanggal sekarang
         isSameDay(selectedDateString, todayString) ?
@@ -238,44 +286,19 @@ function LeftSection({
             <TaskReportSubmissionFormPending
               selectedDateString={selectedDateString} />
       }
-    </div>
+    </div >
   )
 }
 
-async function RightSection({
+function RightSection({
   taskAssignmentResponse,
   task,
-  adminData,
-  isAdmin
 }: {
   taskAssignmentResponse: any
   task: any
-  adminData: {
-    selectedTaskReport?: {
-      id: number,
-      employeeTaskReportStatusId: number,
-      noteByAdmin: string | null
-    } | null
-  }
-  isAdmin: boolean
 }) {
-
-  const taskReportStatusesResponse = isAdmin
-    ? await prisma.employeeTaskReportStatus.findMany()
-    : [];
-
   return (
     <div className="flex flex-col gap-6">
-      {
-        ((isAdmin && adminData.selectedTaskReport)
-          &&
-          adminData.selectedTaskReport.employeeTaskReportStatusId !== 1)
-        &&
-        <ChooseReportStatus
-          key={adminData.selectedTaskReport.id}
-          taskReportStatuses={taskReportStatusesResponse}
-          selectedTaskReport={adminData.selectedTaskReport} />
-      }
       <TaskCardDetail
         task={taskAssignmentResponse.employeeTask}
         taskAssignmentStatus={taskAssignmentResponse.employeeTaskAssignmentStatus} />

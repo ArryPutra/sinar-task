@@ -45,7 +45,7 @@ export default function TaskCardDetail({
                 </div>
                 <div className='flex items-center'>
                     <ClockIcon className='size-4 mr-2' />
-                    <span>Jatuh Tempo: <DateTimeText date={task.startAt} /></span>
+                    <span>Jatuh Tempo: <DateTimeText date={task.dueAt} /></span>
                 </div>
                 <div className='flex items-center'>
                     <MapPinIcon className='size-4 mr-2' />
