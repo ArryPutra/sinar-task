@@ -1,11 +1,8 @@
 "use server"
 
-import { APP_BUSINESS_TIMEZONE } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
-import { formatDateOnly } from "@/utils/date";
-import { startOfDay } from "date-fns";
-import { fromZonedTime } from "date-fns-tz";
+import { formatDateOnly, toDatabaseDateTime } from "@/utils/date";
 import { revalidatePath } from "next/cache";
 import { getCurrentAdmin } from "../auth/actions";
 
@@ -24,23 +21,23 @@ export async function submitTaskReportAction(
                 where: {
                     employeeTaskAssignmentId_reportDate: {
                         employeeTaskAssignmentId: taskAssignmentId,
-                        reportDate: fromZonedTime(
-                            startOfDay(selectedDate),
-                            APP_BUSINESS_TIMEZONE
+                        reportDate: toDatabaseDateTime(
+                            selectedDate,
                         ),
                     }
                 },
                 create: {
                     employeeTaskAssignmentId: taskAssignmentId,
-                    reportDate: fromZonedTime(
-                        startOfDay(selectedDate),
-                        APP_BUSINESS_TIMEZONE
+                    reportDate: toDatabaseDateTime(
+                        selectedDate,
                     ),
-                    note: formData.get("note") as string,
+                    noteByEmployee: formData.get("note") as string,
                     employeeTaskReportStatusId: 1,
+                    submittedAt: new Date(),
                 },
                 update: {
-                    note: formData.get("note") as string,
+                    noteByEmployee: formData.get("note") as string,
+                    submittedAt: new Date(),
                 },
             });
 
@@ -80,37 +77,35 @@ export async function submitTaskReportAction(
                         });
                     }
                 }
+            }
 
-                // cek apakah semua dokumen wajib sudah diupload
-                const totalRequiredCategories = await tx.employeeTaskDocumentCategory.count({
-                    where: { isRequired: true }
-                });
-                const uploadedRequiredDocuments = await tx.employeeTaskDocument.count({
-                    where: {
-                        employeeTaskReportId: taskReport.id,
-                        employeeTaskDocumentCategory: {
-                            isRequired: true
-                        },
-                        NOT: {
-                            fileUrls: {
-                                isEmpty: true
-                            }
+            // cek apakah semua dokumen wajib sudah diupload
+            const totalRequiredCategories = await tx.employeeTaskDocumentCategory.count({
+                where: { isRequired: true }
+            });
+            const uploadedRequiredDocuments = await tx.employeeTaskDocument.count({
+                where: {
+                    employeeTaskReportId: taskReport.id,
+                    employeeTaskDocumentCategory: {
+                        isRequired: true
+                    },
+                    NOT: {
+                        fileUrls: {
+                            isEmpty: true
                         }
                     }
-                });
-                const hasAllDocumentComplete = (totalRequiredCategories === uploadedRequiredDocuments);
-                // jika semua dokumen wajib sudah diisi
-                if (hasAllDocumentComplete) {
-                    await tx.employeeTaskReport.update({
-                        where: {
-                            id: taskReport.id
-                        },
-                        data: {
-                            employeeTaskReportStatusId: 2 // update status laporan (id 2: Menunggu Peninjauan)
-                        }
-                    });
                 }
-            }
+            });
+            const hasAllDocumentComplete = (totalRequiredCategories === uploadedRequiredDocuments);
+            // jika semua dokumen wajib sudah diisi
+            await tx.employeeTaskReport.update({
+                where: {
+                    id: taskReport.id
+                },
+                data: {
+                    employeeTaskReportStatusId: hasAllDocumentComplete ? 2 : 1
+                }
+            });
         });
 
         revalidatePath('/employee/dashboard/${employeeTaskSlug}', 'page');

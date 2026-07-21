@@ -53,7 +53,8 @@ export const formatDateTimeString = (
 };
 
 export const formatDateTimeWitaString = (
-    date: Date | string | null | undefined
+    date: Date | string | null | undefined,
+    useTime: boolean = true
 ): string => {
     if (!date) return "-";
 
@@ -66,17 +67,18 @@ export const formatDateTimeWitaString = (
     // 2. Tentukan pola format
     const pattern =
         dateYear === currentYear
-            ? "EEEE, dd MMMM HH:mm"
-            : "EEEE, dd MMMM yyyy HH:mm";
+            ? `EEEE, dd MMMM${useTime ? " HH:mm WITA" : ""}`
+            : `EEEE, dd MMMM yyyy${useTime ? " HH:mm WITA" : ""}`;
 
     // 3. Format tanggal menggunakan zona waktu yang ditentukan
     const formattedDate = formatInTimeZone(parsedDate, APP_BUSINESS_TIMEZONE, pattern, {
         locale: id
     });
 
-    return `${formattedDate} WITA`;
+    return `${formattedDate}`;
 };
 
+// fungsi untuk memformat tanggal berdasarkan zona waktu bisnis (wita)
 export const formatDateTimeBusinessTz = (date: Date | string) => {
     if (date instanceof Date) {
         return toZonedTime(date, APP_BUSINESS_TIMEZONE);
@@ -88,6 +90,7 @@ export const formatDateTimeBusinessTz = (date: Date | string) => {
     throw new Error("Format tanggal tidak valid. Harus berupa Date atau string ISO.");
 }
 
+// fungsi untuk mengubah format ke utc (jam waktu database)
 export const toDatabaseDateTime = (inputDate: Date | string, timezone = APP_BUSINESS_TIMEZONE) => {
     // 1. Jika input berupa string "YYYY-MM-DD", kita asumsikan sebagai awal hari (00:00:00)
     // Jika berupa objek Date atau format lain, kita normalisasi dulu.
@@ -104,3 +107,7 @@ export const toDatabaseDateTime = (inputDate: Date | string, timezone = APP_BUSI
     // 3. Kembalikan ke format ISO untuk database
     return zonedDate.toISOString();
 };
+
+export const todayDateBusinessTz = () => {
+    return format(toZonedTime(new Date(), APP_BUSINESS_TIMEZONE), "yyyy-MM-dd");
+}

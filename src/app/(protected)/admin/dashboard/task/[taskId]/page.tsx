@@ -43,6 +43,9 @@ export default async function AdminTaskDetailPage({
         }
       }
     },
+    orderBy: {
+      submittedAt: "asc"
+    },
     ...employeeTaskReportListQuery
   });
 

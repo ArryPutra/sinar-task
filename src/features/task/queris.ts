@@ -87,7 +87,6 @@ export const taskCardDetailQuery = {
         dueAt: true,
         locationName: true,
         fileUrls: true,
-        slug: true,
         description: true,
         admin: {
             select: {
@@ -112,7 +111,7 @@ export const taskCardDetailQuery = {
     }
 } satisfies Prisma.EmployeeTaskDefaultArgs
 
-export const getemployeeTaskByIdActionQuery = {
+export const getEmployeeTaskByIdActionQuery = {
     include: {
         employeeTaskStatus: {
             select: {
@@ -126,6 +125,11 @@ export const getemployeeTaskByIdActionQuery = {
             }
         },
         employeeTaskAssignment: {
+            where: {
+                employeeTaskAssignmentStatusId: {
+                    in: [1, 3]
+                }
+            },
             select: {
                 employeeId: true,
                 employeeTaskAssignmentStatus: {
@@ -185,4 +189,4 @@ export type TaskCardDetailData =
 // export type EmployeeTasksByEmployeeId =
 //     Prisma.EmployeeTaskGetPayload<typeof employeeTasksByEmployeeId>;
 export type EmployeeTaskById =
-    Prisma.EmployeeTaskGetPayload<typeof getemployeeTaskByIdActionQuery>;
+    Prisma.EmployeeTaskGetPayload<typeof getEmployeeTaskByIdActionQuery>;

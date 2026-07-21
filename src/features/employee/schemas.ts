@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const createEmployeeSchema = z.object({
-    name: z.string().min(1, "Nama karyawan harus diisi."),
+    name: z.string().trim().min(1, "Nama karyawan harus diisi."),
     email: z.string().email("Email tidak valid."),
     phoneNumber: z
         .string()
@@ -11,7 +11,7 @@ export const createEmployeeSchema = z.object({
             /^08\d+$/,
             "Nomor telepon harus diawali 08 dan hanya boleh berisi angka."
         ),
-    password: z.string().min(6, "Password harus memiliki minimal 6 karakter.")
+    password: z.string().trim().min(6, "Password harus memiliki minimal 6 karakter.")
 });
 
 export const updateEmployeeSchema = z.object({
@@ -25,9 +25,9 @@ export const updateEmployeeSchema = z.object({
             /^08\d+$/,
             "Nomor telepon harus diawali 08 dan hanya boleh berisi angka."
         ),
-    password: z.preprocess(
+    newPassword: z.preprocess(
         (value) => value === "" ? undefined : value,
-        z.string().min(6, "Password harus memiliki minimal 6 karakter.").optional()
+        z.string().min(6, "Password harus memiliki minimal 6 karakter.").trim().optional()
     ),
 });
 

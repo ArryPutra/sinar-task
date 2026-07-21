@@ -111,7 +111,6 @@ model EmployeeTask {
   fileUrls     String[]
   locationName String
   adminId      String
-  slug         String   @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -222,9 +221,10 @@ model EmployeeTaskReport {
   employeeTaskReportStatusId Int
   adminId                    String?
 
-  reportDate  DateTime
-  note        String?
-  noteByAdmin String?
+  reportDate     DateTime
+  noteByEmployee String?
+  noteByAdmin    String?
+  submittedAt    DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

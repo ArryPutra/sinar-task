@@ -44,9 +44,13 @@ export default async function TaskSubmissionView({
   const taskAssignmentResponse = await prisma.employeeTaskAssignment.findUnique({
     where: {
       id: taskAssignmentId,
+      employeeTaskAssignmentStatusId: {
+        not: 2
+      }
     },
     select: {
       id: true,
+      employeeTaskAssignmentStatusId: true,
       employeeTaskAssignmentStatus: {
         select: {
           name: true,
@@ -133,7 +137,7 @@ export default async function TaskSubmissionView({
                 }}
                 isSelected={isSameDay(date, selectedDateString)}
                 report={{
-                  status: report?.employeeTaskReportStatus.name ?? "Belum Dimulai",
+                  status: report?.employeeTaskReportStatus.name ?? "Belum Dikerjakan",
                   icon: report?.employeeTaskReportStatus?.icon ?? "CircleDashed",
                   colorHex: report?.employeeTaskReportStatus?.colorHex ?? "black",
                 }} />

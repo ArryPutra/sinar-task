@@ -64,9 +64,9 @@ export default function EmployeeReportsTable({
                 </TableHeader>
                 <TableBody>
                     {
-                        reports.map((report) => (
+                        reports.map((report, index) => (
                             <TableRow key={report.id}>
-                                <TableCell>1</TableCell>
+                                <TableCell>{index + 1}</TableCell>
                                 <TableCell>
                                     <Link
                                         href={`/admin/employees/${report.employeeTaskAssignment.employee.id}`}
@@ -80,7 +80,7 @@ export default function EmployeeReportsTable({
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <DateTimeText date={report.updatedAt} />
+                                    <DateTimeText date={report.submittedAt} />
                                 </TableCell>
                                 <TableCell>
                                     <Button size="sm" onClick={() => {

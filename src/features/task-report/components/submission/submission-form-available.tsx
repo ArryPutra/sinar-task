@@ -1,6 +1,7 @@
 "use client"
 
 import { AttachmentList } from '@/components/shared/attachment-list'
+import { DateTimeText } from '@/components/shared/date-time-text'
 import { ImageUpload } from '@/components/shared/image-upload'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -14,7 +15,7 @@ import { uploadStreamToCloudinary } from '@/lib/cloudinary'
 import { initialActionState } from '@/types/action-state'
 import { formatDateOnly } from '@/utils/date'
 import { generatePdfFromImages } from '@/utils/pdf'
-import { ClipboardCheckIcon, ClipboardXIcon, MessageSquareWarningIcon, SaveIcon, SendIcon } from 'lucide-react'
+import { ClipboardCheckIcon, ClipboardXIcon, SaveIcon, SendIcon } from 'lucide-react'
 import { useActionState, useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { removeDocumentFileUrlAction, submitTaskReportAction } from '../../actions'
@@ -103,7 +104,6 @@ export default function TaskReportSubmissionForm({
       });
     } catch (error) {
       console.error(error);
-      toast.error("Gagal mengunggah file.");
     } finally {
       setIsPendingUploadFile(false);
     }
@@ -113,7 +113,9 @@ export default function TaskReportSubmissionForm({
   useEffect(() => {
     if (isPendingUploadFile || isPendingSubmitReport) {
       toast.loading("Menyimpan laporan pekerjaan...", { id: "submit-task" });
-    } else if (!isPendingUploadFile && stateSubmitReport.message) {
+    }
+
+    if (!isPendingUploadFile && !isPendingSubmitReport && stateSubmitReport.message) {
       if (stateSubmitReport.success) {
         toast.success(stateSubmitReport.message, { id: "submit-task" });
         setClientFilesCount({}); // Reset setelah save
@@ -209,7 +211,7 @@ export default function TaskReportSubmissionForm({
               </Badge>
               :
               <Badge variant='outline'>
-                Belum Diunggah
+                Belum Dikerjakan
               </Badge>
           }
         </div>
@@ -259,9 +261,9 @@ export default function TaskReportSubmissionForm({
           <Field>
             <FieldLabel>Catatan (Opsional)</FieldLabel>
             <Textarea
-              name='note'
+              name='noteByEmployee'
               placeholder='Masukkan catatan...'
-              defaultValue={taskReport?.note ?? ""}
+              defaultValue={taskReport?.noteByEmployee ?? ""}
               disabled={isAdmin} />
           </Field>
           {
@@ -270,6 +272,11 @@ export default function TaskReportSubmissionForm({
               <AlertDescription>{stateSubmitReport.message}</AlertDescription>
             </Alert>
           }
+          <div className='flex gap-2 text-muted-foreground'>
+            <span>Terakhir {taskReport?.employeeTaskReportStatus.id === 1 ? "Disimpan" : "Dikumpulkan"}:</span>
+            <DateTimeText
+              date={taskReport?.submittedAt} />
+          </div>
         </CardContent>
         {
           !isAdmin &&

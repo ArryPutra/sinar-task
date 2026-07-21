@@ -1,10 +1,13 @@
-"use server"
-
 import SummaryCard from "@/components/shared/summary-card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { getCurrentEmployee } from "@/features/employee/action";
 import TaskCardDetail from "@/features/task/components/card-detail";
 import { taskCardDetailQuery } from "@/features/task/queris";
 import { prisma } from "@/lib/prisma";
+import { formatDateTimeWitaString, toDatabaseDateTime, todayDateBusinessTz } from "@/utils/date";
+import { AlertCircleIcon, ArrowRightIcon } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export default async function EmployeeDashboardPage() {
@@ -14,12 +17,12 @@ export default async function EmployeeDashboardPage() {
 
     const summaryCards = [
         {
-            label: "Total Pekerjaan",
+            label: "Total Pekerjaan Aktif",
             value: await prisma.employeeTaskAssignment.count({
                 where: {
                     employeeId: currentEmployee.data.id,
                     employeeTaskAssignmentStatusId: {
-                        not: 3
+                        notIn: [2, 3]
                     }
                 }
             })
@@ -28,7 +31,8 @@ export default async function EmployeeDashboardPage() {
 
     const taskAssignments = await prisma.employeeTaskAssignment.findMany({
         where: {
-            employeeId: currentEmployee.data.id
+            employeeId: currentEmployee.data.id,
+            employeeTaskAssignmentStatusId: 1
         },
         select: {
             id: true,
@@ -47,7 +51,38 @@ export default async function EmployeeDashboardPage() {
                 dueAt: "asc" // Urutkan berdasarkan deadline paling dekat
             }
         }
-    })
+    });
+
+    const todayDateTime = toDatabaseDateTime(todayDateBusinessTz());
+
+    const reportNotifications = await prisma.employeeTaskReport.findMany({
+        where: {
+            employeeTaskAssignment: {
+                employeeId: currentEmployee.data.id,
+            },
+            reportDate: {
+                equals: todayDateTime // cari laporan hari ini
+            },
+            employeeTaskReportStatusId: {
+                in: [3, 4, 5] // revisi, disetujui, ditolak
+            },
+        },
+        select: {
+            employeeTaskAssignment: {
+                select: {
+                    id: true,
+                    employeeTask: {
+                        select: {
+                            title: true
+                        }
+                    }
+                }
+            },
+            reportDate: true,
+            employeeTaskReportStatusId: true
+        }
+    });
+    console.log(reportNotifications)
 
     return (
         <>
@@ -61,7 +96,69 @@ export default async function EmployeeDashboardPage() {
                     ))
                 }
             </div>
-            <div className="grid grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1 gap-6 mt-4">
+            {
+                reportNotifications.map((report, index) => {
+                    switch (report.employeeTaskReportStatusId) {
+                        case 3:
+                            return (
+                                <Alert key={index} className="bg-yellow-500/5 text-yellow-500 border-yellow-500/25 flex">
+                                    <AlertCircleIcon className="shrink-0" />
+                                    <div className="flex flex-col">
+                                        <AlertTitle>Informasi Laporan Revisi</AlertTitle>
+                                        <AlertDescription>Laporan pada tanggal {formatDateTimeWitaString(report.reportDate, false)}. Pekerjaan {report.employeeTaskAssignment.employeeTask.title} Anda direvisi, segera lakukan perbaikan.</AlertDescription>
+                                        <Link href={`/employee/dashboard/task-assignment/${report.employeeTaskAssignment.id}`}>
+                                            <Button
+                                                className="w-fit mt-2"
+                                                size="sm"
+                                                variant="secondary">
+                                                <span>Lihat Laporan</span><ArrowRightIcon />
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </Alert>)
+                            break;
+                        case 4:
+                            return (
+                                <Alert key={index} className="bg-green-500/5 text-green-500 border-green-500/25 flex">
+                                    <AlertCircleIcon className="shrink-0" />
+                                    <div className="flex flex-col">
+                                        <AlertTitle>Informasi Laporan Disetujui</AlertTitle>
+                                        <AlertDescription>Laporan pada tanggal {formatDateTimeWitaString(report.reportDate, false)}. Pekerjaan {report.employeeTaskAssignment.employeeTask.title} Anda telah disetujui.</AlertDescription>
+                                        <Link href={`/employee/dashboard/task-assignment/${report.employeeTaskAssignment.id}`}>
+                                            <Button
+                                                className="w-fit mt-2"
+                                                size="sm"
+                                                variant="secondary">
+                                                <span>Lihat Laporan</span><ArrowRightIcon />
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </Alert>)
+                            break;
+                        case 5:
+                            return (
+                                <Alert key={index} className="bg-red-500/5 text-red-500 border-red-500/25 flex">
+                                    <AlertCircleIcon className="shrink-0" />
+                                    <div className="flex flex-col">
+                                        <AlertTitle>Informasi Laporan Ditolak</AlertTitle>
+                                        <AlertDescription>Laporan pada tanggal {formatDateTimeWitaString(report.reportDate, false)}. Pekerjaan {report.employeeTaskAssignment.employeeTask.title} Anda ditolak, Anda tidak dapat mengerjakan ulang.</AlertDescription>
+                                        <Link href={`/employee/dashboard/task-assignment/${report.employeeTaskAssignment.id}`}>
+                                            <Button
+                                                className="w-fit mt-2"
+                                                size="sm"
+                                                variant="secondary">
+                                                <span>Lihat Laporan</span><ArrowRightIcon />
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </Alert>)
+                            break;
+                        default:
+                            return null;
+                    }
+                })
+            }
+            <div className="grid grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1 gap-6">
                 {
                     taskAssignments.length > 0
                         ?

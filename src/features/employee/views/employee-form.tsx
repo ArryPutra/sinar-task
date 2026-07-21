@@ -11,6 +11,7 @@ import { useRouter } from 'nextjs-toploader/app'
 import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { createEmployeeAction, updateEmployeeAction } from '../action'
+import { PasswordInput } from '@/components/shared/password-input'
 
 export default function EmployeeForm({
     data
@@ -45,11 +46,11 @@ export default function EmployeeForm({
     useEffect(() => {
         if (state.success) {
             router.push("/admin/employees");
-            toast.success(state.message, {
-                position: "top-center"
-            });
+            toast.success(state.message);
+        } else if (!state.success && state.message) {
+            toast.error(state.message);
         }
-    }, [state.success]);
+    }, [state]);
 
     return (
         <>
@@ -86,10 +87,10 @@ export default function EmployeeForm({
                         <FieldError>{fieldErrors?.phoneNumber}</FieldError>
                     </Field>
                     <Field>
-                        <FieldLabel htmlFor="password">Password {isEditMode && "Baru"}</FieldLabel>
-                        <Input
+                        <FieldLabel htmlFor={isEditMode ? "newPassword" : "password"}>Password {isEditMode && "Baru"}</FieldLabel>
+                        <PasswordInput
                             id="password"
-                            name="password"
+                            name={isEditMode ? "newPassword" : "password"}
                             placeholder={`Masukkan password ${isEditMode ? "Baru" : ""}`} />
                         <FieldError>{fieldErrors?.password}</FieldError>
                     </Field>

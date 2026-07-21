@@ -4,10 +4,9 @@ import { Prisma } from "@/generated/prisma/client";
 import { deleteFileFromCloudinary, uploadStreamToCloudinary } from "@/lib/cloudinary";
 import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
-import { generateUniqueSlug } from "@/utils/generate-unique-slug";
 import { revalidatePath } from "next/cache";
 import { getCurrentAdmin } from "../auth/actions";
-import { getemployeeTaskByIdActionQuery } from "./queris";
+import { getEmployeeTaskByIdActionQuery } from "./queris";
 import { formEmployeeTaskSchema } from "./schemas";
 import { determineEmployeeTaskStatusId } from "./utils/determine-employee-task-status-id";
 
@@ -82,7 +81,7 @@ export async function getEmployeeTaskByIdAction(id: string) {
             where: {
                 id: id
             },
-            ...getemployeeTaskByIdActionQuery
+            ...getEmployeeTaskByIdActionQuery
         });
 
         return {
@@ -137,15 +136,6 @@ export async function createEmployeeTaskAction(
         }
 
         await prisma.$transaction(async (tx) => {
-            const slug = await generateUniqueSlug({
-                value: validatedFields.data.title,
-                exists: async (slug) => {
-                    return !!(await prisma.employeeTask.findUnique({
-                        where: { slug },
-                    }));
-                },
-            });
-
             const employeeTask = await tx.employeeTask.create({
                 data: {
                     ...validatedFields.data,
@@ -155,7 +145,6 @@ export async function createEmployeeTaskAction(
                         validatedFields.data.dueAt
                     ),
                     adminId: (await getCurrentAdmin()).data?.id!,
-                    slug: slug
                 },
             });
 
@@ -224,7 +213,7 @@ export async function updateEmployeeTaskByIdAction(
         });
 
         await prisma.$transaction(async (tx) => {
-            await tx.employeeTask.update({
+            const task = await tx.employeeTask.update({
                 where: {
                     id: id
                 },
@@ -235,24 +224,56 @@ export async function updateEmployeeTaskByIdAction(
                         validatedFields.data.startAt,
                         validatedFields.data.dueAt
                     ),
+                },
+                select: {
+                    employeeTaskAssignment: {
+                        select: {
+                            employeeId: true
+                        }
+                    }
                 }
             });
 
-            await tx.employeeTaskAssignment.deleteMany({
+            // update employee task assignment
+            const employeeAssignmentIds = task.employeeTaskAssignment.map(
+                (assignment) => assignment.employeeId
+            );
+            const formEmployeeAssignmentIds = formData.getAll("employeeIds") as string[];
+            const deletedEmployeeAssignmentIds = employeeAssignmentIds.filter(
+                (id) => !formEmployeeAssignmentIds.includes(id)
+            );
+            // perbarui status employee task assignment (dikeluarkan)
+            await tx.employeeTaskAssignment.updateMany({
                 where: {
-                    employeeTaskId: id
+                    employeeTaskId: id,
+                    employeeId: {
+                        in: deletedEmployeeAssignmentIds
+                    }
+                },
+                data: {
+                    employeeTaskAssignmentStatusId: 2
                 }
             });
-
-            const employeeIds = formData.getAll("employeeIds") as string[];
-            if (employeeIds.length > 0) {
-                await tx.employeeTaskAssignment.createMany({
-                    data: employeeIds.map((employeeId) => ({
-                        employeeTaskId: id,
-                        employeeId: employeeId
-                    }))
-                });
-            }
+            // buat atau perbarui status employee task assignment (ditugaskan)
+            await Promise.all(
+                formEmployeeAssignmentIds.map((formEmployeeId) =>
+                    tx.employeeTaskAssignment.upsert({
+                        where: {
+                            employeeTaskId_employeeId: {
+                                employeeTaskId: id,
+                                employeeId: formEmployeeId,
+                            },
+                        },
+                        create: {
+                            employeeTaskId: id,
+                            employeeId: formEmployeeId,
+                        },
+                        update: {
+                            employeeTaskAssignmentStatusId: 1
+                        },
+                    })
+                )
+            );
         });
 
         revalidatePath("/admin/employee-tasks");

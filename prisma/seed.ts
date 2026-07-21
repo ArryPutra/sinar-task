@@ -21,11 +21,15 @@ async function main() {
         colorHex: "#3B82F6" // Biru (Karyawan sudah mulai mencicil laporan/upload dokumen)
       },
       {
-        name: "Selesai Semuanya",
+        name: "Dikeluarkan",
+        colorHex: "#EF4444", // Merah (Pegawai dicabut dari penugasan)
+      },
+      {
+        name: "Selesai",
         colorHex: "#10B981" // Hijau (Admin sudah ketok palu bahwa tugas ini sah & rampung)
       },
     ]
-  })
+  });
 
   await prisma.employeeTaskCategory.createMany({
     data: [
