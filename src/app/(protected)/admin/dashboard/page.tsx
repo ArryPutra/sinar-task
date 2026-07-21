@@ -1,8 +1,8 @@
 import { PaginationWithLinks } from "@/components/shared/pagination-with-links";
 import SummaryCard from "@/components/shared/summary-card";
-import { getAllEmployeeTaskAction } from "@/features/employee-task/actions";
-import TaskDashboardTable from "@/features/employee-task/components/table/task-dashboard";
-import { AllEmployeeTaskDashboardData, getAllEmployeeTaskDashboardActionQuery } from "@/features/employee-task/queris";
+import { getAllEmployeeTaskAction } from "@/features/task/actions";
+import TaskDashboardTable from "@/features/task/components/table/task-dashboard";
+import { AllEmployeeTaskDashboardData, getAllEmployeeTaskDashboardActionQuery } from "@/features/task/queris";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboardPage({

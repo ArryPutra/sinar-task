@@ -1,5 +1,5 @@
 import BackButton from "@/components/shared/back-button";
-import EmployeeTaskAssignmentView from "@/features/employee-task-assignment/views/employee-task-assignment";
+import TaskSubmissionView from "@/features/task-report/views/task-submission";
 import { prisma } from "@/lib/prisma";
 
 export default async function TaskAssignmentPage({
@@ -34,7 +34,7 @@ export default async function TaskAssignmentPage({
     return (
         <>
             <BackButton href={`/admin/dashboard/task/${employeeTaskIdResponse?.employeeTask.id}`} />
-            <EmployeeTaskAssignmentView
+            <TaskSubmissionView
                 date={date}
                 taskAssignmentId={taskAssignmentId}
                 isAdmin={true} />

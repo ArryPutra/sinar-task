@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRightIcon, PhoneIcon, UserIcon, UserX } from "lucide-react";
+import { ArrowRightIcon, ExternalLinkIcon, PhoneIcon, UserIcon, UserX } from "lucide-react";
 import Link from "next/link";
 
 export default function EmployeeProfileCard({
@@ -23,7 +23,7 @@ export default function EmployeeProfileCard({
           </div>
           <p className="text-sm font-medium text-foreground">Data Karyawan Tidak Ditemukan</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Karyawan belum terdaftar atau data telah dihapus.
+            Ada kesalahan dalam mengambil data karyawan.
           </p>
         </CardContent>
       </Card>
@@ -60,11 +60,16 @@ export default function EmployeeProfileCard({
         <div className="flex items-center justify-between rounded-lg bg-muted/50 p-3 border">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <PhoneIcon className="size-3.5" />
-            <span>No. Telepon</span>
+            <span>Nomor WhatsApp</span>
           </div>
-          <span className="text-sm font-medium text-foreground">
-            {employee.phoneNumber || "-"}
-          </span>
+          <Link href={`https://api.whatsapp.com/send/?phone=${employee.phoneNumber}`}
+          className="flex items-center gap-2 hover:underline"
+          target="_blank">
+            <span className="text-sm font-medium text-foreground">
+              {employee.phoneNumber || "-"}
+            </span>
+            <ExternalLinkIcon className="size-4 text-muted-foreground" />
+          </Link>
         </div>
       </CardContent>
       <CardFooter className="flex">

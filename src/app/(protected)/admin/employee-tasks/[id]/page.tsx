@@ -1,5 +1,5 @@
-import { getEmployeeTaskByIdAction } from '@/features/employee-task/actions';
-import EmployeeTaskDetail from '@/features/employee-task/views/admin/employee-task-detail';
+import { getEmployeeTaskByIdAction } from '@/features/task/actions';
+import EmployeeTaskDetail from '@/features/task/views/admin/employee-task-detail';
 
 export default async function AdminTugasKaryawanDetail({
     params

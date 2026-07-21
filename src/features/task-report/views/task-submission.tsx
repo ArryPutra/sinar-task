@@ -1,27 +1,30 @@
 import LeafletMap from "@/components/shared/leaflet-map/leaflet-map";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ChooseReportStatus from "@/features/employee-task-report/components/choose-report-status";
-import DateReport from "@/features/employee-task-report/components/date";
-import TaskReportSubmissionFormAvailable from "@/features/employee-task-report/components/submission/submission-form-available";
-import TaskReportSubmissionFormClosed from "@/features/employee-task-report/components/submission/submission-form-closed";
-import TaskReportSubmissionFormPending from "@/features/employee-task-report/components/submission/submission-form-pending";
-import { taskReportSubmissionFormQuery } from "@/features/employee-task-report/queris";
-import TaskCardDetail from "@/features/employee-task/components/card-detail";
-import { taskCardDetailQuery } from "@/features/employee-task/queris";
 import EmployeeProfileCard from "@/features/employee/components/employee-profile-card";
+import ChooseReportStatus from "@/features/task-report/components/choose-report-status";
+import DateReport from "@/features/task-report/components/date";
+import TaskReportSubmissionFormAvailable from "@/features/task-report/components/submission/submission-form-available";
+import { TaskReportSubmissionFormData, taskReportSubmissionFormQuery } from "@/features/task-report/queris";
+import TaskCardDetail from "@/features/task/components/card-detail";
+import { taskCardDetailQuery } from "@/features/task/queris";
 import { APP_BUSINESS_TIMEZONE } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { formatDateTimeBusinessTz } from "@/utils/date";
-import { eachDayOfInterval, format, isBefore, isSameDay } from "date-fns";
+import { eachDayOfInterval, format, isAfter, isBefore, isSameDay } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { id } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, MessageSquareWarningIcon } from "lucide-react";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { userAgent } from "next/server";
+import TaskReportSubmissionFormClosed from "../components/submission/submission-form-closed";
+import TaskReportSubmissionDone from "../components/submission/submission-form-done";
+import TaskReportSubmissionFormPending from "../components/submission/submission-form-pending";
+import TaskReportSubmissionRejected from "../components/submission/submission-form-rejected";
+import { Alert } from "@/components/ui/alert";
 
-export default async function EmployeeTaskAssignmentView({
+export default async function TaskSubmissionView({
   date,
   taskAssignmentId,
   isAdmin
@@ -138,6 +141,21 @@ export default async function EmployeeTaskAssignmentView({
           })
         }
       </div>
+
+      {
+        taskReportSelected &&
+        <Alert className="rounded-lg border bg-muted/40 p-4 w-fit">
+          <div className="flex items-center gap-2">
+            <MessageSquareWarningIcon className="size-4 text-muted-foreground" />
+            <h4 className="text-sm font-medium">Catatan dari {taskReportSelected.admin?.user.name} (Admin)</h4>
+          </div>
+
+          <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
+            {taskReportSelected.noteByAdmin || "Tidak ada catatan dari admin."}
+          </p>
+        </Alert>
+      }
+
       {
         device.type === "mobile" ?
           <Tabs defaultValue="laporan" className="">
@@ -207,7 +225,7 @@ async function LeftSection({
   selectedDateString: string;
   taskAssignmentResponse: any;
   taskDocumentCategoriesResponse: any;
-  taskReportSelected: any;
+  taskReportSelected: TaskReportSubmissionFormData | undefined;
   isAdmin: boolean,
   adminData: {
     selectedTaskReport: {
@@ -242,52 +260,81 @@ async function LeftSection({
     }
   }) : null;
 
-  return (
-    <div className="flex flex-col gap-6 max">
-      {
-        isAdmin &&
-        <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
-          <>
-            <ChooseReportStatus
-              taskReportStatuses={taskReportStatusesResponse}
-              selectedTaskReport={adminData.selectedTaskReport} />
-            <EmployeeProfileCard
-              employee={employeeResponse ? {
-                id: employeeResponse.employee.id,
-                name: employeeResponse.employee.user.name ?? "Tidak ada nama",
-                phoneNumber: employeeResponse.employee.phoneNumber
-              } : null} />
-          </>
-        </div>
-      }
-      {
-        // pastikan tanggal laporan tidak melebihi tanggal sekarang
-        isSameDay(selectedDateString, todayString) ?
+  const reportStatusId = taskReportSelected?.employeeTaskReportStatus.id;
+
+  let submission: React.ReactNode;
+
+  if (isAdmin) {
+    submission = (
+      <TaskReportSubmissionFormAvailable
+        selectedDateString={selectedDateString}
+        taskDocumentCategories={taskDocumentCategoriesResponse}
+        taskAssignmentId={taskAssignmentResponse.id}
+        taskReport={taskReportSelected ?? null}
+        isAdmin
+      />
+    );
+  } else if (isAfter(selectedDateString, todayString)) {
+    submission = (
+      <TaskReportSubmissionFormPending
+        selectedDateString={selectedDateString}
+      />
+    );
+  } else if (isBefore(selectedDateString, todayString)) {
+    submission = (
+      <TaskReportSubmissionFormClosed
+        selectedDateString={selectedDateString}
+      />
+    );
+  } else {
+    switch (reportStatusId) {
+      case 4:
+        submission = <TaskReportSubmissionDone />;
+        break;
+
+      case 5:
+        submission = <TaskReportSubmissionRejected />;
+        break;
+
+      default:
+        submission = (
           <TaskReportSubmissionFormAvailable
             selectedDateString={selectedDateString}
             taskDocumentCategories={taskDocumentCategoriesResponse}
             taskAssignmentId={taskAssignmentResponse.id}
             taskReport={taskReportSelected ?? null}
-            isAdmin={isAdmin} />
-          :
-          isBefore(selectedDateString, todayString)
-            ?
-            isAdmin ?
-              // pastikan admin dapat melihat laporan kemarin
-              <TaskReportSubmissionFormAvailable
-                selectedDateString={selectedDateString}
-                taskDocumentCategories={taskDocumentCategoriesResponse}
-                taskAssignmentId={taskAssignmentResponse.id}
-                taskReport={taskReportSelected ?? null}
-                isAdmin={isAdmin} />
-              : <TaskReportSubmissionFormClosed
-                selectedDateString={selectedDateString} />
-            :
-            <TaskReportSubmissionFormPending
-              selectedDateString={selectedDateString} />
-      }
-    </div >
-  )
+            isAdmin={false}
+          />
+        );
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      {isAdmin && (
+        <div className="grid grid-cols-2 gap-6 max-xl:grid-cols-1">
+          <ChooseReportStatus
+            taskReportStatuses={taskReportStatusesResponse}
+            selectedTaskReport={adminData.selectedTaskReport}
+          />
+
+          <EmployeeProfileCard
+            employee={
+              employeeResponse
+                ? {
+                  id: employeeResponse.employee.id,
+                  name: employeeResponse.employee.user.name ?? "Tidak ada nama",
+                  phoneNumber: employeeResponse.employee.phoneNumber,
+                }
+                : null
+            }
+          />
+        </div>
+      )}
+
+      {submission}
+    </div>
+  );
 }
 
 function RightSection({

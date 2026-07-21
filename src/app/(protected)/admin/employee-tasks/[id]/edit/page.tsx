@@ -1,7 +1,7 @@
-import { getAllEmployeeTaskCategoryAction } from '@/features/employee-task-category/actions';
-import { getEmployeeTaskByIdAction } from '@/features/employee-task/actions';
-import EmployeeTaskForm from '@/features/employee-task/views/admin/employee-task-form';
 import { getAllEmployeesAction } from '@/features/employee/action';
+import { getAllEmployeeTaskCategoryAction } from '@/features/task-category/actions';
+import { getEmployeeTaskByIdAction } from '@/features/task/actions';
+import EmployeeTaskForm from '@/features/task/views/admin/employee-task-form';
 import { notFound } from 'next/navigation';
 
 export default async function EditEmployeeTaskPage({

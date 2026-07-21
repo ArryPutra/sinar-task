@@ -7,6 +7,7 @@ import { formatDateOnly } from "@/utils/date";
 import { startOfDay } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 import { revalidatePath } from "next/cache";
+import { getCurrentAdmin } from "../auth/actions";
 
 export async function submitTaskReportAction(
     taskAssignmentId: string,
@@ -40,7 +41,6 @@ export async function submitTaskReportAction(
                 },
                 update: {
                     note: formData.get("note") as string,
-                    employeeTaskReportStatusId: 1,
                 },
             });
 
@@ -184,14 +184,22 @@ export async function updateReportStatusAction(
     const taskReportStatusId = Number(formData.get("taskReportStatusId"));
     const noteByAdmin = formData.get("noteByAdmin") as string;
 
+    const adminResponse = await getCurrentAdmin();
+    if (!adminResponse.data) {
+        throw new Error("Data admin tidak ditemukan");
+    }
+
     try {
         await prisma.employeeTaskReport.update({
             where: {
                 id: taskReportId
             },
             data: {
-                employeeTaskReportStatusId: taskReportStatusId,
-                noteByAdmin: noteByAdmin
+                ...(taskReportStatusId && {
+                    employeeTaskReportStatusId: taskReportStatusId
+                }),
+                noteByAdmin: noteByAdmin.trim(),
+                adminId: adminResponse.data.id
             }
         });
 

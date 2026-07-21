@@ -1,18 +1,21 @@
 import BackButton from '@/components/shared/back-button';
 import SummaryCard from '@/components/shared/summary-card';
-import EmployeeReportsTable from '@/features/employee-task-report/components/employee-reports-table';
-import { employeeTaskReportListQuery } from '@/features/employee-task-report/queris';
+import EmployeeReportsTable from '@/features/task-report/components/employee-reports-table';
+import { employeeTaskReportListQuery } from '@/features/task-report/queris';
 import { prisma } from '@/lib/prisma';
 import { BriefcaseBusinessIcon } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 export default async function AdminTaskDetailPage({
-  params
+  params,
+  searchParams
 }: {
-  params: { taskId: string }
+  params: Promise<{ taskId: string }>
+  searchParams: Promise<{ employeeTaskReportStatusId: string }>
 }) {
 
   const { taskId } = await params;
+  const { employeeTaskReportStatusId } = await searchParams;
 
   const taskResponse = await prisma.employeeTask.findUnique({ where: { id: taskId } });
   if (!taskResponse) return notFound();
@@ -33,6 +36,7 @@ export default async function AdminTaskDetailPage({
 
   const reportsResponse = await prisma.employeeTaskReport.findMany({
     where: {
+      employeeTaskReportStatusId: employeeTaskReportStatusId ? Number(employeeTaskReportStatusId) : undefined,
       employeeTaskAssignment: {
         employeeTask: {
           id: taskId
@@ -41,7 +45,6 @@ export default async function AdminTaskDetailPage({
     },
     ...employeeTaskReportListQuery
   });
-  console.log(reportsResponse)
 
   const reportStatusesResponse = await prisma.employeeTaskReportStatus.findMany({
     select: {

@@ -104,7 +104,7 @@ function ChooseReportStatusAvailable({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectLabel>Status Tersedia</SelectLabel>
+                                    <SelectLabel>Daftar Status Laporan</SelectLabel>
                                     {taskReportStatuses.map((item) => (
                                         <SelectItem 
                                         key={item.id.toString()} 

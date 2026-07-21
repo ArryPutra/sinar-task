@@ -1,8 +1,8 @@
 import { PaginationWithLinks } from "@/components/shared/pagination-with-links";
 import { Button } from "@/components/ui/button";
-import { getAllEmployeeTaskAction } from "@/features/employee-task/actions";
-import TaskManagementTable from "@/features/employee-task/components/table/task-management";
-import { AllEmployeeTaskManagementData, getAllEmployeeTaskManagementActionQuery } from "@/features/employee-task/queris";
+import { getAllEmployeeTaskAction } from "@/features/task/actions";
+import TaskManagementTable from "@/features/task/components/table/task-management";
+import { AllEmployeeTaskManagementData, getAllEmployeeTaskManagementActionQuery } from "@/features/task/queris";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 

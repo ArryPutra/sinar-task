@@ -2,7 +2,7 @@
 
 import { AttachmentList } from '@/components/shared/attachment-list'
 import { ImageUpload } from '@/components/shared/image-upload'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,7 +14,7 @@ import { uploadStreamToCloudinary } from '@/lib/cloudinary'
 import { initialActionState } from '@/types/action-state'
 import { formatDateOnly } from '@/utils/date'
 import { generatePdfFromImages } from '@/utils/pdf'
-import { ClipboardCheckIcon, SaveIcon, SendIcon } from 'lucide-react'
+import { ClipboardCheckIcon, ClipboardXIcon, MessageSquareWarningIcon, SaveIcon, SendIcon } from 'lucide-react'
 import { useActionState, useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { removeDocumentFileUrlAction, submitTaskReportAction } from '../../actions'
@@ -163,6 +163,25 @@ export default function TaskReportSubmissionForm({
     })
   }
 
+  let alert: React.ReactNode;
+
+  if (!isAdmin) {
+    if (taskReport?.employeeTaskReportStatus.id === 3) {
+      alert =
+        <>
+          <Alert>
+            <AlertTitle>Laporan Perlu Direvisi</AlertTitle>
+
+            <AlertDescription>
+              Laporan Anda telah ditinjau oleh admin dan memerlukan revisi.
+              Silakan perbaiki laporan sesuai catatan di bawah ini, kemudian
+              kirim ulang untuk ditinjau kembali.
+            </AlertDescription>
+          </Alert>
+        </>
+    }
+  }
+
   return (
     <Card>
       <CardHeader className='border-b flex justify-between flex-wrap items-start gap-6'>
@@ -173,10 +192,10 @@ export default function TaskReportSubmissionForm({
           </CardDescription>
           <Button variant="outline"
             onClick={downloadReportPdf}
-            disabled={isPendingDownloadReportPdf}
+            disabled={isPendingDownloadReportPdf || !taskReport}
             size="sm"
             className='cursor-pointer mt-4'>
-            <ClipboardCheckIcon className='w-4 h-4' /> Download Laporan Final {isPendingDownloadReportPdf && <Spinner />}
+            {taskReport ? <ClipboardCheckIcon className='w-4 h-4 text-green-500' /> : <ClipboardXIcon className='w-4 h-4 text-destructive' />} Download Laporan Final {isPendingDownloadReportPdf && <Spinner />}
           </Button>
         </div>
         <div className='flex flex-col gap-2 items-end max-lg:items-start'>
@@ -194,6 +213,7 @@ export default function TaskReportSubmissionForm({
               </Badge>
           }
         </div>
+        {alert}
       </CardHeader>
       <form onSubmit={handleSubmit} key={taskReport?.id} className='space-y-4'>
         <CardContent className='space-y-4'>

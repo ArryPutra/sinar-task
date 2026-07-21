@@ -1,7 +1,7 @@
 "use server"
 
-import { getEmployeeTaskCategoryByIdAction } from "@/features/employee-task-category/actions";
-import EmployeeTaskCategoryForm from "@/features/employee-task-category/components/employee-task-category-form";
+import { getEmployeeTaskCategoryByIdAction } from "@/features/task-category/actions";
+import EmployeeTaskCategoryForm from "@/features/task-category/components/employee-task-category-form";
 import { notFound } from "next/navigation";
 
 export default async function EditEmployeeTaskCategoryPage({

@@ -1,9 +1,9 @@
 "use server"
 
 import SummaryCard from "@/components/shared/summary-card";
-import TaskCardDetail from "@/features/employee-task/components/card-detail";
-import { taskCardDetailQuery } from "@/features/employee-task/queris";
 import { getCurrentEmployee } from "@/features/employee/action";
+import TaskCardDetail from "@/features/task/components/card-detail";
+import { taskCardDetailQuery } from "@/features/task/queris";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
@@ -34,7 +34,7 @@ export default async function EmployeeDashboardPage() {
             id: true,
             employeeTaskAssignmentStatus: {
                 select: {
-                    name: true, 
+                    name: true,
                     colorHex: true
                 }
             },

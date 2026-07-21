@@ -12,6 +12,15 @@ export const taskReportSubmissionFormQuery = {
                 createdAt: true,
                 updatedAt: true
             }
+        },
+        admin: {
+            select: {
+                user: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
         }
     }
 } satisfies Prisma.EmployeeTaskReportDefaultArgs

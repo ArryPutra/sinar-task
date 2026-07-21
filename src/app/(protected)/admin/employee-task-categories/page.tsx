@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { getAllEmployeeTaskCategoryAction } from "@/features/employee-task-category/actions";
-import EmployeeTaskCategoryListPage from "@/features/employee-task-category/components/employee-task-category-list";
+import { getAllEmployeeTaskCategoryAction } from "@/features/task-category/actions";
+import EmployeeTaskCategoryListPage from "@/features/task-category/components/employee-task-category-list";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 
