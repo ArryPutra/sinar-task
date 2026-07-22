@@ -23,6 +23,11 @@ export default async function EmployeeDashboardPage() {
                     employeeId: currentEmployee.data.id,
                     employeeTaskAssignmentStatusId: {
                         notIn: [2, 3]
+                    },
+                    employeeTask: {
+                        employeeTaskStatusId: {
+                            not: 3 // ditutup
+                        }
                     }
                 }
             })
@@ -32,7 +37,12 @@ export default async function EmployeeDashboardPage() {
     const taskAssignments = await prisma.employeeTaskAssignment.findMany({
         where: {
             employeeId: currentEmployee.data.id,
-            employeeTaskAssignmentStatusId: 1
+            employeeTaskAssignmentStatusId: 1,
+            employeeTask: {
+                employeeTaskStatusId: {
+                    not: 3 // ditutup
+                }
+            }
         },
         select: {
             id: true,
@@ -106,7 +116,7 @@ export default async function EmployeeDashboardPage() {
                                     <div className="flex flex-col">
                                         <AlertTitle>Informasi Laporan Revisi</AlertTitle>
                                         <AlertDescription>Laporan pada tanggal {formatDateTimeWitaString(report.reportDate, false)}. Pekerjaan {report.employeeTaskAssignment.employeeTask.title} Anda direvisi, segera lakukan perbaikan.</AlertDescription>
-                                        <Link href={`/employee/dashboard/task-assignment/${report.employeeTaskAssignment.id}`}>
+                                        <Link href={`/employee/task-assignment/${report.employeeTaskAssignment.id}`}>
                                             <Button
                                                 className="w-fit mt-2"
                                                 size="sm"
@@ -124,7 +134,7 @@ export default async function EmployeeDashboardPage() {
                                     <div className="flex flex-col">
                                         <AlertTitle>Informasi Laporan Disetujui</AlertTitle>
                                         <AlertDescription>Laporan pada tanggal {formatDateTimeWitaString(report.reportDate, false)}. Pekerjaan {report.employeeTaskAssignment.employeeTask.title} Anda telah disetujui.</AlertDescription>
-                                        <Link href={`/employee/dashboard/task-assignment/${report.employeeTaskAssignment.id}`}>
+                                        <Link href={`/employee/task-assignment/${report.employeeTaskAssignment.id}`}>
                                             <Button
                                                 className="w-fit mt-2"
                                                 size="sm"
@@ -142,7 +152,7 @@ export default async function EmployeeDashboardPage() {
                                     <div className="flex flex-col">
                                         <AlertTitle>Informasi Laporan Ditolak</AlertTitle>
                                         <AlertDescription>Laporan pada tanggal {formatDateTimeWitaString(report.reportDate, false)}. Pekerjaan {report.employeeTaskAssignment.employeeTask.title} Anda ditolak, Anda tidak dapat mengerjakan ulang.</AlertDescription>
-                                        <Link href={`/employee/dashboard/task-assignment/${report.employeeTaskAssignment.id}`}>
+                                        <Link href={`/employee/task-assignment/${report.employeeTaskAssignment.id}`}>
                                             <Button
                                                 className="w-fit mt-2"
                                                 size="sm"
@@ -166,7 +176,7 @@ export default async function EmployeeDashboardPage() {
                             <TaskCardDetail
                                 key={index}
                                 task={item.employeeTask}
-                                detailRoute={`/employee/dashboard/task-assignment/${item.id}`}
+                                detailRoute={`/employee/task-assignment/${item.id}`}
                                 taskAssignmentStatus={item.employeeTaskAssignmentStatus} />
                         ))
                         :

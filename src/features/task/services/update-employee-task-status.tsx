@@ -8,26 +8,29 @@ export async function updateEmployeeTaskStatus() {
     // Belum Mulai -> Sedang Berlangsung
     await prisma.employeeTask.updateMany({
         where: {
-            employeeTaskStatusId: 1,
+            employeeTaskStatusId: 1, // belum mulai
             startAt: {
                 lte: now,
             },
+            dueAt: {
+                gte: now,
+            }
         },
         data: {
-            employeeTaskStatusId: 2,
+            employeeTaskStatusId: 2, // sedang berlangsung
         },
     });
 
     // Sedang Berlangsung -> Ditutup
     await prisma.employeeTask.updateMany({
         where: {
-            employeeTaskStatusId: 2,
+            employeeTaskStatusId: 2, // sedang berlangsung
             dueAt: {
                 lt: now,
             },
         },
         data: {
-            employeeTaskStatusId: 3,
+            employeeTaskStatusId: 3, // ditutup
         },
     });
 

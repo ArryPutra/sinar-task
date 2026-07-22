@@ -15,7 +15,7 @@ import { uploadStreamToCloudinary } from '@/lib/cloudinary'
 import { initialActionState } from '@/types/action-state'
 import { formatDateOnly } from '@/utils/date'
 import { generatePdfFromImages } from '@/utils/pdf'
-import { ClipboardCheckIcon, ClipboardXIcon, SaveIcon, SendIcon } from 'lucide-react'
+import { ClipboardCheckIcon, ClipboardXIcon, MessageSquareWarningIcon, SaveIcon, SendIcon } from 'lucide-react'
 import { useActionState, useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { removeDocumentFileUrlAction, submitTaskReportAction } from '../../actions'
@@ -70,7 +70,6 @@ export default function TaskReportSubmissionForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
 
     const formData = new FormData(e.currentTarget);
     const filesDocumentPayload = [];
@@ -186,36 +185,51 @@ export default function TaskReportSubmissionForm({
 
   return (
     <Card>
-      <CardHeader className='border-b flex justify-between flex-wrap items-start gap-6'>
-        <div>
-          <CardTitle>Laporan Harian: {formatDateOnly(selectedDateString)}</CardTitle>
-          <CardDescription>
-            {uploadedRequiredDocumentLength} dari {requiredDocumentLength} dokumen wajib telah diunggah
-          </CardDescription>
-          <Button variant="outline"
-            onClick={downloadReportPdf}
-            disabled={isPendingDownloadReportPdf || !taskReport}
-            size="sm"
-            className='cursor-pointer mt-4'>
-            {taskReport ? <ClipboardCheckIcon className='w-4 h-4 text-green-500' /> : <ClipboardXIcon className='w-4 h-4 text-destructive' />} Download Laporan Final {isPendingDownloadReportPdf && <Spinner />}
-          </Button>
-        </div>
-        <div className='flex flex-col gap-2 items-end max-lg:items-start'>
-          <span className='uppercase text-xs font-medium text-muted-foreground'>
-            Status Laporan Anda
-          </span>
-          {
-            taskReport ?
-              <Badge style={{ backgroundColor: taskReport.employeeTaskReportStatus.colorHex, color: "white" }}>
-                {taskReport.employeeTaskReportStatus.name}
-              </Badge>
-              :
-              <Badge variant='outline'>
-                Belum Dikerjakan
-              </Badge>
-          }
+      <CardHeader className='border-b flex flex-col flex-wrap items-start gap-6'>
+        <div className='w-full flex justify-between flex-wrap gap-6'>
+          <div>
+            <CardTitle>Laporan Harian: {formatDateOnly(selectedDateString)}</CardTitle>
+            <CardDescription>
+              {uploadedRequiredDocumentLength} dari {requiredDocumentLength} dokumen wajib telah diunggah
+            </CardDescription>
+            <Button variant="outline"
+              onClick={downloadReportPdf}
+              disabled={isPendingDownloadReportPdf || !taskReport}
+              size="sm"
+              className='cursor-pointer mt-4'>
+              {taskReport ? <ClipboardCheckIcon className='w-4 h-4 text-green-500' /> : <ClipboardXIcon className='w-4 h-4 text-destructive' />} Download Laporan Final {isPendingDownloadReportPdf && <Spinner />}
+            </Button>
+          </div>
+          <div className='flex flex-col gap-2 items-end max-lg:items-start'>
+            <span className='uppercase text-xs font-medium text-muted-foreground'>
+              Status Laporan Anda
+            </span>
+            {
+              taskReport ?
+                <Badge style={{ backgroundColor: taskReport.employeeTaskReportStatus.colorHex, color: "white" }}>
+                  {taskReport.employeeTaskReportStatus.name}
+                </Badge>
+                :
+                <Badge variant='outline'>
+                  Belum Dikerjakan
+                </Badge>
+            }
+          </div>
         </div>
         {alert}
+        {
+          taskReport?.noteByAdmin &&
+          <Alert className="rounded-lg border bg-muted/40 p-4 w-fit">
+            <div className="flex items-center gap-2">
+              <MessageSquareWarningIcon className="size-4 text-muted-foreground" />
+              <h4 className="text-sm font-medium">Catatan dari {taskReport.admin?.user.name} (Admin)</h4>
+            </div>
+
+            <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
+              {taskReport.noteByAdmin || "Tidak ada catatan dari admin."}
+            </p>
+          </Alert>
+        }
       </CardHeader>
       <form onSubmit={handleSubmit} key={taskReport?.id} className='space-y-4'>
         <CardContent className='space-y-4'>

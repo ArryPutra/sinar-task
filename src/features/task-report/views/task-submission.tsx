@@ -3,26 +3,24 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmployeeProfileCard from "@/features/employee/components/employee-profile-card";
 import ChooseReportStatus from "@/features/task-report/components/choose-report-status";
-import DateReport from "@/features/task-report/components/date";
 import TaskReportSubmissionFormAvailable from "@/features/task-report/components/submission/submission-form-available";
 import { TaskReportSubmissionFormData, taskReportSubmissionFormQuery } from "@/features/task-report/queris";
 import TaskCardDetail from "@/features/task/components/card-detail";
 import { taskCardDetailQuery } from "@/features/task/queris";
 import { APP_BUSINESS_TIMEZONE } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
-import { formatDateTimeBusinessTz } from "@/utils/date";
-import { eachDayOfInterval, format, isAfter, isBefore, isSameDay } from "date-fns";
+import { formatDateForQuery, formatDateTimeBusinessTz } from "@/utils/date";
+import { eachDayOfInterval, isAfter, isBefore, isSameDay, parseISO } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
-import { id } from "date-fns/locale";
-import { CalendarIcon, MessageSquareWarningIcon } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { userAgent } from "next/server";
+import DateReportList from "../components/date-report-list";
 import TaskReportSubmissionFormClosed from "../components/submission/submission-form-closed";
 import TaskReportSubmissionDone from "../components/submission/submission-form-done";
 import TaskReportSubmissionFormPending from "../components/submission/submission-form-pending";
 import TaskReportSubmissionRejected from "../components/submission/submission-form-rejected";
-import { Alert } from "@/components/ui/alert";
 
 export default async function TaskSubmissionView({
   date,
@@ -38,7 +36,7 @@ export default async function TaskSubmissionView({
   const todayString = formatInTimeZone(
     new Date(), // ini awalnya utc (sesuai server)
     APP_BUSINESS_TIMEZONE, "yyyy-MM-dd");// lalu diubah ke asia/makassar
-  const selectedDateString = date ?? todayString;
+  let selectedDateString = date ?? todayString;
 
   // penting agar task assignment ini milik employee yang sedang login
   const taskAssignmentResponse = await prisma.employeeTaskAssignment.findUnique({
@@ -69,6 +67,12 @@ export default async function TaskSubmissionView({
   if (!taskAssignmentResponse) return notFound();
 
   const task = taskAssignmentResponse.employeeTask;
+  // pastikan tanggal yang dipilih masuk rentang waktu kerja
+  if (isAfter(parseISO(selectedDateString), formatDateTimeBusinessTz(task.dueAt))) {
+    redirect(`/employee/task-assignment/${taskAssignmentResponse.id}?date=${formatDateForQuery(task.dueAt, APP_BUSINESS_TIMEZONE)}`);
+  } else if (isBefore(parseISO(selectedDateString), formatDateTimeBusinessTz(task.startAt))) {
+    redirect(`/employee/task-assignment/${taskAssignmentResponse.id}?date=${formatDateForQuery(task.startAt, APP_BUSINESS_TIMEZONE)}`);
+  }
 
   const taskReportsResponse = await prisma.employeeTaskReport.findMany({
     where: {
@@ -116,49 +120,27 @@ export default async function TaskSubmissionView({
 
   const { device } = userAgent({ headers: await headers() });
 
+
+
   return (
     <>
       <h1 className="text-lg font-bold flex items-center gap-3">
         <CalendarIcon className="size-4" /> <span> Daftar Laporan Harian</span>
       </h1>
 
-      <div className="flex flex-wrap gap-3 max-lg:flex-nowrap max-lg:overflow-x-scroll max-lg:-mx-4 max-lg:pl-4">
-        {
-          dates.map((date, index) => {
-            const report = taskReportsResponse.find(report => isSameDay(formatDateTimeBusinessTz(report.reportDate), date));
-
-            return (
-              <DateReport
-                key={index}
-                date={{
-                  name: format(date, "yyyy-MM-dd"),
-                  dayName: format(date, "EEEE", { locale: id }),
-                  dayMonth: format(date, "d MMMM", { locale: id })
-                }}
-                isSelected={isSameDay(date, selectedDateString)}
-                report={{
-                  status: report?.employeeTaskReportStatus.name ?? "Belum Dikerjakan",
-                  icon: report?.employeeTaskReportStatus?.icon ?? "CircleDashed",
-                  colorHex: report?.employeeTaskReportStatus?.colorHex ?? "black",
-                }} />
-            )
-          })
-        }
-      </div>
-
-      {
-        taskReportSelected &&
-        <Alert className="rounded-lg border bg-muted/40 p-4 w-fit">
-          <div className="flex items-center gap-2">
-            <MessageSquareWarningIcon className="size-4 text-muted-foreground" />
-            <h4 className="text-sm font-medium">Catatan dari {taskReportSelected.admin?.user.name} (Admin)</h4>
-          </div>
-
-          <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
-            {taskReportSelected.noteByAdmin || "Tidak ada catatan dari admin."}
-          </p>
-        </Alert>
-      }
+      <DateReportList
+        dates={dates}
+        selectedDateString={selectedDateString}
+        taskReports={
+          taskReportsResponse.map(report => ({
+            reportDate: formatDateTimeBusinessTz(report.reportDate),
+            employeeTaskReportStatus: {
+              name: report.employeeTaskReportStatus.name,
+              icon: report.employeeTaskReportStatus.icon,
+              colorHex: report.employeeTaskReportStatus.colorHex
+            }
+          }))
+        } />
 
       {
         device.type === "mobile" ?

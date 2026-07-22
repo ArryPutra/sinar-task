@@ -44,7 +44,7 @@ export const roleSidebarMenus: { ADMIN: RoleSidebarMenu[]; EMPLOYEE: RoleSidebar
         },
         {
             title: "Riwayat Pekerjaan",
-            url: "/employee/employee-task-history",
+            url: "/employee/task-history",
             icon: HistoryIcon,
             isActive: true,
         },

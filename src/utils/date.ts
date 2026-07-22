@@ -111,3 +111,9 @@ export const toDatabaseDateTime = (inputDate: Date | string, timezone = APP_BUSI
 export const todayDateBusinessTz = () => {
     return format(toZonedTime(new Date(), APP_BUSINESS_TIMEZONE), "yyyy-MM-dd");
 }
+
+export const formatDateForQuery = (date: Date | string | null | undefined, timezone?: string): string => {
+    if (!date) return "-";
+
+    return format(toZonedTime(new Date(date), timezone ?? "UTC"), "yyyy-MM-dd", { locale: id });
+};
