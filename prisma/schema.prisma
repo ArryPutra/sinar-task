@@ -28,11 +28,12 @@ model User {
 
   employee Employee?
 
-  role       String?
-  banned     Boolean?  @default(false)
-  banReason  String?
-  banExpires DateTime?
-  admin      Admin?
+  role                               String?
+  banned                             Boolean?                           @default(false)
+  banReason                          String?
+  banExpires                         DateTime?
+  admin                              Admin?
+  employeeTaskReportStatusActivities EmployeeTaskReportStatusActivity[]
 
   @@map("user")
 }
@@ -174,9 +175,8 @@ model Admin {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user                User                 @relation(fields: [userId], references: [id])
-  employeeTasks       EmployeeTask[]
-  employeeTaskReports EmployeeTaskReport[]
+  user          User           @relation(fields: [userId], references: [id])
+  employeeTasks EmployeeTask[]
 
   @@map("admins")
 }
@@ -207,7 +207,6 @@ model EmployeeTaskAssignmentStatus {
   colorHex String
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   employeeTaskAssignment EmployeeTaskAssignment[]
 
@@ -219,23 +218,41 @@ model EmployeeTaskReport {
 
   employeeTaskAssignmentId   String
   employeeTaskReportStatusId Int
-  adminId                    String?
 
-  reportDate     DateTime
-  noteByEmployee String?
-  noteByAdmin    String?
-  submittedAt    DateTime
+  reportDate  DateTime
+  note        String?
+  submittedAt DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employeeTaskDocuments    EmployeeTaskDocument[]
-  employeeTaskReportStatus EmployeeTaskReportStatus @relation(fields: [employeeTaskReportStatusId], references: [id])
-  employeeTaskAssignment   EmployeeTaskAssignment   @relation(fields: [employeeTaskAssignmentId], references: [id])
-  admin                    Admin?                   @relation(fields: [adminId], references: [id])
+  employeeTaskDocuments              EmployeeTaskDocument[]
+  employeeTaskReportStatus           EmployeeTaskReportStatus           @relation(fields: [employeeTaskReportStatusId], references: [id])
+  employeeTaskAssignment             EmployeeTaskAssignment             @relation(fields: [employeeTaskAssignmentId], references: [id])
+  employeeTaskReportStatusActivities EmployeeTaskReportStatusActivity[]
 
   @@unique([employeeTaskAssignmentId, reportDate])
   @@map("employee_task_reports")
+}
+
+model EmployeeTaskReportStatusActivity {
+  id Int @id @default(autoincrement())
+
+  employeeTaskReportId       Int
+  employeeTaskReportStatusId Int
+  userId                     String
+
+  note String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeTaskReport       EmployeeTaskReport       @relation(fields: [employeeTaskReportId], references: [id])
+  employeeTaskReportStatus EmployeeTaskReportStatus @relation(fields: [employeeTaskReportStatusId], references: [id])
+  user                     User                     @relation(fields: [userId], references: [id])
+
+  @@index([employeeTaskReportId])
+  @@map("employee_task_report_status_activities")
 }
 
 model EmployeeTaskReportStatus {
@@ -248,7 +265,8 @@ model EmployeeTaskReportStatus {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employeeTaskReports EmployeeTaskReport[]
+  employeeTaskReports                EmployeeTaskReport[]
+  employeeTaskReportStatusActivities EmployeeTaskReportStatusActivity[]
 
   @@map("employee_task_report_statuses")
 }

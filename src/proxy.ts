@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { roleDashboardRoutesMap } from "./features/dashboard/config/role-dashboard-routes";
+import { roleDashboardRoutesMap } from "./features/sidebar/config/role-dashboard-routes";
 
 export async function proxy(request: NextRequest) {
     const session = await auth.api.getSession({
@@ -14,6 +14,7 @@ export async function proxy(request: NextRequest) {
     const authRoutes = [
         "/admin/:path*",
         "/employee/:path*",
+        "/print/:path*",
     ];
 
     const roleRouteMap: Record<number, string> = {
@@ -58,5 +59,6 @@ export const config = {
         "/login",
         "/admin/:path*",
         "/employee/:path*",
+        "/print/:path*"
     ],
 };

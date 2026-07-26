@@ -143,6 +143,7 @@ export default function EmployeeTaskForm({
                             id="startAt"
                             name="startAt"
                             type="date"
+                            min={new Date().toISOString().split("T")[0]}
                             defaultValue={formatToDateLocal(fields?.startAt ?? data?.startAt)} />
                         <FieldError>{fieldErrors?.startAt}</FieldError>
                     </Field>
@@ -152,6 +153,7 @@ export default function EmployeeTaskForm({
                             id="dueAt"
                             name="dueAt"
                             type="date"
+                            min={new Date().toISOString().split("T")[0]}
                             defaultValue={formatToDateLocal(fields?.dueAt ?? data?.dueAt)} />
                         <FieldError>{fieldErrors?.dueAt}</FieldError>
                     </Field>

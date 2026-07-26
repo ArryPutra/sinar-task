@@ -1,9 +1,10 @@
 import LeafletMap from "@/components/shared/leaflet-map/leaflet-map";
+import { PrintShortcut } from "@/components/shared/print-shortcut";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EmployeeProfileCard from "@/features/employee/components/employee-profile-card";
 import ChooseReportStatus from "@/features/task-report/components/choose-report-status";
-import TaskReportSubmissionFormAvailable from "@/features/task-report/components/submission/submission-form-available";
+import TaskReportSubmissionFormAvailable from "@/features/task-report/components/submission/available";
 import { TaskReportSubmissionFormData, taskReportSubmissionFormQuery } from "@/features/task-report/queris";
 import TaskCardDetail from "@/features/task/components/card-detail";
 import { taskCardDetailQuery } from "@/features/task/queris";
@@ -17,10 +18,11 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { userAgent } from "next/server";
 import DateReportList from "../components/date-report-list";
-import TaskReportSubmissionFormClosed from "../components/submission/submission-form-closed";
-import TaskReportSubmissionDone from "../components/submission/submission-form-done";
-import TaskReportSubmissionFormPending from "../components/submission/submission-form-pending";
-import TaskReportSubmissionRejected from "../components/submission/submission-form-rejected";
+import LogActivities from "../components/log-activities";
+import TaskReportSubmissionFormClosed from "../components/submission/closed";
+import TaskReportSubmissionDone from "../components/submission/done";
+import TaskReportSubmissionFormPending from "../components/submission/pending";
+import TaskReportSubmissionRejected from "../components/submission/rejected";
 
 export default async function TaskSubmissionView({
   date,
@@ -69,9 +71,9 @@ export default async function TaskSubmissionView({
   const task = taskAssignmentResponse.employeeTask;
   // pastikan tanggal yang dipilih masuk rentang waktu kerja
   if (isAfter(parseISO(selectedDateString), formatDateTimeBusinessTz(task.dueAt))) {
-    redirect(`/employee/task-assignment/${taskAssignmentResponse.id}?date=${formatDateForQuery(task.dueAt, APP_BUSINESS_TIMEZONE)}`);
+    redirect(`/${isAdmin ? "admin" : "employee"}/dashboard/task-assignment/${taskAssignmentResponse.id}?date=${formatDateForQuery(task.dueAt, APP_BUSINESS_TIMEZONE)}`);
   } else if (isBefore(parseISO(selectedDateString), formatDateTimeBusinessTz(task.startAt))) {
-    redirect(`/employee/task-assignment/${taskAssignmentResponse.id}?date=${formatDateForQuery(task.startAt, APP_BUSINESS_TIMEZONE)}`);
+    redirect(`/${isAdmin ? "admin" : "employee"}/dashboard/task-assignment/${taskAssignmentResponse.id}?date=${formatDateForQuery(task.startAt, APP_BUSINESS_TIMEZONE)}`);
   }
 
   const taskReportsResponse = await prisma.employeeTaskReport.findMany({
@@ -121,7 +123,6 @@ export default async function TaskSubmissionView({
   const { device } = userAgent({ headers: await headers() });
 
 
-
   return (
     <>
       <h1 className="text-lg font-bold flex items-center gap-3">
@@ -161,7 +162,6 @@ export default async function TaskSubmissionView({
                   selectedTaskReport: taskReportSelected ? {
                     id: taskReportSelected.id,
                     employeeTaskReportStatusId: taskReportSelected.employeeTaskReportStatus.id,
-                    noteByAdmin: taskReportSelected.noteByAdmin
                   } : null
                 }} />
             </TabsContent>
@@ -185,7 +185,6 @@ export default async function TaskSubmissionView({
                   selectedTaskReport: taskReportSelected ? {
                     id: taskReportSelected.id,
                     employeeTaskReportStatusId: taskReportSelected.employeeTaskReportStatus.id,
-                    noteByAdmin: taskReportSelected.noteByAdmin
                   } : null
                 }} />
               <RightSection
@@ -217,13 +216,20 @@ async function LeftSection({
     selectedTaskReport: {
       id: number,
       employeeTaskReportStatusId: number,
-      noteByAdmin: string | null
     } | null
-  }
+  },
 }) {
 
   const taskReportStatusesResponse = isAdmin
-    ? await prisma.employeeTaskReportStatus.findMany()
+    ? await prisma.employeeTaskReportStatus.findMany({
+      where: {
+        NOT: {
+          id: {
+            in: [1, 2]
+          }
+        }
+      }
+    })
     : [];
 
   const employeeResponse = isAdmin ? await prisma.employeeTaskAssignment.findUnique({
@@ -270,12 +276,13 @@ async function LeftSection({
     submission = (
       <TaskReportSubmissionFormClosed
         selectedDateString={selectedDateString}
+        taskReportId={taskReportSelected?.id ?? null}
       />
     );
   } else {
     switch (reportStatusId) {
       case 4:
-        submission = <TaskReportSubmissionDone />;
+        submission = <TaskReportSubmissionDone taskReportId={taskReportSelected?.id ?? null} />;
         break;
 
       case 5:
@@ -297,11 +304,17 @@ async function LeftSection({
 
   return (
     <div className="flex flex-col gap-6">
+      {
+        taskReportSelected &&
+        <PrintShortcut
+          route={`/print/task-report/${taskReportSelected?.id}`} />
+      }
+
       {isAdmin && (
         <div className="grid grid-cols-2 gap-6 max-xl:grid-cols-1">
           <ChooseReportStatus
             taskReportStatuses={taskReportStatusesResponse}
-            selectedTaskReport={adminData.selectedTaskReport}
+            taskReportId={taskReportSelected?.id || null}
           />
 
           <EmployeeProfileCard
@@ -319,6 +332,12 @@ async function LeftSection({
       )}
 
       {submission}
+
+      {
+        <LogActivities
+          employeeTaskReportStatusActivities={taskReportSelected?.employeeTaskReportStatusActivities ?? []} />
+
+      }
     </div>
   );
 }

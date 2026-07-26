@@ -1,6 +1,6 @@
 "use server"
 
-import { roleDashboardRoutesMap } from "@/features/dashboard/config/role-dashboard-routes";
+import { roleDashboardRoutesMap } from "@/features/sidebar/config/role-dashboard-routes";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";

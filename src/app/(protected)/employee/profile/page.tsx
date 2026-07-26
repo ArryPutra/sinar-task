@@ -3,12 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import {
+    Briefcase,
     Calendar,
     FileText,
     Mail,
     Phone,
     User,
-    Briefcase,
 } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -18,19 +18,21 @@ export default async function EmployeeProfilePage() {
 
     const employee = currentEmployee.data;
 
-    const taskTotal = await prisma.employeeTaskAssignment.count({
-        where: {
-            employeeId: employee.id,
-        },
-    });
-
-    const taskReportTotal = await prisma.employeeTaskReport.count({
-        where: {
-            employeeTaskAssignment: {
-                employeeId: employee?.id,
-            },
-        },
-    });
+    const [taskTotal, taskReportTotal] =
+        await Promise.all([
+            prisma.employeeTaskAssignment.count({
+                where: {
+                    employeeId: employee.id,
+                },
+            }),
+            prisma.employeeTaskReport.count({
+                where: {
+                    employeeTaskAssignment: {
+                        employeeId: employee?.id,
+                    },
+                },
+            })
+        ]);
 
     return (
         <div className="space-y-6">

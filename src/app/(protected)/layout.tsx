@@ -1,6 +1,6 @@
 import { getCurrentUserAction } from "@/features/auth/actions";
-import { HeaderProvider } from "@/features/dashboard/header-context";
-import DashboardView from "@/features/dashboard/view";
+import { HeaderProvider } from "@/features/sidebar/header-context";
+import DashboardView from "@/features/sidebar/view";
 
 export default async function AdminLayout({
     children

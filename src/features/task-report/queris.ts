@@ -3,8 +3,7 @@ import { Prisma } from "@/generated/prisma/client";
 export const taskReportSubmissionFormQuery = {
     select: {
         id: true,
-        noteByEmployee: true,
-        noteByAdmin: true,
+        note: true,
         submittedAt: true,
         reportDate: true,
         updatedAt: true,
@@ -14,11 +13,21 @@ export const taskReportSubmissionFormQuery = {
                 updatedAt: true
             }
         },
-        admin: {
+        employeeTaskReportStatusActivities: {
             select: {
+                id: true,
+                note: true,
                 user: {
                     select: {
-                        name: true
+                        name: true,
+                    }
+                },
+                createdAt: true,
+                employeeTaskReportStatus: {
+                    select: {
+                        name: true,
+                        icon: true,
+                        colorHex: true
                     }
                 }
             }

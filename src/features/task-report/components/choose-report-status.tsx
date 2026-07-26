@@ -2,30 +2,28 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { EmployeeTaskReport, EmployeeTaskReportStatus } from "@/generated/prisma/client";
-import { initialActionState } from "@/types/action-state";
+import { createReportStatusActivityAction } from "@/features/task-report-status-activity/actions";
+import { EmployeeTaskReportStatus } from "@/generated/prisma/client";
+import { ActionState, initialActionState } from "@/types/action-state";
 import { ClockIcon } from "lucide-react";
 import { useActionState, useEffect, useState } from "react"; // 👈 Tambah useState
 import { toast } from "sonner";
-import { updateReportStatusAction } from "../actions";
-
-type SelectedReport = Pick<EmployeeTaskReport, 'id' | 'employeeTaskReportStatusId' | 'noteByAdmin'>;
 
 export default function ChooseReportStatus({
     taskReportStatuses,
-    selectedTaskReport,
+    taskReportId
 }: {
     taskReportStatuses: EmployeeTaskReportStatus[];
-    selectedTaskReport: SelectedReport | null;
+    taskReportId: number | null
 }) {
 
     const [state, formAction, isPending] = useActionState(
-        updateReportStatusAction,
+        createReportStatusActivityAction,
         initialActionState
     );
 
@@ -37,16 +35,16 @@ export default function ChooseReportStatus({
         }
     }, [state]);
 
-
     return (
         <Card>
             {
-                selectedTaskReport ?
+                taskReportId ?
                     <ChooseReportStatusAvailable
+                        state={state}
                         formAction={formAction}
                         isPending={isPending}
-                        selectedTaskReport={selectedTaskReport}
-                        taskReportStatuses={taskReportStatuses} />
+                        taskReportStatuses={taskReportStatuses}
+                        taskReportId={taskReportId} />
                     :
                     <ChooseReportStatusPending />
             }
@@ -55,50 +53,49 @@ export default function ChooseReportStatus({
 }
 
 function ChooseReportStatusAvailable({
+    state,
     formAction,
     isPending,
     taskReportStatuses,
-    selectedTaskReport
+    taskReportId
 }: {
+    state: ActionState,
     formAction: (payload: FormData) => void,
     isPending: boolean,
     taskReportStatuses: EmployeeTaskReportStatus[],
-    selectedTaskReport: SelectedReport
+    taskReportId: number
 }) {
-    const [statusId, setStatusId] = useState<string>(
-        selectedTaskReport.employeeTaskReportStatusId.toString()
-    );
+    const [selectedStatus, setSelectedStatus] = useState("");
 
     useEffect(() => {
-        if (selectedTaskReport.employeeTaskReportStatusId) {
-            setStatusId(selectedTaskReport.employeeTaskReportStatusId.toString());
-        } else {
-            setStatusId("");
+        console.log(true)
+        if (state.success) {
+            setSelectedStatus("");
         }
-    }, [selectedTaskReport.employeeTaskReportStatusId]);
+    }, [state.success]);
 
     return (
         <>
             <CardHeader className="border-b">
                 <CardTitle className="font-semibold flex items-center gap-2">
                     <ClockIcon className="size-4 text-muted-foreground" />
-                    <span>Status Laporan {selectedTaskReport.employeeTaskReportStatusId.toString()}</span>
+                    <span>Buat Status Laporan</span>
                 </CardTitle>
             </CardHeader>
             <form action={formAction} className="space-y-6">
                 <CardContent>
                     <Input
                         name="taskReportId"
-                        type="hidden"
-                        value={selectedTaskReport.id} />
+                        value={taskReportId.toString()}
+                        type="hidden" />
 
                     {/* 3. Gunakan value dan onValueChange secara penuh */}
                     <Field>
                         <FieldLabel>Status Laporan</FieldLabel>
                         <Select
                             name="taskReportStatusId"
-                            value={statusId}
-                            onValueChange={setStatusId}>
+                            value={selectedStatus}
+                            onValueChange={setSelectedStatus}>
                             <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Pilih Status Laporan" />
                             </SelectTrigger>
@@ -106,24 +103,22 @@ function ChooseReportStatusAvailable({
                                 <SelectGroup>
                                     <SelectLabel>Daftar Status Laporan</SelectLabel>
                                     {taskReportStatuses.map((item) => (
-                                        <SelectItem 
-                                        key={item.id.toString()} 
-                                        value={item.id.toString()} 
-                                        disabled={(item.id === 1) || (item.id === 2)}>
+                                        <SelectItem
+                                            key={item.id.toString()}
+                                            value={item.id.toString()}>
                                             {item.name}
                                         </SelectItem>
                                     ))}
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
+                        <FieldError>{state.fieldErrors?.taskReportStatusId?.at(0)}</FieldError>
                     </Field>
 
                     <Field className="mt-4">
                         <FieldLabel>Catatan</FieldLabel>
                         <Textarea
-                            name="noteByAdmin"
-                            key={selectedTaskReport.id}
-                            defaultValue={selectedTaskReport.noteByAdmin ?? ""}
+                            name="note"
                             placeholder="Ketik catatan untuk karyawan..." />
                     </Field>
                 </CardContent>
@@ -131,7 +126,7 @@ function ChooseReportStatusAvailable({
                     <Button
                         className="w-full"
                         disabled={isPending}>
-                        Perbarui Status {isPending && <Spinner />}
+                        Buat Status Laporan {isPending && <Spinner />}
                     </Button>
                 </CardFooter>
             </form>

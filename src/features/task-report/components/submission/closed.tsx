@@ -2,13 +2,16 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDateOnly } from "@/utils/date";
 import { LockIcon } from "lucide-react";
+import PrintPdfButton from "../print-pdf-button";
 
 export default function TaskReportSubmissionFormClosed({
   selectedDateString,
+  taskReportId
 }: {
   selectedDateString: string;
+  taskReportId: number | null
 }) {
-  
+
   return (
     <Card className="h-fit">
       <CardHeader className="border-b flex justify-between flex-wrap items-center gap-6">
@@ -53,6 +56,9 @@ export default function TaskReportSubmissionFormClosed({
             mendapatkan bantuan.
           </p>
         </div>
+
+        <PrintPdfButton
+          taskReportId={taskReportId} />
       </CardContent>
     </Card>
   );

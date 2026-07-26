@@ -17,7 +17,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { RoleSidebarMenu, roleSidebarMenus } from "@/features/dashboard/config/role-sidebar-menus"
+import { RoleSidebarMenu, roleSidebarMenus } from "@/features/sidebar/config/role-sidebar-menus"
 import { usePathname } from "next/navigation"
 import { NavHeader } from "./components/nav-header"
 import { NavMenu } from "./components/nav-menu"

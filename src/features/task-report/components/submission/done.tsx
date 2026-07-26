@@ -1,9 +1,13 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CircleCheckBigIcon, DownloadIcon } from "lucide-react";
+import { CircleCheckBigIcon } from "lucide-react";
+import PrintPdfButton from "../print-pdf-button";
 
-export default function TaskReportSubmissionDone() {
+export default function TaskReportSubmissionDone({
+  taskReportId
+}: {
+  taskReportId: number | null
+}) {
   return (
     <Card className="h-fit">
       <CardHeader className="border-b flex justify-between flex-wrap items-center gap-6">
@@ -49,10 +53,8 @@ export default function TaskReportSubmissionDone() {
           </div>
         </div>
 
-        <Button className="mt-8" variant="outline">
-          <DownloadIcon />
-          Download Laporan
-        </Button>
+        <PrintPdfButton
+          taskReportId={taskReportId} />
       </CardContent>
     </Card>
   );

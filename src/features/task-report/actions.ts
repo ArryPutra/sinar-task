@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { ActionState } from "@/types/action-state";
 import { formatDateOnly, toDatabaseDateTime } from "@/utils/date";
 import { revalidatePath } from "next/cache";
-import { getCurrentAdmin } from "../auth/actions";
 
 export async function submitTaskReportAction(
     taskAssignmentId: string,
@@ -13,11 +12,16 @@ export async function submitTaskReportAction(
     formData: FormData
 ): Promise<ActionState> {
     const uploadedFilesString = JSON.parse(formData.get("uploadedFilesData") as string);
+    const reportNote = formData.get("reportNote") as string;
+    const activityNote = formData.get("activityNote") as string;
+
+    console.log(reportNote);
+    console.log(activityNote);
 
     try {
         await prisma.$transaction(async (tx) => {
             // upsert laporan pekerjaan
-            const taskReport = await prisma.employeeTaskReport.upsert({
+            const taskReport = await tx.employeeTaskReport.upsert({
                 where: {
                     employeeTaskAssignmentId_reportDate: {
                         employeeTaskAssignmentId: taskAssignmentId,
@@ -31,14 +35,31 @@ export async function submitTaskReportAction(
                     reportDate: toDatabaseDateTime(
                         selectedDate,
                     ),
-                    noteByEmployee: formData.get("note") as string,
+                    note: reportNote.trim(),
                     employeeTaskReportStatusId: 1,
                     submittedAt: new Date(),
                 },
                 update: {
-                    noteByEmployee: formData.get("note") as string,
+                    note: reportNote.trim(),
                     submittedAt: new Date(),
                 },
+                select: {
+                    id: true,
+                    employeeTaskReportStatusId: true,
+                    employeeTaskAssignment: {
+                        select: {
+                            employee: {
+                                select: {
+                                    user: {
+                                        select: {
+                                            id: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             });
 
             // jika filesDocument tidak kosong
@@ -79,33 +100,50 @@ export async function submitTaskReportAction(
                 }
             }
 
-            // cek apakah semua dokumen wajib sudah diupload
-            const totalRequiredCategories = await tx.employeeTaskDocumentCategory.count({
-                where: { isRequired: true }
-            });
-            const uploadedRequiredDocuments = await tx.employeeTaskDocument.count({
-                where: {
-                    employeeTaskReportId: taskReport.id,
-                    employeeTaskDocumentCategory: {
-                        isRequired: true
-                    },
-                    NOT: {
-                        fileUrls: {
-                            isEmpty: true
+            // mencegah update laporan jadi ditinjau jika terjadi report disetujui oleh admin
+            if (taskReport.employeeTaskReportStatusId !== 4) {
+                // cek apakah semua dokumen wajib sudah diupload
+                const totalRequiredCategories = await tx.employeeTaskDocumentCategory.count({
+                    where: { isRequired: true }
+                });
+                const uploadedRequiredDocuments = await tx.employeeTaskDocument.count({
+                    where: {
+                        employeeTaskReportId: taskReport.id,
+                        employeeTaskDocumentCategory: {
+                            isRequired: true
+                        },
+                        NOT: {
+                            fileUrls: {
+                                isEmpty: true
+                            }
                         }
                     }
+                });
+                const hasAllDocumentComplete = (totalRequiredCategories === uploadedRequiredDocuments);
+                // jika semua dokumen wajib sudah diisi
+                const updatedTaskReport = await tx.employeeTaskReport.update({
+                    where: {
+                        id: taskReport.id
+                    },
+                    data: {
+                        employeeTaskReportStatusId: hasAllDocumentComplete ? 2 : 1
+                    },
+                    select: {
+                        employeeTaskReportStatusId: true
+                    }
+                });
+
+                if (updatedTaskReport.employeeTaskReportStatusId !== 1) {
+                    await tx.employeeTaskReportStatusActivity.create({
+                        data: {
+                            employeeTaskReportId: taskReport.id,
+                            employeeTaskReportStatusId: updatedTaskReport.employeeTaskReportStatusId,
+                            note: activityNote.trim(),
+                            userId: taskReport.employeeTaskAssignment.employee.user.id
+                        }
+                    });
                 }
-            });
-            const hasAllDocumentComplete = (totalRequiredCategories === uploadedRequiredDocuments);
-            // jika semua dokumen wajib sudah diisi
-            await tx.employeeTaskReport.update({
-                where: {
-                    id: taskReport.id
-                },
-                data: {
-                    employeeTaskReportStatusId: hasAllDocumentComplete ? 2 : 1
-                }
-            });
+            }
         });
 
         revalidatePath('/employee/dashboard/${employeeTaskSlug}', 'page');
@@ -169,48 +207,4 @@ export async function removeDocumentFileUrlAction(
     });
 
     revalidatePath("/employee/dashboard/[employeeTaskSlug]", "page");
-}
-
-export async function updateReportStatusAction(
-    prevState: ActionState,
-    formData: FormData
-): Promise<ActionState> {
-    const taskReportId = Number(formData.get("taskReportId"));
-    const taskReportStatusId = Number(formData.get("taskReportStatusId"));
-    const noteByAdmin = formData.get("noteByAdmin") as string;
-
-    const adminResponse = await getCurrentAdmin();
-    if (!adminResponse.data) {
-        throw new Error("Data admin tidak ditemukan");
-    }
-
-    try {
-        await prisma.employeeTaskReport.update({
-            where: {
-                id: taskReportId
-            },
-            data: {
-                ...(taskReportStatusId && {
-                    employeeTaskReportStatusId: taskReportStatusId
-                }),
-                noteByAdmin: noteByAdmin.trim(),
-                adminId: adminResponse.data.id
-            }
-        });
-
-        revalidatePath(`/admin/employee-tasks/${taskReportId}`);
-
-        return {
-            success: true,
-            message: "Status laporan berhasil diperbarui!"
-        }
-    } catch (error) {
-        console.error(error);
-
-        return {
-
-            success: false,
-            message: "Terjadi kesalahan saat memperbarui status laporan."
-        }
-    }
 }
