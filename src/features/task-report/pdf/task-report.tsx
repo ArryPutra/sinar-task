@@ -184,7 +184,7 @@ export default function TaskReportPdf({
             <div className="flex flex-col items-center w-48 relative">
               <span className="mb-20">Dibuat oleh,</span>
               {/* Stamp Mockup */}
-              <div className="absolute top-8 text-green-600 border-2 border-green-600 rounded-md px-4 py-1 -rotate-12 font-bold tracking-widest text-lg">
+              <div className="absolute top-10 text-green-600/75 border-2 border-green-600/75 rounded-md px-4 py-1 font-bold tracking-widest text-lg">
                 APPROVED
               </div>
               <span className="font-bold border-b border-black w-full text-center pb-1">
