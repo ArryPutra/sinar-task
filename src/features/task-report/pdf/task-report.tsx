@@ -12,6 +12,7 @@ interface TaskReportPdfProps {
   lokasiPekerjaan: string;
   namaPelapor: string;
   picPekerjaan: string;
+  isApproved: boolean;
   daftarDokumen: {
     name: string;
     employeeTaskDocument: {
@@ -26,6 +27,7 @@ export default function TaskReportPdf({
   lokasiPekerjaan,
   namaPelapor,
   picPekerjaan,
+  isApproved,
   daftarDokumen
 }: TaskReportPdfProps) {
   const [mount, setMount] = useState(false);
@@ -91,9 +93,9 @@ export default function TaskReportPdf({
       <div className="min-h-screen items-center flex-col bg-gray-200 py-8 print:py-0 print:bg-white flex justify-center font-sans text-black">
 
         <div className="w-[210mm] border">
-          <Button 
-          className="print:hidden w-fit mb-6"
-          onClick={() => window.print()}>
+          <Button
+            className="print:hidden w-fit mb-6"
+            onClick={() => window.print()}>
             <PrinterIcon /> Cetak Laporan
           </Button>
         </div>
@@ -184,9 +186,12 @@ export default function TaskReportPdf({
             <div className="flex flex-col items-center w-48 relative">
               <span className="mb-20">Dibuat oleh,</span>
               {/* Stamp Mockup */}
-              <div className="absolute top-10 text-green-600/75 border-2 border-green-600/75 rounded-md px-4 py-1 font-bold tracking-widest text-lg">
-                APPROVED
-              </div>
+              {
+                isApproved &&
+                <div className="absolute top-10 text-green-600/75 border-2 border-green-600/75 rounded-md px-4 py-1 font-bold tracking-widest text-lg">
+                  APPROVED
+                </div>
+              }
               <span className="font-bold border-b border-black w-full text-center pb-1">
                 {namaPelapor}
               </span>

@@ -18,6 +18,7 @@ export default async function TaskReportPrint({
         },
         select: {
             id: true,
+            employeeTaskReportStatusId: true,
             updatedAt: true,
             employeeTaskAssignment: {
                 select: {
@@ -83,6 +84,7 @@ export default async function TaskReportPrint({
             lokasiPekerjaan={task.locationName}
             namaPelapor={employee.user.name ?? "-"}
             picPekerjaan={taskReportData.employeeTaskAssignment.employeeTask.admin.user.name ?? "-"}
+            isApproved={taskReportData.employeeTaskReportStatusId === 4}
             daftarDokumen={taskDocuments} />
     )
 }

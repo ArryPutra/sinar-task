@@ -261,6 +261,7 @@ model EmployeeTaskReportStatus {
   name     String
   colorHex String
   icon     String
+  sortOrder Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

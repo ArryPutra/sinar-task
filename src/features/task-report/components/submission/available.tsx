@@ -3,7 +3,6 @@
 import { AttachmentList } from '@/components/shared/attachment-list'
 import { DateTimeText } from '@/components/shared/date-time-text'
 import { ImageUpload } from '@/components/shared/image-upload'
-import { PrintShortcut } from '@/components/shared/print-shortcut'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -285,7 +284,8 @@ export default function TaskReportSubmissionForm({
                 open={isSubmitDialogOpen}
                 onOpenChange={setIsSubmitDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button>
+                  <Button
+                    disabled={!isAllRequiredDocumentFilled}>
                     <SendIcon />
                     Kumpulkan Laporan ({uploadedRequiredDocumentLength}/
                     {requiredDocumentLength})
