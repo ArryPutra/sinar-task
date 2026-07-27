@@ -19,29 +19,50 @@ export async function loginAction(
     if (!validatedFields.success) {
         return {
             success: false,
-            messagge: "Email atau password tidak valid secara format.",
-        }
+            message: "Email atau password tidak valid secara format.",
+        };
     }
 
-    let session = null;
+    const token = formData.get("cf-turnstile-response") as string;
 
+    if (!token) {
+        return {
+            success: false,
+            message: "Silakan selesaikan verifikasi keamanan.",
+        };
+    }
+
+    const nextHeaders = await headers();
+
+    const ip =
+        nextHeaders.get("cf-connecting-ip") ??
+        nextHeaders.get("x-forwarded-for")?.split(",")[0].trim();
+
+    const isVerified = await verifyTurnstile(token, ip);
+
+    if (!isVerified) {
+        return {
+            success: false,
+            message: "Verifikasi keamanan gagal.",
+        };
+    }
+
+    let session;
     try {
-        const nextHeaders = await headers();
-
         session = await auth.api.signInEmail({
             body: {
                 email: validatedFields.data.email,
-                password: validatedFields.data.password
+                password: validatedFields.data.password,
             },
-            headers: nextHeaders
+            headers: nextHeaders,
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error(error);
 
         return {
             success: false,
-            message: "Email atau password salah."
-        }
+            message: "Email atau password salah.",
+        };
     }
 
     return redirect(roleDashboardRoutesMap[session.user.userRoleId!]);
@@ -118,4 +139,38 @@ export async function getCurrentAdmin() {
             data: null
         };
     }
+}
+
+export async function verifyTurnstile(
+    token: string,
+    remoteip?: string
+): Promise<boolean> {
+    const formData = new FormData();
+
+    formData.append("secret", process.env.TURNSTILE_SECRET_KEY!);
+    formData.append("response", token);
+
+    if (remoteip) {
+        formData.append("remoteip", remoteip);
+    }
+
+    const response = await fetch(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        {
+            method: "POST",
+            body: formData,
+            cache: "no-store",
+        }
+    );
+
+    const result: {
+        success: boolean;
+        "error-codes"?: string[];
+    } = await response.json();
+
+    if (!result.success) {
+        console.error("Turnstile:", result["error-codes"]);
+    }
+
+    return result.success;
 }

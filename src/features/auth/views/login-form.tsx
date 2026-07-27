@@ -9,11 +9,22 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import GoogleLoginButton from "@/features/auth/components/google-login-button";
 import { InfoIcon } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { Turnstile } from "react-turnstile";
 import { loginAction } from "../actions";
 
 export default function LoginForm() {
     const [state, formAction, isPending] = useActionState(loginAction, null);
+
+    const [turnstileKey, setTurnstileKey] = useState(0);
+    const [token, setToken] = useState("");
+
+    useEffect(() => {
+        if (state?.success === false) {
+            setToken("");
+            setTurnstileKey((prev) => prev + 1);
+        }
+    }, [state]);
 
     return (
         <div className="grid min-h-svh lg:grid-cols-2">
@@ -59,6 +70,12 @@ export default function LoginForm() {
                                 defaultValue="password123"
                             />
                         </Field>
+                        <Turnstile
+                            key={turnstileKey}
+                            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                            onVerify={(token) => setToken(token)}
+                            size="flexible"
+                        />
                         <Field>
                             <Button type="submit" className="w-full" disabled={isPending}>
                                 Login {isPending && <Spinner />}
