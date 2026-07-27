@@ -58,27 +58,32 @@ async function main() {
         name: "Draft",
         colorHex: "#6B7280",
         icon: "FilePenLine",
+        sortOrder: 3
       }, // Laporan masih disimpan sebagai draf dan belum dikirim.
       {
         name: "Menunggu Peninjauan",
         colorHex: "#F59E0B",
         icon: "Clock3",
+        sortOrder: 1
       }, // Laporan telah dikirim dan sedang menunggu diperiksa oleh atasan.
       {
         name: "Perlu Revisi",
         colorHex: "#F97316",
         icon: "RotateCcw",
+        sortOrder: 2
       }, // Laporan perlu diperbaiki sesuai catatan dari peninjau.
       {
         name: "Disetujui",
         colorHex: "#22C55E",
         icon: "CircleCheckBig",
+        sortOrder: 4
       }, // Laporan telah diperiksa dan diterima.
 
       {
         name: "Ditolak",
         colorHex: "#EF4444",
         icon: "CircleX",
+        sortOrder: 5
       }, // Laporan ditolak dan tidak dapat diterima.
     ],
   });
