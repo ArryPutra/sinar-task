@@ -12,7 +12,7 @@ interface TaskReportPdfProps {
   lokasiPekerjaan: string;
   namaPelapor: string;
   picPekerjaan: string;
-  isApproved: boolean;
+  taskReportStatusId: number;
   daftarDokumen: {
     name: string;
     employeeTaskDocument: {
@@ -27,7 +27,7 @@ export default function TaskReportPdf({
   lokasiPekerjaan,
   namaPelapor,
   picPekerjaan,
-  isApproved,
+  taskReportStatusId,
   daftarDokumen
 }: TaskReportPdfProps) {
   const [mount, setMount] = useState(false);
@@ -187,8 +187,8 @@ export default function TaskReportPdf({
               <span className="mb-20">Dibuat oleh,</span>
               {/* Stamp Mockup */}
               {
-                isApproved &&
-                <div className="absolute top-10 text-green-600/75 border-2 border-green-600/75 rounded-md px-4 py-1 font-bold tracking-widest text-lg">
+                (taskReportStatusId === 4 || taskReportStatusId === 2) &&
+                <div className="absolute top-10 text-green-600/50 border-2 border-green-600/50 rounded-md px-4 py-1 font-bold tracking-widest text-lg">
                   APPROVED
                 </div>
               }
@@ -201,6 +201,13 @@ export default function TaskReportPdf({
             {/* Disetujui Oleh */}
             <div className="flex flex-col items-center w-48 relative">
               <span className="mb-20">Disetujui Oleh,</span>
+              {/* Stamp Mockup */}
+              {
+                taskReportStatusId === 4 &&
+                <div className="absolute top-10 text-green-600/50 border-2 border-green-600/50 rounded-md px-4 py-1 font-bold tracking-widest text-lg">
+                  APPROVED
+                </div>
+              }
               <span className="font-bold border-b border-black w-full text-center pb-1">
                 {picPekerjaan}
               </span>

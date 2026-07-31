@@ -84,7 +84,7 @@ export default async function TaskReportPrint({
             lokasiPekerjaan={task.locationName}
             namaPelapor={employee.user.name ?? "-"}
             picPekerjaan={taskReportData.employeeTaskAssignment.employeeTask.admin.user.name ?? "-"}
-            isApproved={taskReportData.employeeTaskReportStatusId === 4}
+            taskReportStatusId={taskReportData.employeeTaskReportStatusId}
             daftarDokumen={taskDocuments} />
     )
 }
