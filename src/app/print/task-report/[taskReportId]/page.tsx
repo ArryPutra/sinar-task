@@ -71,12 +71,11 @@ export default async function TaskReportPrint({
     });
 
     const currentEmployee = await getCurrentEmployee();
-    console.log(currentEmployee)
     if (currentEmployee.data?.id) {
         // jika laporan bukan milik employee maka tidak bisa diakses
         if (currentEmployee.data?.id !== taskReportData.employeeTaskAssignment.employeeId) return notFound();
     }
-
+console.log(taskDocuments)
     return (
         <TaskReportPdf
             judulPekerjaan={task.title}

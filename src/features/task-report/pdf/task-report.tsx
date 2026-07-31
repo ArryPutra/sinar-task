@@ -152,7 +152,6 @@ export default function TaskReportPdf({
             {daftarDokumen.map((dokumen, index) => {
               // Kumpulkan semua URL gambar untuk dokumen ini
               const urls = dokumen.employeeTaskDocument.flatMap(d => d.fileUrls);
-              if (urls.length === 0) return null;
 
               return (
                 <div key={index} className={cn("mb-8", index === 0 && "mt-12")}>
@@ -163,7 +162,7 @@ export default function TaskReportPdf({
 
                   {/* Render setiap gambar */}
                   <div className="space-y-4">
-                    {urls.map((url, idx) => (
+                    {urls.length > 0 && urls.map((url, idx) => (
                       <img
                         key={idx}
                         src={url}
@@ -171,8 +170,11 @@ export default function TaskReportPdf({
                         // max-h-[200mm] mencegah 1 gambar melebihi tinggi kertas A4
                         // print:break-inside-avoid mencegah gambar terbelah 2 di antar halaman
                         className="w-fit max-h-110 object-contain border p-1 rounded-sm bg-gray-50 print:bg-transparent print:break-inside-avoid"
-                      />
-                    ))}
+                      />))}
+                    {
+                      urls.length === 0 &&
+                      <h1 className="text-sm text-muted-foreground italic">Tidak ada gambar.</h1>
+                    }
                   </div>
                 </div>
               )

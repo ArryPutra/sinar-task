@@ -51,7 +51,7 @@ export default async function EmployeeTaskHistoryPage() {
                                 </Badge>
                             </TableCell>
                             <TableCell>
-                                <Link href={`/employee/task-assignment/${item.id}`}>
+                                <Link href={`/employee/dashboard/task-assignment/${item.id}`}>
                                     <Button size="sm">
                                         Lihat <ArrowRightIcon />
                                     </Button>
